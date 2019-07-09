@@ -72,18 +72,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\include;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN32\include;M:\Projects\ComputeRayTracing\ThirdParty\glm;M:\Projects\ComputeRayTracing\ThirdParty\OBJ-Loader\Source;$(IncludePath)</IncludePath>
     <LibraryPath>M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\lib\Release\Win32;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN32\lib-vc2017;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)\Build\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\include;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN32\include;M:\Projects\ComputeRayTracing\ThirdParty\glm;M:\Projects\ComputeRayTracing\ThirdParty\OBJ-Loader\Source;$(IncludePath)</IncludePath>
     <LibraryPath>M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\lib\Release\Win32;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN32\lib-vc2017;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)\Build\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\include;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN64\include;M:\Projects\ComputeRayTracing\ThirdParty\glm;M:\Projects\ComputeRayTracing\ThirdParty\OBJ-Loader\Source;$(IncludePath)</IncludePath>
     <LibraryPath>M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\lib\Release\x64;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN64\lib-vc2017;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)\Build\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\include;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN64\include;M:\Projects\ComputeRayTracing\ThirdParty\glm;M:\Projects\ComputeRayTracing\ThirdParty\OBJ-Loader\Source;$(IncludePath)</IncludePath>
     <LibraryPath>M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\lib\Release\x64;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN64\lib-vc2017;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)\Build\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -96,7 +100,8 @@
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(ProjectDir)Resources" "$(TargetDir)Resources" /e /y /i /r /d</Command>
+      <Command>xcopy "$(ProjectDir)Resources" "$(TargetDir)Resources" /e /y /i /r /d
+xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -110,7 +115,8 @@
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(ProjectDir)Resources" "$(TargetDir)Resources" /e /y /i /r /d</Command>
+      <Command>xcopy "$(ProjectDir)Resources" "$(TargetDir)Resources" /e /y /i /r /d
+xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -128,7 +134,8 @@
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(ProjectDir)Resources" "$(TargetDir)Resources" /e /y /i /r /d</Command>
+      <Command>xcopy "$(ProjectDir)Resources" "$(TargetDir)Resources" /e /y /i /r /d
+xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -146,7 +153,8 @@
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(ProjectDir)Resources" "$(TargetDir)Resources" /e /y /i /r /d</Command>
+      <Command>xcopy "$(ProjectDir)Resources" "$(TargetDir)Resources" /e /y /i /r /d
+xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
