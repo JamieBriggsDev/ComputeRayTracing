@@ -67,7 +67,7 @@ int Window::Initialise()
 	}
 
 #if GL
-	//glfwSwapInterval(0); // v sync
+
 	glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // We want OpenGL 4.6
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -102,6 +102,8 @@ int Window::Initialise()
 	// During init, enable debug output
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(MessageCallback, 0);
+	// Enable V-Sync
+	//glfwSwapInterval(0); // v sync
 #endif
 
 
