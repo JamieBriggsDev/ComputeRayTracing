@@ -10,6 +10,7 @@
 int Window::s_windowWidth = WINDOW_WIDTH;
 int Window::s_windowHeight = WINDOW_HEIGHT;
 
+#if GL
 void GLAPIENTRY
 MessageCallback(GLenum source,
 	GLenum type,
@@ -34,6 +35,13 @@ MessageCallback(GLenum source,
 		type, t_severity, message);
 }
 
+#else
+// TODO : VULKAN DEBUG LAYER
+
+#endif
+
+
+
 
 Window::Window()
 {
@@ -57,13 +65,19 @@ int Window::Initialise()
 		fprintf(stderr, "Failed to initialize GLFW\n");
 		return W_GLFW_FAILED_TO_INITIALISE;
 	}
+
+#if GL
 	//glfwSwapInterval(0); // v sync
 	glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // We want OpenGL 4.6
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // We don't want the old OpenGL 
-
+#elif VK
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+#endif
+	// Ensure window is not resizable
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 	// Open a window and create its OpenGL context
 	m_window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Raytracing Comparison", NULL, NULL);
 	if (m_window == NULL) {
@@ -84,11 +98,11 @@ int Window::Initialise()
 	glfwSetInputMode(m_window, GLFW_STICKY_KEYS, GL_TRUE);
 
 	
-
+#if GL
 	// During init, enable debug output
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(MessageCallback, 0);
-
+#endif
 
 
 	// Reset mouse position to middle of window

@@ -23,7 +23,7 @@ private:
 	// Vertex handle
 	GLuint m_vertexArrayID;
 
-	void BindBuffers();
+	void GLBindBuffers();
 
 	bool LoadObj(const char* _filePath,
 		std::vector<glm::vec3> & out_vertices,

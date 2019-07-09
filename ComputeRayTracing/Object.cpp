@@ -57,7 +57,7 @@ void Object::SetModelMatrix(glm::mat4 _modelMatrix)
 }
 
 // Draw function
-void Object::Draw(Camera* _camera)
+void Object::GLDraw(Camera* _camera)
 {
 	// MVP
 	glm::mat4 MVP = _camera->GetProjectionView() * m_modelMatrix;
@@ -161,4 +161,10 @@ void Object::Draw(Camera* _camera)
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
+}
+
+// Draw function
+void Object::VKDraw(Camera* _camera)
+{
+	// TODO : VULKAN DRAW CALL.
 }

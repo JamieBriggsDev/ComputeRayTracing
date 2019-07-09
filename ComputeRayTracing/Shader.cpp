@@ -5,6 +5,15 @@
 
 Shader::Shader(const char* vertex_file_path, const char* fragment_file_path)
 {
+#if GL
+	GLInit(vertex_file_path, fragment_file_path);
+#elif VK
+	VKInit(vertex_file_path, fragment_file_path);
+#endif
+}
+
+void Shader::GLInit(const char * vertex_file_path, const char * fragment_file_path)
+{
 	// Create the shaders
 	GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
 	GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
@@ -87,6 +96,10 @@ Shader::Shader(const char* vertex_file_path, const char* fragment_file_path)
 	m_texSamplerID = glGetUniformLocation(m_programID, "TextureSampler");
 	// Set Height Map Sampler Handle
 	m_heightSamplerID = glGetUniformLocation(m_programID, "HeightMapSampler");
+}
+
+void Shader::VKInit(const char * vertex_file_path, const char * fragment_file_path)
+{
 }
 
 Shader::~Shader()

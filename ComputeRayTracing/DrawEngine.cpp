@@ -11,13 +11,17 @@
 
 void DrawEngine::Update(Camera* _camera, Window* _window, Object* _object)
 {
+
+#if GL
 	// Clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
 	// Draw Object
-	_object->Draw(_camera);
-
+	_object->GLDraw(_camera);
+#else
+	// Draw Object
+	_object->VKDraw(_camera);
+#endif
 
 	// Swap buffers
 	glfwSwapBuffers(_window->GetWindowComponent());
@@ -26,6 +30,20 @@ void DrawEngine::Update(Camera* _camera, Window* _window, Object* _object)
 
 DrawEngine::DrawEngine()
 {
+#if GL
+	// light blue background
+	glClearColor(0.6f, 0.85f, 0.92f, 0.0f);
+
+	// Enable face culling
+	glEnable(GL_CULL_FACE);
+
+	// Enable depth test
+	glEnable(GL_DEPTH_TEST);
+	// Accept fragment if it closer to the camera than the former one
+	glDepthFunc(GL_LESS);
+#else
+	// TODO : INITIALISE VULKAN DRAW ENGINE
+#endif
 }
 
 

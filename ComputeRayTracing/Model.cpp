@@ -11,20 +11,7 @@
 
 Model::Model()
 {
-	//m_vertexBufferData = g_cube_vertex_buffer_data;
-	//m_uvBufferData = g_cube_uv_buffer_data;
-	m_vertexBufferData.clear();
-	m_uvBufferData.clear();
 
-	// copy arrays into vectors
-	m_vertexBufferData.insert(m_vertexBufferData.end(),
-		&g_cube_vertex_buffer_data[0],
-		&g_cube_vertex_buffer_data[sizeof(g_cube_vertex_buffer_data)]);
-	m_uvBufferData.insert(m_uvBufferData.end(),
-		&g_cube_uv_buffer_data[0],
-		&g_cube_uv_buffer_data[sizeof(g_cube_uv_buffer_data)]);
-
-	BindBuffers();
 }
 
 Model::Model(const char * _objFilePath)
@@ -37,8 +24,11 @@ Model::Model(const char * _objFilePath)
 	m_indicesBufferData.clear();
 	indexVBO(vertexBufferData, uvBufferData, normalBufferData,
 		m_indicesBufferData, m_vertexBufferData, m_uvBufferData, m_normalBufferData);
+#if GL
+	GLBindBuffers();
+#elif VK
 
-	BindBuffers();
+#endif
 }
 
 
@@ -49,7 +39,7 @@ Model::~Model()
 	glDeleteVertexArrays(1, &m_vertexArrayID);
 }
 
-void Model::BindBuffers()
+void Model::GLBindBuffers()
 {
 	// Bind IDs
 	glGenVertexArrays(1, &m_vertexArrayID);

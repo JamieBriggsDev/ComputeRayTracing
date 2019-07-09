@@ -37,6 +37,8 @@ private:
 
 	int OpenVertexShader(const char* vertex_file_path);
 	int OpenFragmentShader(const char* fragment_file_path);
+	void GLInit(const char* vertex_file_path, const char * fragment_file_path);
+	void VKInit(const char* vertex_file_path, const char * fragment_file_path);
 public:
 	Shader(const char* vertex_file_path, const char * fragment_file_path);
 	~Shader();
