@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.705
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ComputeRayTracing", "ComputeRayTracing\ComputeRayTracing.vcxproj", "{823C99FB-109E-45E2-81AF-DB308D2F6EB9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		GLDebug|x64 = GLDebug|x64
+		GLDebug|x86 = GLDebug|x86
+		GLRelease|x64 = GLRelease|x64
+		GLRelease|x86 = GLRelease|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{823C99FB-109E-45E2-81AF-DB308D2F6EB9}.GLDebug|x64.ActiveCfg = Debug|x64
+		{823C99FB-109E-45E2-81AF-DB308D2F6EB9}.GLDebug|x64.Build.0 = Debug|x64
+		{823C99FB-109E-45E2-81AF-DB308D2F6EB9}.GLDebug|x86.ActiveCfg = Debug|Win32
+		{823C99FB-109E-45E2-81AF-DB308D2F6EB9}.GLDebug|x86.Build.0 = Debug|Win32
+		{823C99FB-109E-45E2-81AF-DB308D2F6EB9}.GLRelease|x64.ActiveCfg = Release|x64
+		{823C99FB-109E-45E2-81AF-DB308D2F6EB9}.GLRelease|x64.Build.0 = Release|x64
+		{823C99FB-109E-45E2-81AF-DB308D2F6EB9}.GLRelease|x86.ActiveCfg = Release|Win32
+		{823C99FB-109E-45E2-81AF-DB308D2F6EB9}.GLRelease|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9552F87E-2637-4034-B682-ACB3B50EFCCB}
+	EndGlobalSection
+EndGlobal
