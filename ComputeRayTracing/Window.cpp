@@ -103,7 +103,7 @@ int Window::Initialise()
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(MessageCallback, 0);
 	// Enable V-Sync
-	//glfwSwapInterval(0); // v sync
+	glfwSwapInterval(0); // v sync
 #endif
 
 

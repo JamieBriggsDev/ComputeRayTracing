@@ -21,7 +21,9 @@ Texture::Texture(TextureType _type, const char* _imagePath)
 
 Texture::~Texture()
 {
+#if GL
 	glDeleteTextures(1, &m_data); 
+#endif
 }
 
 GLuint Texture::LoadBMP(const char * _imagePath)
@@ -75,9 +77,10 @@ GLuint Texture::LoadBMP(const char * _imagePath)
 	//Everything is in memory now, the file can be closed
 	fclose(file);
 
-
+#if GL
 	// Create OpenGL texture
 	GLuint textureID;
+
 	glGenTextures(1, &textureID);
 
 	// Bind the newly created texture
@@ -100,6 +103,8 @@ GLuint Texture::LoadBMP(const char * _imagePath)
 
 	// Return the ID of the texture we just created
 	return textureID;
+#endif
+	return -1;
 }
 
 // Get Data.

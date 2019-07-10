@@ -129,8 +129,8 @@
     <OutDir>$(SolutionDir)\Build\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VKDebug|Win32'">
-    <IncludePath>M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\include;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN32\include;M:\Projects\ComputeRayTracing\ThirdParty\glm;M:\Projects\ComputeRayTracing\ThirdParty\OBJ-Loader\Source;$(IncludePath)</IncludePath>
-    <LibraryPath>M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\lib\Release\Win32;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN32\lib-vc2017;$(LibraryPath)</LibraryPath>
+    <IncludePath>M:\Programming Libraries\Vulkan SDK\1.1.108.0\Include;M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\include;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN32\include;M:\Projects\ComputeRayTracing\ThirdParty\glm;M:\Projects\ComputeRayTracing\ThirdParty\OBJ-Loader\Source;$(IncludePath)</IncludePath>
+    <LibraryPath>M:\Programming Libraries\Vulkan SDK\1.1.108.0\Lib32;M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\lib\Release\Win32;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN32\lib-vc2017;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)\Build\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='GLRelease|Win32'">
@@ -139,8 +139,8 @@
     <OutDir>$(SolutionDir)\Build\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VKRelease|Win32'">
-    <IncludePath>M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\include;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN32\include;M:\Projects\ComputeRayTracing\ThirdParty\glm;M:\Projects\ComputeRayTracing\ThirdParty\OBJ-Loader\Source;$(IncludePath)</IncludePath>
-    <LibraryPath>M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\lib\Release\Win32;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN32\lib-vc2017;$(LibraryPath)</LibraryPath>
+    <IncludePath>M:\Programming Libraries\Vulkan SDK\1.1.108.0\Include;M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\include;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN32\include;M:\Projects\ComputeRayTracing\ThirdParty\glm;M:\Projects\ComputeRayTracing\ThirdParty\OBJ-Loader\Source;$(IncludePath)</IncludePath>
+    <LibraryPath>M:\Programming Libraries\Vulkan SDK\1.1.108.0\Lib32;M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\lib\Release\Win32;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN32\lib-vc2017;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)\Build\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='GLDebug|x64'">
@@ -149,8 +149,8 @@
     <OutDir>$(SolutionDir)\Build\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VKDebug|x64'">
-    <IncludePath>M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\include;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN64\include;M:\Projects\ComputeRayTracing\ThirdParty\glm;M:\Projects\ComputeRayTracing\ThirdParty\OBJ-Loader\Source;$(IncludePath)</IncludePath>
-    <LibraryPath>M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\lib\Release\x64;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN64\lib-vc2017;$(LibraryPath)</LibraryPath>
+    <IncludePath>M:\Programming Libraries\Vulkan SDK\1.1.108.0\Include;M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\include;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN64\include;M:\Projects\ComputeRayTracing\ThirdParty\glm;M:\Projects\ComputeRayTracing\ThirdParty\OBJ-Loader\Source;$(IncludePath)</IncludePath>
+    <LibraryPath>M:\Programming Libraries\Vulkan SDK\1.1.108.0\Lib;M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\lib\Release\x64;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN64\lib-vc2017;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)\Build\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='GLRelease|x64'">
@@ -159,8 +159,8 @@
     <OutDir>$(SolutionDir)\Build\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VKRelease|x64'">
-    <IncludePath>M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\include;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN64\include;M:\Projects\ComputeRayTracing\ThirdParty\glm;M:\Projects\ComputeRayTracing\ThirdParty\OBJ-Loader\Source;$(IncludePath)</IncludePath>
-    <LibraryPath>M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\lib\Release\x64;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN64\lib-vc2017;$(LibraryPath)</LibraryPath>
+    <IncludePath>M:\Programming Libraries\Vulkan SDK\1.1.108.0\Include;M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\include;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN64\include;M:\Projects\ComputeRayTracing\ThirdParty\glm;M:\Projects\ComputeRayTracing\ThirdParty\OBJ-Loader\Source;$(IncludePath)</IncludePath>
+    <LibraryPath>M:\Programming Libraries\Vulkan SDK\1.1.108.0\Lib;M:\Projects\ComputeRayTracing\ThirdParty\glew-2.1.0\lib\Release\x64;M:\Projects\ComputeRayTracing\ThirdParty\glfw-3.3\WIN64\lib-vc2017;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)\Build\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='GLDebug|Win32'">
@@ -188,7 +188,7 @@ xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
       <PreprocessorDefinitions>WIN32;VK;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)Resources" "$(TargetDir)Resources" /e /y /i /r /d
@@ -220,7 +220,7 @@ xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
       <PreprocessorDefinitions>VK;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)Resources" "$(TargetDir)Resources" /e /y /i /r /d
@@ -260,7 +260,7 @@ xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)Resources" "$(TargetDir)Resources" /e /y /i /r /d

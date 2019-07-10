@@ -36,9 +36,12 @@ public:
 	glm::mat4 GetModelMatrix() { return m_modelMatrix; }
 	// Set function
 	void SetModelMatrix(glm::mat4 _modelMatrix);
+#if GL
 	// Draw function OpenGL
 	void GLDraw(Camera* _camera);
+#elif VK
 	// Draw function Vulkan
 	void VKDraw(Camera* _camera);
+#endif
 };
 

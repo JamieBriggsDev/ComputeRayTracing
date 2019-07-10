@@ -5,6 +5,50 @@
 
 Engine::Engine()
 {
+	// If vulkan, create vulkan instance
+#if VK
+		// initialize the VkApplicationInfo structure
+	//VkApplicationInfo app_info = {};
+	//app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+	//app_info.pNext = NULL;
+	//app_info.pApplicationName = "Compute Ray Tracing";
+	//app_info.applicationVersion = 1;
+	//app_info.pEngineName = "Compute Ray Tracing";
+	//app_info.engineVersion = 1;
+	//app_info.apiVersion = VK_API_VERSION_1_1;
+
+	//// initialize the VkInstanceCreateInfo structure
+	//VkInstanceCreateInfo inst_info = {};
+	//inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+	//inst_info.pNext = NULL;
+	//inst_info.flags = 0;
+	//inst_info.pApplicationInfo = &app_info;
+	//inst_info.enabledExtensionCount = 0;
+	//inst_info.ppEnabledExtensionNames = NULL;
+	//inst_info.enabledLayerCount = 0;
+	//inst_info.ppEnabledLayerNames = NULL;
+
+	//VkResult res;
+
+	//res = vkCreateInstance(&inst_info, NULL, m_vkInstance);
+	//if (res == VK_ERROR_INCOMPATIBLE_DRIVER) {
+	//	std::cout << "cannot find a compatible Vulkan ICD\n";
+	//	exit(-1);
+	//}
+	//else if (res) {
+	//	std::cout << "unknown error\n";
+	//	exit(-1);
+	//}
+	uint32_t extensionCount = 0;
+	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+
+	std::cout << extensionCount << " extensions supported" << std::endl;
+
+	glm::mat4 matrix;
+	glm::vec4 vec;
+	auto test = matrix * vec;
+
+#endif
 	// Create Window
 	m_myWindow = new Window();
 	// Create Controller
@@ -25,6 +69,10 @@ Engine::Engine()
 
 Engine::~Engine()
 {
+#if VK
+	// Destroy vkInstance
+	//vkDestroyInstance(*m_vkInstance, NULL);
+#endif
 }
 
 void Engine::MainLoop()

@@ -56,6 +56,7 @@ void Object::SetModelMatrix(glm::mat4 _modelMatrix)
 	m_modelMatrix = _modelMatrix; 
 }
 
+#if GL
 // Draw function
 void Object::GLDraw(Camera* _camera)
 {
@@ -162,9 +163,10 @@ void Object::GLDraw(Camera* _camera)
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
 }
-
+#elif VK
 // Draw function
 void Object::VKDraw(Camera* _camera)
 {
 	// TODO : VULKAN DRAW CALL.
 }
+#endif

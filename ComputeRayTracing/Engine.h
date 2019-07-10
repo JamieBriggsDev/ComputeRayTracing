@@ -4,9 +4,16 @@
 #include "Camera.h"
 #include "DrawEngine.h"
 
+#if VK
+#include <vulkan/vulkan.h>
+#endif
+
 class Engine
 {
 private:
+#if VK
+	VkInstance* m_vkInstance;
+#endif
 	// Window object
 	Window* m_myWindow;
 	// Camera Object
