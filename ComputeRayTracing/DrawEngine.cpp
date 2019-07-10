@@ -41,6 +41,9 @@ DrawEngine::DrawEngine()
 	glEnable(GL_DEPTH_TEST);
 	// Accept fragment if it closer to the camera than the former one
 	glDepthFunc(GL_LESS);
+	// V sync off 
+	glfwSwapInterval(0);
+
 #else
 	// TODO : INITIALISE VULKAN DRAW ENGINE
 #endif

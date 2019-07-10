@@ -288,8 +288,7 @@ Engine::Engine()
 	// Enable debug output
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(MessageCallback, 0);
-	// V sync off 
-	glfwSwapInterval(0);
+
 #elif VK
 	// Enable debug output
 	vkSetupDebugMessenger(m_vkInstance, m_vkDebugMessenger);
@@ -331,13 +330,14 @@ void Engine::MainLoop()
 	double LastTime = glfwGetTime();
 	float FrameRate = 0.0f;
 	float FrameRefreshTime = 0.5f;
+	float LastFPSUpdate = 0.0f; 
 
 	long long int TotalFrames = 0;
 	do {
 		// Get delta time by comparing current time and last time
 		double currentTime = glfwGetTime();
 		m_deltaTime = float(currentTime - LastTime);
-		if (currentTime < FrameRefreshTime)
+		if (currentTime - LastFPSUpdate < FrameRefreshTime)
 		{
 			// Increase TotalFrames
 			TotalFrames++;
@@ -352,7 +352,7 @@ void Engine::MainLoop()
 			sprintf_s(x, 100, "Vulkan 1.1 - RayTracing Comparison - %3.2f ms/frame", double(m_deltaTime) * 1000);
 #endif
 
-			FrameRate = (float)TotalFrames / currentTime;
+			FrameRate = (float)TotalFrames / (currentTime - LastFPSUpdate);
 			char* fps = new char[10];
 			sprintf_s(fps, 10, "%4.1f\n", FrameRate);
 
@@ -363,7 +363,8 @@ void Engine::MainLoop()
 			glfwSetWindowTitle(m_myWindow->GetWindowComponent(), var.c_str());
 
 			// Reset time variables
-			glfwSetTime(0.0);
+			//glfwSetTime(0.0);
+			LastFPSUpdate = currentTime;
 			TotalFrames = 0;
 		}
 
