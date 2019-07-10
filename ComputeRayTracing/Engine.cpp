@@ -62,15 +62,22 @@ Engine::~Engine()
 void Engine::MainLoop()
 {
 	// Get deltatime
-	double lastTime = glfwGetTime();
-	double lastTimeDT = lastTime;
-	long long int nbFrames = 0;
+	glfwSetTime(0.0);
+	double LastTime = glfwGetTime();
+	float FrameRate = 0.0f;
+	float FrameRefreshTime = 0.5f;
+
+	long long int TotalFrames = 0;
 	do {
 		// Get delta time by comparing current time and last time
 		double currentTime = glfwGetTime();
-		nbFrames++;
-		m_deltaTime = float(currentTime - lastTimeDT);
-		if (currentTime - lastTime >= 1.0)
+		m_deltaTime = float(currentTime - LastTime);
+		if (currentTime < FrameRefreshTime)
+		{
+			// Increase TotalFrames
+			TotalFrames++;
+		}
+		else
 		{
 			//nbFrames = 0;
 			char* x = new char[100];
@@ -80,20 +87,20 @@ void Engine::MainLoop()
 			sprintf_s(x, 100, "Vulkan 1.1 - RayTracing Comparison - %3.2f ms/frame", double(m_deltaTime) * 1000);
 #endif
 
-			lastTime += 1.0;
+			FrameRate = (float)TotalFrames / currentTime;
 			char* fps = new char[10];
-			sprintf_s(fps, 10, "%4.1f\n", double(nbFrames) / (currentTime));
-			//std::cout << "FPS: " << fps << std::endl;
-			// Change title of window to show ms/frame time.
-			// Create Title
+			sprintf_s(fps, 10, "%4.1f\n", FrameRate);
+
 			std::ostringstream oss;
 			oss << x << " (" << fps << " FPS)";
 			std::string var = oss.str();
 
 			glfwSetWindowTitle(m_myWindow->GetWindowComponent(), var.c_str());
-		}
-		//lastTime = currentTime;
 
+			// Reset time variables
+			glfwSetTime(0.0);
+			TotalFrames = 0;
+		}
 
 		// Update controller
 		m_myController->Update(m_myWindow, m_deltaTime);
@@ -105,7 +112,7 @@ void Engine::MainLoop()
 		m_myDrawEngine->Update(m_myCamera, m_myWindow, m_object);
 
 		// record new last time
-		lastTimeDT = currentTime;
+		LastTime = currentTime;
 
 	} // Check if the ESC key was pressed or the window was closed
 	while (m_myWindow->CheckWindowClose(m_myController) == 0);

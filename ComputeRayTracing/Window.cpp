@@ -2,7 +2,10 @@
 
 #include "Controller.h"
 
+#if VK
 #include <vulkan/vulkan.h>
+
+#endif
 
 // Error codes
 #define W_GLFW_FAILED_TO_INITIALISE -100
