@@ -22,6 +22,8 @@ private:
 	Texture* m_texture;
 	// Texture
 	Texture* m_heightMap;
+
+
 public:
 	Object();
 	Object(const char* _modelFilePath);

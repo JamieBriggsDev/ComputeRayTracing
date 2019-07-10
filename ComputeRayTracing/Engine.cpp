@@ -7,46 +7,30 @@ Engine::Engine()
 {
 	// If vulkan, create vulkan instance
 #if VK
-		// initialize the VkApplicationInfo structure
-	//VkApplicationInfo app_info = {};
-	//app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	//app_info.pNext = NULL;
-	//app_info.pApplicationName = "Compute Ray Tracing";
-	//app_info.applicationVersion = 1;
-	//app_info.pEngineName = "Compute Ray Tracing";
-	//app_info.engineVersion = 1;
-	//app_info.apiVersion = VK_API_VERSION_1_1;
+	VkApplicationInfo appInfo = {};
+	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+	appInfo.pApplicationName = "Compute Ray Tracing";
+	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+	appInfo.pEngineName = "JBEngine";
+	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+	appInfo.apiVersion = VK_API_VERSION_1_1;
 
-	//// initialize the VkInstanceCreateInfo structure
-	//VkInstanceCreateInfo inst_info = {};
-	//inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-	//inst_info.pNext = NULL;
-	//inst_info.flags = 0;
-	//inst_info.pApplicationInfo = &app_info;
-	//inst_info.enabledExtensionCount = 0;
-	//inst_info.ppEnabledExtensionNames = NULL;
-	//inst_info.enabledLayerCount = 0;
-	//inst_info.ppEnabledLayerNames = NULL;
+	VkInstanceCreateInfo createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+	createInfo.pApplicationInfo = &appInfo;
 
-	//VkResult res;
+	uint32_t glfwExtensionCount = 0;
+	const char** glfwExtensions;
+	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-	//res = vkCreateInstance(&inst_info, NULL, m_vkInstance);
-	//if (res == VK_ERROR_INCOMPATIBLE_DRIVER) {
-	//	std::cout << "cannot find a compatible Vulkan ICD\n";
-	//	exit(-1);
-	//}
-	//else if (res) {
-	//	std::cout << "unknown error\n";
-	//	exit(-1);
-	//}
-	uint32_t extensionCount = 0;
-	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+	createInfo.enabledExtensionCount = glfwExtensionCount;
+	createInfo.ppEnabledExtensionNames = glfwExtensions;
 
-	std::cout << extensionCount << " extensions supported" << std::endl;
-
-	glm::mat4 matrix;
-	glm::vec4 vec;
-	auto test = matrix * vec;
+	createInfo.enabledLayerCount = 0;
+	m_vkInstance = new VkInstance();
+	if (vkCreateInstance(&createInfo, nullptr, m_vkInstance) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create instance!");
+	}
 
 #endif
 	// Create Window
@@ -71,7 +55,7 @@ Engine::~Engine()
 {
 #if VK
 	// Destroy vkInstance
-	//vkDestroyInstance(*m_vkInstance, NULL);
+	vkDestroyInstance(*m_vkInstance, nullptr);
 #endif
 }
 

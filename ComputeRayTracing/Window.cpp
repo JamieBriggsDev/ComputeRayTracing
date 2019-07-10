@@ -2,6 +2,8 @@
 
 #include "Controller.h"
 
+#include <vulkan/vulkan.h>
+
 // Error codes
 #define W_GLFW_FAILED_TO_INITIALISE -100
 #define W_WINDOW_FAILED_TO_OPEN -101
@@ -35,8 +37,28 @@ MessageCallback(GLenum source,
 		type, t_severity, message);
 }
 
+#elif VK
+#ifdef NDEBUG
+const bool enableValidationLayers = false;
 #else
-// TODO : VULKAN DEBUG LAYER
+const bool enableValidationLayers = true;
+#endif
+VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
+	auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+	if (func != nullptr) {
+		return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+	}
+	else {
+		return VK_ERROR_EXTENSION_NOT_PRESENT;
+	}
+}
+
+void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator) {
+	auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+	if (func != nullptr) {
+		func(instance, debugMessenger, pAllocator);
+	}
+}
 
 #endif
 
