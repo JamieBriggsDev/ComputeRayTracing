@@ -34,7 +34,7 @@ private:
 	// Last Time
 	float LastTime;
 	
-
+	// Initialise Window
 	int Initialise();
 public:
 	Window();

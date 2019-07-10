@@ -15,58 +15,6 @@
 int Window::s_windowWidth = WINDOW_WIDTH;
 int Window::s_windowHeight = WINDOW_HEIGHT;
 
-#if GL
-void GLAPIENTRY
-MessageCallback(GLenum source,
-	GLenum type,
-	GLuint id,
-	GLenum severity,
-	GLsizei length,
-	const GLchar* message,
-	const void* userParam)
-{
-	const char* t_severity;
-	if (severity == GL_DEBUG_SEVERITY_HIGH)
-		t_severity = "HIGH";
-	else if (severity == GL_DEBUG_SEVERITY_MEDIUM)
-		t_severity = "MEDIUM";
-	else if (severity == GL_DEBUG_SEVERITY_LOW)
-		t_severity = "LOW";
-	else
-		t_severity = "";
-
-	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = %s, message = %s\n",
-		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
-		type, t_severity, message);
-}
-
-#elif VK
-#ifdef NDEBUG
-const bool enableValidationLayers = false;
-#else
-const bool enableValidationLayers = true;
-#endif
-VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
-	auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-	if (func != nullptr) {
-		return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-	}
-	else {
-		return VK_ERROR_EXTENSION_NOT_PRESENT;
-	}
-}
-
-void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator) {
-	auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
-	if (func != nullptr) {
-		func(instance, debugMessenger, pAllocator);
-	}
-}
-
-#endif
-
-
-
 
 Window::Window()
 {
@@ -121,15 +69,6 @@ int Window::Initialise()
 
 	// Ensure we can capture the escape key being pressed below
 	glfwSetInputMode(m_window, GLFW_STICKY_KEYS, GL_TRUE);
-
-	
-#if GL
-	// During init, enable debug output
-	glEnable(GL_DEBUG_OUTPUT);
-	glDebugMessageCallback(MessageCallback, 0);
-	// Enable V-Sync
-	glfwSwapInterval(0); // v sync
-#endif
 
 
 	// Reset mouse position to middle of window
