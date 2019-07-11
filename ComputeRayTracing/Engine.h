@@ -20,8 +20,15 @@ private:
 	// Vulkan Physical Device
 	VkPhysicalDevice* m_vkPhysicalDevice;
 	// Vulkan Logical Device
+	VkDevice* m_vkDevice;
 	// Debug Messenger
 	VkDebugUtilsMessengerEXT* m_vkDebugMessenger;
+	// Graphics Queue
+	VkQueue* m_vkGraphicsQueue;
+	// Present Queue
+	VkQueue* m_vkPresentQueue;
+	// Window Surface
+	VkSurfaceKHR* m_vkSurface;
 #endif
 	// Window object
 	Window* m_myWindow;

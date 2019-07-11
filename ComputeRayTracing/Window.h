@@ -11,6 +11,9 @@
 #include <GL/glew.h>
 
 // GLFW to handle window and keyboard/ mouse input
+#if VK
+#define GLFW_INCLUDE_VULKAN
+#endif
 #include <GLFW/glfw3.h>
 
 // Include GLM for the maths
