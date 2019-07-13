@@ -58,7 +58,7 @@ int Window::Initialise()
 		glfwTerminate();
 		return W_WINDOW_FAILED_TO_OPEN;
 	}
-#if GL
+
 	// Initialize GLEW
 	glfwMakeContextCurrent(m_window); 
 	glewExperimental = true; // Needed in core profile
@@ -67,7 +67,7 @@ int Window::Initialise()
 		fprintf(stderr, "Failed to initialize GLEW\n");
 		return W_COULD_NOT_INITIALISE_GLEW;
 	}
-#endif
+
 	// Ensure we can capture the escape key being pressed below
 	glfwSetInputMode(m_window, GLFW_STICKY_KEYS, GL_TRUE);
 

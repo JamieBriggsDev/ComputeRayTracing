@@ -501,7 +501,42 @@ void vkCreateSurface(VkInstance* _vkInsance, GLFWwindow* _window, VkSurfaceKHR* 
 
 }
 
-
+void vkCreateImageViews(VkDevice* _vkDevice,
+	std::vector<VkImageView>& _vkSwapChainImageViews, 
+	std::vector<VkImage>& _vkSwapChainImages,
+	VkFormat* _vkSwapChainImageFormat )
+{
+	// Resize views to hold images
+	_vkSwapChainImageViews.resize(_vkSwapChainImages.size());
+	// Loop to iterate over the swap chain images
+	for (size_t i = 0; i < _vkSwapChainImages.size(); i++)
+	{
+		// Create image view
+		VkImageViewCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		createInfo.image = _vkSwapChainImages[i];
+		// Specify view type
+		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		createInfo.format = *_vkSwapChainImageFormat;
+		// Specify components
+		createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+		// Specify sub resource range
+		createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		createInfo.subresourceRange.baseMipLevel = 0;
+		createInfo.subresourceRange.levelCount = 1;
+		createInfo.subresourceRange.baseArrayLayer = 0;
+		createInfo.subresourceRange.layerCount = 1;
+		// Create view
+		if (vkCreateImageView(*_vkDevice, &createInfo, nullptr, &_vkSwapChainImageViews[i]) 
+			!= VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to create image views!");
+		}
+	}
+}
 
 #endif
 #pragma endregion End of Vulkan based code.
@@ -602,8 +637,21 @@ Engine::Engine()
 Engine::~Engine()
 {
 #if VK
-	// Destroy vkInstance
+	for (auto imageView : m_vkSwapChainImageViews) {
+		vkDestroyImageView(*m_vkDevice, imageView, nullptr);
+	}
+
+	vkDestroySwapchainKHR(*m_vkDevice, *m_vkSwapChain, nullptr);
+	vkDestroyDevice(*m_vkDevice, nullptr);
+
+	if (EnableValidationLayers) {
+		DestroyDebugUtilsMessengerEXT(*m_vkInstance, *m_vkDebugMessenger, nullptr);
+	}
+
+	vkDestroySurfaceKHR(*m_vkInstance, *m_vkSurface, nullptr);
 	vkDestroyInstance(*m_vkInstance, nullptr);
+
+	glfwTerminate();
 #endif
 }
 

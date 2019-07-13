@@ -31,6 +31,14 @@ private:
 	VkSurfaceKHR* m_vkSurface;
 	// Swap chain
 	VkSwapchainKHR* m_vkSwapChain;
+	// Swap chain images
+	std::vector<VkImage> m_vkSwapChainImages;
+	// Swap chain format
+	VkFormat m_vkSwapChainImageFormat;
+	// Swap chain extent
+	VkExtent2D m_vkSwapChainExtent;
+	// Swap chain images
+	std::vector<VkImageView> m_vkSwapChainImageViews;
 #endif
 	// Window object
 	Window* m_myWindow;
