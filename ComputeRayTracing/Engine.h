@@ -29,6 +29,8 @@ private:
 	VkQueue* m_vkPresentQueue;
 	// Window Surface
 	VkSurfaceKHR* m_vkSurface;
+	// Swap chain
+	VkSwapchainKHR* m_vkSwapChain;
 #endif
 	// Window object
 	Window* m_myWindow;
