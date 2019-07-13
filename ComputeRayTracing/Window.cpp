@@ -4,7 +4,6 @@
 
 #if VK
 #include <vulkan/vulkan.h>
-
 #endif
 
 // Error codes
@@ -32,6 +31,7 @@ int Window::Initialise()
 {	
 	// Initialise GLFW
 	glewExperimental = true; // Needed for core profile
+	int err = glfwInit();
 	// Try to initialise
 	if (!glfwInit())
 	{
