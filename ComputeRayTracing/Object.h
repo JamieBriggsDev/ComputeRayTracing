@@ -3,19 +3,15 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-#if VK
-#include <vulkan/vulkan.h>
-#endif
-
 #include "Model.h"
 #include "Shader.h"
 #include "Texture.h"
 
 class Camera;
 
-class Object
+class IObject
 {
-private:
+protected:
 	// Model
 	Model* m_model;
 	// Shader
@@ -30,24 +26,23 @@ private:
 
 public:
 	//Object(VkDevice _vkDevice);
-#if GL
-	Object(const char* _modelFilePath);
-#elif VK
-	Object(VkDevice _vkDevice, const char* _modelFilePath);
-#endif
+
+	IObject() {};
 
 	//Object(const char* _modelFilePath, TextureType _textureType, 
 	//	const char* _textureFilePath);
 	//Object(const char* _modelFilePath, TextureType _textureType,
 	//	const char* _textureFilePath, const char* _heightMapFilePath);
 
-	~Object();
+	~IObject();
 	// Get functions
 	Model* GetModel() { return m_model; }
 	Shader* GetShader() { return m_shader; }
 	glm::mat4 GetModelMatrix() { return m_modelMatrix; }
 	// Set function
 	void SetModelMatrix(glm::mat4 _modelMatrix);
+
+	virtual void Draw(Camera* _camera) = 0;
 #if GL
 	// Draw function OpenGL
 	void GLDraw(Camera* _camera);

@@ -1,7 +1,7 @@
 #pragma once
 
 
-class Object;
+class IObject;
 class Camera;
 class Window;
 
@@ -10,7 +10,7 @@ class DrawEngine
 public:
 	void Update(Camera* _camera, 
 		Window* _window, 
-		Object* _object);
+		IObject* _object);
 
 	DrawEngine();
 	~DrawEngine();

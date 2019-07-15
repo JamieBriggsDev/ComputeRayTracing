@@ -60,6 +60,12 @@
     <ClInclude Include="VKEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GLObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VKObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp">
@@ -96,6 +102,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VKEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GLObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VKObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

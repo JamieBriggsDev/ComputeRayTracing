@@ -4,6 +4,7 @@
 #include <set>
 
 #include "GLEngine.h"
+#include "GLObject.h"
 #include "Controller.h"
 
 #pragma region Debug Callbacks
@@ -54,7 +55,7 @@ void GLEngine::Initialise()
 	glDebugMessageCallback(MessageCallback, 0);
 
 	// Create an object
-	m_object = new Object("Resources/Models/Sphere.obj");
+	m_object = new GLObject("Resources/Models/Sphere.obj");
 	// Model matrix : an identity matrix (model will be at the origin)
 	m_object->SetModelMatrix(glm::mat4(1.0f));
 }

@@ -5,6 +5,7 @@
 
 #include "VKEngine.h"
 #include "Controller.h"
+#include "VKObject.h"
 
 #pragma region Debug Callbacks
 
@@ -160,7 +161,7 @@ void VKEngine::Initialise()
 	vkCreateSwapChain(m_vkDevice, m_vkPhysicalDevice, m_vkSurface, m_vkSwapChain);
 
 	// Create an object
-	m_object = new Object(*m_vkDevice, "Resources/Models/Sphere.obj");
+	m_object = new VKObject(*m_vkDevice, "Resources/Models/Sphere.obj");
 	// Model matrix : an identity matrix (model will be at the origin)
 	m_object->SetModelMatrix(glm::mat4(1.0f));
 }

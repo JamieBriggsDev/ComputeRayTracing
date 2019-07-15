@@ -17,19 +17,16 @@ void CreateGraphicsPipeline()
 #endif
 
 
-void DrawEngine::Update(Camera* _camera, Window* _window, Object* _object)
+void DrawEngine::Update(Camera* _camera, Window* _window, IObject* _object)
 {
 
 #if GL
 	// Clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Draw Object
-	_object->GLDraw(_camera);
-#else
-	// Draw Object
-	_object->VKDraw(_camera);
 #endif
+	// Draw Object
+	_object->Draw(_camera);
 
 	// Swap buffers
 	glfwSwapBuffers(_window->GetWindowComponent());

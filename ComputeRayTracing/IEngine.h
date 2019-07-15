@@ -17,7 +17,7 @@ protected:
 	// Draw Engine
 	DrawEngine* m_myDrawEngine;
 	// Objects
-	Object* m_object;
+	IObject* m_object;
 	// DeltaTime
 	float m_deltaTime;
 
