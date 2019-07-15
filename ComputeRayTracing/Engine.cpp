@@ -625,7 +625,7 @@ Engine::Engine()
 	m_myDrawEngine = new DrawEngine();
 	// Create an object
 	// Create and compile our GLSL program from the shaders
-	m_object = new Object("Resources/Models/Sphere.obj"
+	m_object = new Object(*m_vkDevice, "Resources/Models/Sphere.obj"
 	//,TextureType::BMP, "Resources/Textures/Penguin.bmp"
 	//,"Resources/Textures/BrickHeightMap.bmp"
 	);

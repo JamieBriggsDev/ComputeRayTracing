@@ -8,6 +8,14 @@
 // GLFW to handle window and keyboard/ mouse input
 #include <GLFW/glfw3.h>
 
+#if VK
+void CreateGraphicsPipeline()
+{
+
+}
+
+#endif
+
 
 void DrawEngine::Update(Camera* _camera, Window* _window, Object* _object)
 {
@@ -45,7 +53,7 @@ DrawEngine::DrawEngine()
 	glfwSwapInterval(0);
 
 #else
-	// TODO : INITIALISE VULKAN DRAW ENGINE
+	
 #endif
 }
 

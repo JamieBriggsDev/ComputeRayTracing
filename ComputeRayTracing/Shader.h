@@ -14,6 +14,8 @@ using namespace std;
 
 #include <GL/glew.h>
 
+#include <vulkan/vulkan.h>
+
 class Shader
 {
 private:
@@ -35,12 +37,13 @@ private:
 	std::string vertexShaderCode;
 	std::string fragmentShaderCode;
 
-	int OpenVertexShader(const char* vertex_file_path);
-	int OpenFragmentShader(const char* fragment_file_path);
-	void GLInit(const char* vertex_file_path, const char * fragment_file_path);
-	void VKInit(const char* vertex_file_path, const char * fragment_file_path);
+	int GLOpenVertexShader(const char* _vertexFilePath);
+	int GLOpenFragmentShader(const char* _fragmentFilePath);
+	void GLInit(const char* _vertexFilePath, const char * _fragmentFilePath);
+	void VKInit(VkDevice _vkDevice, const char* _vertexFilePath, const char * _fragmentFilePath);
 public:
-	Shader(const char* vertex_file_path, const char * fragment_file_path);
+	Shader() {};
+	Shader(VkDevice _vkDevice, const char* _vertexFilePath, const char* _fragmentFilePath);
 	~Shader();
 	GLuint GetProgramID(){ return m_programID; }
 	GLuint GetTextureSamplerID() { return m_texSamplerID; }

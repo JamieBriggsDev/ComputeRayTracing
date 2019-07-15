@@ -342,8 +342,12 @@ xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\frag.spv" />
     <None Include="Shaders\SimpleFrag.frag" />
     <None Include="Shaders\SimpleVert.vert" />
+    <None Include="Shaders\Triangle.frag" />
+    <None Include="Shaders\Triangle.vert" />
+    <None Include="Shaders\vert.spv" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

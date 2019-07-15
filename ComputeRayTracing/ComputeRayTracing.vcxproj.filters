@@ -94,5 +94,17 @@
     <None Include="Shaders\SimpleVert.vert">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\Triangle.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\Triangle.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\frag.spv">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\vert.spv">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
