@@ -45,18 +45,46 @@ VkShaderModule CreateShaderModule(VkDevice _vkDevice, const std::vector<char>& _
 }
 #endif
 
-Shader::Shader(VkDevice _vkDevice, const char* _vertexFilePath, const char* _fragmentFilePath)
-{
 #if GL
+Shader::Shader(const char* _vertexFilePath, const char* _fragmentFilePath)
+{
 	GLInit(_vertexFilePath, _fragmentFilePath);
-#elif VK
-	VKInit(_vkDevice, _vertexFilePath, _fragmentFilePath);
-#endif
 }
 
-Shader::~Shader()
+int Shader::GLOpenVertexShader(const char* _vertexFilePath)
 {
-	glDeleteProgram(m_programID);
+	std::ifstream VertexShaderStream(_vertexFilePath, std::ios::in);
+	if (VertexShaderStream.is_open()) {
+		std::stringstream sstr;
+		sstr << VertexShaderStream.rdbuf();
+		vertexShaderCode = sstr.str();
+		VertexShaderStream.close();
+	}
+	else {
+		printf("Impossible to open %s.\n", _vertexFilePath);
+		getchar();
+		return COULD_NOT_LOAD_VERTEX_SHADER;
+	}
+
+	return 1;
+}
+
+int Shader::GLOpenFragmentShader(const char* fragment_file_path)
+{
+	std::ifstream FragmentShaderStream(fragment_file_path, std::ios::in);
+	if (FragmentShaderStream.is_open()) {
+		std::stringstream sstr;
+		sstr << FragmentShaderStream.rdbuf();
+		fragmentShaderCode = sstr.str();
+		FragmentShaderStream.close();
+	}
+	else {
+		printf("Impossible to open %s.\n", fragment_file_path);
+		getchar();
+		return COULD_NOT_LOAD_FRAGMENT_SHADER;
+	}
+
+	return 1;
 }
 
 void Shader::GLInit(const char * _vertexFilePath, const char * _fragmentFilePath)
@@ -145,41 +173,10 @@ void Shader::GLInit(const char * _vertexFilePath, const char * _fragmentFilePath
 	m_heightSamplerID = glGetUniformLocation(m_programID, "HeightMapSampler");
 }
 
-
-int Shader::GLOpenVertexShader(const char* _vertexFilePath)
+#elif VK
+Shader::Shader(VkDevice _vkDevice, const char* _vertexFilePath, const char* _fragmentFilePath)
 {
-	std::ifstream VertexShaderStream(_vertexFilePath, std::ios::in);
-	if (VertexShaderStream.is_open()) {
-		std::stringstream sstr;
-		sstr << VertexShaderStream.rdbuf();
-		vertexShaderCode = sstr.str();
-		VertexShaderStream.close();
-	}
-	else {
-		printf("Impossible to open %s.\n", _vertexFilePath);
-		getchar();
-		return COULD_NOT_LOAD_VERTEX_SHADER;
-	}
-
-	return 1;
-}
-
-int Shader::GLOpenFragmentShader(const char* fragment_file_path)
-{
-	std::ifstream FragmentShaderStream(fragment_file_path, std::ios::in);
-	if (FragmentShaderStream.is_open()) {
-		std::stringstream sstr;
-		sstr << FragmentShaderStream.rdbuf();
-		fragmentShaderCode = sstr.str();
-		FragmentShaderStream.close();
-	}
-	else {
-		printf("Impossible to open %s.\n", fragment_file_path);
-		getchar();
-		return COULD_NOT_LOAD_FRAGMENT_SHADER;
-	}
-
-	return 1;
+	VKInit(_vkDevice, _vertexFilePath, _fragmentFilePath);
 }
 
 void Shader::VKInit(VkDevice _vkDevice, const char* _vertexFilePath, const char* _fragmentFilePath)
@@ -208,4 +205,16 @@ void Shader::VKInit(VkDevice _vkDevice, const char* _vertexFilePath, const char*
 	vkDestroyShaderModule(_vkDevice, fragShaderModule, nullptr);
 	vkDestroyShaderModule(_vkDevice, vertShaderModule, nullptr);
 }
+#endif
+
+Shader::~Shader()
+{
+	glDeleteProgram(m_programID);
+}
+
+
+
+
+
+
 

@@ -3,6 +3,10 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
+#if VK
+#include <vulkan/vulkan.h>
+#endif
+
 #include "Model.h"
 #include "Shader.h"
 #include "Texture.h"
@@ -26,11 +30,17 @@ private:
 
 public:
 	//Object(VkDevice _vkDevice);
+#if GL
+	Object(const char* _modelFilePath);
+#elif VK
 	Object(VkDevice _vkDevice, const char* _modelFilePath);
-	Object(const char* _modelFilePath, TextureType _textureType, 
-		const char* _textureFilePath);
-	Object(const char* _modelFilePath, TextureType _textureType,
-		const char* _textureFilePath, const char* _heightMapFilePath);
+#endif
+
+	//Object(const char* _modelFilePath, TextureType _textureType, 
+	//	const char* _textureFilePath);
+	//Object(const char* _modelFilePath, TextureType _textureType,
+	//	const char* _textureFilePath, const char* _heightMapFilePath);
+
 	~Object();
 	// Get functions
 	Model* GetModel() { return m_model; }

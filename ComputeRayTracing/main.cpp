@@ -8,15 +8,24 @@
 
 
 // Window
-#include "Engine.h"
+#if GL
+#include "GLEngine.h"
+#elif VK
+#include "VKEngine.h"
+#endif
+
 
 
 int main()
 {
     std::cout << "Welcome to the JBEngine!\n"; 
 
-	// Initialise Engine
-	Engine* JBEngine = new Engine();
+	// Initialise Engine based on API
+#if GL
+	IEngine* JBEngine = new GLEngine();
+#elif VK
+	IEngine* JBEngine = new VKEngine();
+#endif
 	// Start main loop
 	JBEngine->MainLoop();
 

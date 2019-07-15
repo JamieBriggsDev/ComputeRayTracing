@@ -1,54 +1,51 @@
 #include "Object.h"
 #include "Camera.h"
 
-//Object::Object(VkDevice _vkDevice)
-//{
-//	m_model = new Model();
-//#if GL
-//	m_shader = new Shader(NULL, "Shaders/SimpleVert.vert", 
-//		"Shaders/SimpleFrag.frag");
-//#elif VK
-//	m_shader = new Shader(_vkDevice, "Shaders/SimpleVert.vert",
-//		"Shaders/SimpleFrag.frag");
-//#endif
-//	m_modelMatrix = glm::mat4();
-//	
-//}
+#if VK
+#include <vulkan/vulkan.h>
+#endif
 
+#if GL
+Object::Object(const char * _modelFilePath)
+{
+	m_model = new Model(_modelFilePath);
+
+	m_shader = new Shader("Shaders/SimpleVert.vert",
+		"Shaders/SimpleFrag.frag");
+
+	m_modelMatrix = glm::mat4();
+}
+#elif VK
 Object::Object(VkDevice _vkDevice, const char * _modelFilePath)
 {
 	m_model = new Model(_modelFilePath);
 
-#if GL
-	m_shader = new Shader(NULL, "Shaders/SimpleVert.vert",
-		"Shaders/SimpleFrag.frag");
-#elif VK
-	m_shader = new Shader(_vkDevice, "Shaders/SimpleVert.vert",
-		"Shaders/SimpleFrag.frag");
+	m_shader = new Shader(_vkDevice, "Shaders/vert.spv",
+		"Shaders/frag.spv");
+
+	m_modelMatrix = glm::mat4();
+}
 #endif
 
-	m_modelMatrix = glm::mat4();
-}
-
-Object::Object(const char * _modelFilePath, TextureType _textureType, const char * _textureFilePath)
-{
-	m_model = new Model(_modelFilePath);
-	m_shader = new Shader(NULL, "Shaders/TexturedVert.vert",
-		"Shaders/TexturedFrag.frag");
-	m_modelMatrix = glm::mat4();
-	m_texture = new Texture(_textureType, _textureFilePath);
-}
-
-Object::Object(const char* _modelFilePath, TextureType _textureType,
-	const char* _textureFilePath, const char* _heightMapFilePath)
-{
-	m_model = new Model(_modelFilePath);
-	m_shader = new Shader(NULL, "Shaders/TexturedHeightVert.vert",
-		"Shaders/TexturedHeightFrag.frag");
-	m_modelMatrix = glm::mat4();
-	m_texture = new Texture(_textureType, _textureFilePath);
-	m_heightMap = new Texture(_textureType, _heightMapFilePath);
-}
+//Object::Object(const char * _modelFilePath, TextureType _textureType, const char * _textureFilePath)
+//{
+//	m_model = new Model(_modelFilePath);
+//	m_shader = new Shader("Shaders/TexturedVert.vert",
+//		"Shaders/TexturedFrag.frag");
+//	m_modelMatrix = glm::mat4();
+//	m_texture = new Texture(_textureType, _textureFilePath);
+//}
+//
+//Object::Object(const char* _modelFilePath, TextureType _textureType,
+//	const char* _textureFilePath, const char* _heightMapFilePath)
+//{
+//	m_model = new Model(_modelFilePath);
+//	m_shader = new Shader("Shaders/TexturedHeightVert.vert",
+//		"Shaders/TexturedHeightFrag.frag");
+//	m_modelMatrix = glm::mat4();
+//	m_texture = new Texture(_textureType, _textureFilePath);
+//	m_heightMap = new Texture(_textureType, _heightMapFilePath);
+//}
 
 
 Object::~Object()
