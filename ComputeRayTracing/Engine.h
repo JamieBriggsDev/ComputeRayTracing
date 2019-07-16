@@ -29,7 +29,7 @@ public:
 	// Initialise code.
 	virtual void Initialise() = 0;
 
-	void MainLoop();
+	virtual void MainLoop() = 0;
 
 };
 

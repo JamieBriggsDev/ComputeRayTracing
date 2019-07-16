@@ -7,8 +7,10 @@ class GLEngine :
 	public Engine
 {
 private:
-	// OpenGL Engine Init Code;
+	// OpenGL Engine Init Code.
 	void Initialise();
+	// Vulkan Engine Main Loop.
+	void MainLoop();
 public:
 	GLEngine();
 	~GLEngine() {};

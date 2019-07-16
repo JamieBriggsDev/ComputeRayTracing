@@ -70,6 +70,8 @@ private:
 
 	// Vulkan Engine Init Code;
 	void Initialise();
+	// Vulkan Engine Main Loop
+	void MainLoop();
 
 	// Populate Debug Messenger Create Info.
 	void vkPopulateDebugMessengerCreateInfo
