@@ -1,7 +1,7 @@
 #if VK
 
 #pragma once
-#include "Object.h"
+#include "IObject.h"
 class VKObject :
 	public IObject
 {

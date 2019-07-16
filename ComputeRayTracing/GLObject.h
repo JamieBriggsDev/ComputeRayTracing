@@ -1,7 +1,7 @@
 #if GL
 
 #pragma once
-#include "Object.h"
+#include "IObject.h"
 class GLObject :
 	public IObject
 {

@@ -16,6 +16,18 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{60ed2ea8-286f-4e06-a064-b862398f3e0f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\GL">
+      <UniqueIdentifier>{4db5d46e-e34d-4161-a2b4-de014cca3ef7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\VK">
+      <UniqueIdentifier>{af59887c-24f3-4832-8c31-1add58fd9114}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GL">
+      <UniqueIdentifier>{87bb13a8-7e72-4b85-b7bc-4c7939f1567d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\VK">
+      <UniqueIdentifier>{4fe3ebaa-e808-4655-9331-5737094cc030}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -33,9 +45,6 @@
     <ClInclude Include="Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Object.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -51,19 +60,22 @@
     <ClInclude Include="Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GLEngine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="IEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VKEngine.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="GLEngine.h">
+      <Filter>Header Files\GL</Filter>
     </ClInclude>
     <ClInclude Include="GLObject.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\GL</Filter>
     </ClInclude>
     <ClInclude Include="VKObject.h">
+      <Filter>Header Files\VK</Filter>
+    </ClInclude>
+    <ClInclude Include="VKEngine.h">
+      <Filter>Header Files\VK</Filter>
+    </ClInclude>
+    <ClInclude Include="IObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -83,9 +95,6 @@
     <ClCompile Include="Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Object.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -95,19 +104,22 @@
     <ClCompile Include="Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GLEngine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="IEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VKEngine.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="GLEngine.cpp">
+      <Filter>Source Files\GL</Filter>
     </ClCompile>
     <ClCompile Include="GLObject.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\GL</Filter>
+    </ClCompile>
+    <ClCompile Include="VKEngine.cpp">
+      <Filter>Source Files\VK</Filter>
     </ClCompile>
     <ClCompile Include="VKObject.cpp">
+      <Filter>Source Files\VK</Filter>
+    </ClCompile>
+    <ClCompile Include="IObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
