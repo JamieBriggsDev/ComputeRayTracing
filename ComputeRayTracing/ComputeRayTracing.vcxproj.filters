@@ -69,19 +69,19 @@
     <ClInclude Include="VKEngine.h">
       <Filter>Header Files\VK</Filter>
     </ClInclude>
-    <ClInclude Include="GLShader.h">
-      <Filter>Header Files\GL</Filter>
-    </ClInclude>
-    <ClInclude Include="VKShader.h">
-      <Filter>Header Files\VK</Filter>
-    </ClInclude>
     <ClInclude Include="Object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h">
+    <ClInclude Include="GLPipeline.h">
+      <Filter>Header Files\GL</Filter>
+    </ClInclude>
+    <ClInclude Include="VKPipeline.h">
+      <Filter>Header Files\VK</Filter>
+    </ClInclude>
+    <ClInclude Include="Pipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -119,9 +119,6 @@
     <ClCompile Include="VKObject.cpp">
       <Filter>Source Files\VK</Filter>
     </ClCompile>
-    <ClCompile Include="GLShader.cpp">
-      <Filter>Source Files\GL</Filter>
-    </ClCompile>
     <ClCompile Include="VKShader.cpp">
       <Filter>Source Files\VK</Filter>
     </ClCompile>
@@ -131,8 +128,11 @@
     <ClCompile Include="Engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp">
+    <ClCompile Include="Pipeline.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GLPipeline.cpp">
+      <Filter>Source Files\GL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

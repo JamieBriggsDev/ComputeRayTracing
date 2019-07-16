@@ -14,7 +14,7 @@ using namespace std;
 
 #include <GL/glew.h>
 
-class Shader
+class Pipeline
 {
 protected:
 	// Program ID
@@ -37,8 +37,8 @@ protected:
 
 	std::vector<char> ReadFile(const std::string& filename);
 public:
-	Shader() {};
-	~Shader();
+	Pipeline() {};
+	~Pipeline();
 
 	GLuint GetProgramID(){ return m_programID; }
 	GLuint GetTextureSamplerID() { return m_texSamplerID; }

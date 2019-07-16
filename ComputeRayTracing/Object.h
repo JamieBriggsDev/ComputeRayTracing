@@ -3,7 +3,7 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-#include "Shader.h"
+#include "Pipeline.h"
 #include "Model.h"
 #include "Texture.h"
 
@@ -15,7 +15,7 @@ protected:
 	// Model
 	Model* m_model;
 	// Shader
-	Shader* m_shader;
+	Pipeline* m_shader;
 	// Model matrix
 	glm::mat4 m_modelMatrix;
 	// Texture
@@ -37,7 +37,7 @@ public:
 	~Object();
 	// Get functions
 	Model* GetModel() { return m_model; }
-	Shader* GetShader() { return m_shader; }
+	Pipeline* GetShader() { return m_shader; }
 	glm::mat4 GetModelMatrix() { return m_modelMatrix; }
 	// Set function
 	void SetModelMatrix(glm::mat4 _modelMatrix);

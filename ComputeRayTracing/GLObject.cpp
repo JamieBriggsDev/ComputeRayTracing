@@ -1,7 +1,7 @@
 #if GL
 
 #include "GLObject.h"
-#include "GLShader.h"
+#include "GLPipeline.h"
 #include "Camera.h"
 
 GLObject::GLObject(const char* _modelFilePath)
@@ -9,7 +9,7 @@ GLObject::GLObject(const char* _modelFilePath)
 	// Load Model
 	m_model = new Model(_modelFilePath);
 	// Load Shader
-	m_shader = new GLShader("Shaders/SimpleVert.vert",
+	m_shader = new GLPipeline("Shaders/SimpleVert.vert",
 		"Shaders/SimpleFrag.frag");
 	// Set model Matrix
 	m_modelMatrix = glm::mat4();

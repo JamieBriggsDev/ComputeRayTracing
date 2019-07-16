@@ -1,8 +1,8 @@
 #if GL
-#include "GLShader.h"
+#include "GLPipeline.h"
 
 // GL Shader initialise.
-GLShader::GLShader(const char* _vertexFilePath, const char * _fragmentFilePath)
+GLPipeline::GLPipeline(const char* _vertexFilePath, const char * _fragmentFilePath)
 {
 	// Create the shaders
 	GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
@@ -88,12 +88,12 @@ GLShader::GLShader(const char* _vertexFilePath, const char * _fragmentFilePath)
 	m_heightSamplerID = glGetUniformLocation(m_programID, "HeightMapSampler");
 }
 
-GLShader::~GLShader()
+GLPipeline::~GLPipeline()
 {
 	glDeleteProgram(m_programID);
 }
 
-int GLShader::GLOpenVertexShader(const char* _vertexFilePath)
+int GLPipeline::GLOpenVertexShader(const char* _vertexFilePath)
 {
 	std::ifstream VertexShaderStream(_vertexFilePath, std::ios::in);
 	if (VertexShaderStream.is_open()) {
@@ -111,7 +111,7 @@ int GLShader::GLOpenVertexShader(const char* _vertexFilePath)
 	return 1;
 }
 
-int GLShader::GLOpenFragmentShader(const char* fragment_file_path)
+int GLPipeline::GLOpenFragmentShader(const char* fragment_file_path)
 {
 	std::ifstream FragmentShaderStream(fragment_file_path, std::ios::in);
 	if (FragmentShaderStream.is_open()) {

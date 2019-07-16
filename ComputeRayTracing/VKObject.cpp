@@ -1,15 +1,16 @@
 #if VK
 
 #include "VKObject.h"
-#include "VKShader.h"
+#include "VKPipeline.h"
 #include "Camera.h"
 
 
-VKObject::VKObject(VkDevice _vkDevice, const char* _modelFilePath)
+VKObject::VKObject(VkDevice* _vkDevice, VkExtent2D _vkExtent, VkFormat _vkSwapChainFormat, 
+	const char* _modelFilePath)
 {
 	m_model = new Model(_modelFilePath);
 
-	m_shader = new VKShader(_vkDevice, "Shaders/vert.spv",
+	m_shader = new VKPipeline(_vkDevice, _vkExtent, _vkSwapChainFormat, "Shaders/vert.spv",
 		"Shaders/frag.spv");
 
 	m_modelMatrix = glm::mat4();

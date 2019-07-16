@@ -1,6 +1,6 @@
-#include "Shader.h"
+#include "Pipeline.h"
 
-std::vector<char> Shader::ReadFile(const std::string& filename)
+std::vector<char> Pipeline::ReadFile(const std::string& filename)
 {
 	// Create ifstream.
 	std::ifstream file(filename, std::ios::ate | std::ios::binary);
@@ -22,7 +22,7 @@ std::vector<char> Shader::ReadFile(const std::string& filename)
 	return buffer;
 }
 
-Shader::~Shader()
+Pipeline::~Pipeline()
 {
 	
 }

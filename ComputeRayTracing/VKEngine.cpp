@@ -161,7 +161,8 @@ void VKEngine::Initialise()
 	vkCreateSwapChain(m_vkDevice, m_vkPhysicalDevice, m_vkSurface, m_vkSwapChain);
 
 	// Create an object
-	m_object = new VKObject(*m_vkDevice, "Resources/Models/Sphere.obj");
+	m_object = new VKObject(m_vkDevice, m_vkSwapChainExtent, m_vkSwapChainImageFormat,
+		"Resources/Models/Sphere.obj");
 	// Model matrix : an identity matrix (model will be at the origin)
 	m_object->SetModelMatrix(glm::mat4(1.0f));
 }
@@ -396,6 +397,14 @@ void VKEngine::vkCreateSwapChain(VkDevice* _vkDevice, VkPhysicalDevice* _vkPhysi
 	{
 		throw std::runtime_error("Failed to create the swap chain!");
 	}
+
+	// Get swapchain images
+	vkGetSwapchainImagesKHR(*m_vkDevice, *_vkSwapChain, &imageCount, nullptr);
+	m_vkSwapChainImages.resize(imageCount);
+	vkGetSwapchainImagesKHR(*m_vkDevice, *_vkSwapChain, &imageCount, m_vkSwapChainImages.data());
+
+	m_vkSwapChainImageFormat = surfaceFormat.format;
+	m_vkSwapChainExtent = extent;
 }
 
 std::vector<const char*> VKEngine::vkGetRequiredExtensions()
