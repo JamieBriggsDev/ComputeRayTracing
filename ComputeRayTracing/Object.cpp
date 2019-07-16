@@ -27,7 +27,7 @@ Object::~Object()
 	// Clean up model
 	delete m_model;
 	// Clean up shader
-	delete m_shader;
+	delete m_pipeline;
 	// Clean up texture
 	delete m_texture;
 	// Clean up height map texture

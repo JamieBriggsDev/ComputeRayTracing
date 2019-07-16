@@ -30,6 +30,8 @@ public:
 		VkFormat _vkSwapChainImageFormat,
 		const char* _vertexFilePath,
 		const char * _fragmentFilePath);
+	VkRenderPass* vkGetRenderPass() { return m_vkRenderPass; }
+	VkPipeline* vkGetPipeline() { return m_vkPipeline; }
 	~VKPipeline();
 };
 

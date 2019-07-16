@@ -15,7 +15,7 @@ protected:
 	// Model
 	Model* m_model;
 	// Shader
-	Pipeline* m_shader;
+	Pipeline* m_pipeline;
 	// Model matrix
 	glm::mat4 m_modelMatrix;
 	// Texture
@@ -37,18 +37,11 @@ public:
 	~Object();
 	// Get functions
 	Model* GetModel() { return m_model; }
-	Pipeline* GetShader() { return m_shader; }
+	Pipeline* GetPipeline() { return m_pipeline; }
 	glm::mat4 GetModelMatrix() { return m_modelMatrix; }
 	// Set function
 	void SetModelMatrix(glm::mat4 _modelMatrix);
 
 	virtual void Draw(Camera* _camera) = 0;
-#if GL
-	// Draw function OpenGL
-	void GLDraw(Camera* _camera);
-#elif VK
-	// Draw function Vulkan
-	void VKDraw(Camera* _camera);
-#endif
 };
 

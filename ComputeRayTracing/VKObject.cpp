@@ -10,7 +10,7 @@ VKObject::VKObject(VkDevice* _vkDevice, VkExtent2D _vkExtent, VkFormat _vkSwapCh
 {
 	m_model = new Model(_modelFilePath);
 
-	m_shader = new VKPipeline(_vkDevice, _vkExtent, _vkSwapChainFormat, "Shaders/vert.spv",
+	m_pipeline = new VKPipeline(_vkDevice, _vkExtent, _vkSwapChainFormat, "Shaders/vert.spv",
 		"Shaders/frag.spv");
 
 	m_modelMatrix = glm::mat4();

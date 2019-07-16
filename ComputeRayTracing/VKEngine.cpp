@@ -6,6 +6,7 @@
 #include "VKEngine.h"
 #include "Controller.h"
 #include "VKObject.h"
+#include "VKPipeline.h"
 
 #pragma region Debug Callbacks
 
@@ -79,6 +80,8 @@ VKEngine::VKEngine()
 
 VKEngine::~VKEngine()
 {
+	// Destroy command pool
+	vkDestroyCommandPool(*m_vkDevice, *m_vkCommandPool, nullptr);
 	// Destroy image views.
 	for (auto imageView : m_vkSwapChainImageViews) 
 	{
@@ -159,12 +162,21 @@ void VKEngine::Initialise()
 	vkCreateLogicalDevice(m_vkPhysicalDevice, m_vkDevice, m_vkGraphicsQueue, m_vkSurface);
 	// Create swapchain
 	vkCreateSwapChain(m_vkDevice, m_vkPhysicalDevice, m_vkSurface, m_vkSwapChain);
+	// Create image views
+	vkCreateImageViews(m_vkDevice, m_vkSwapChainImageViews, m_vkSwapChainImages, &m_vkSwapChainImageFormat);
 
 	// Create an object
 	m_object = new VKObject(m_vkDevice, m_vkSwapChainExtent, m_vkSwapChainImageFormat,
 		"Resources/Models/Sphere.obj");
 	// Model matrix : an identity matrix (model will be at the origin)
 	m_object->SetModelMatrix(glm::mat4(1.0f));
+
+	// Create frame buffers
+	vkCreateFrameBuffers();
+	// Create command pool.
+	vkSetupCommandPool();
+	// Create command buffers.
+	vkSetupCommandBuffers();
 }
 
 
@@ -601,6 +613,123 @@ void VKEngine::vkCreateImageViews(VkDevice* _vkDevice,
 	}
 }
 
-#pragma endregion
+void VKEngine::vkCreateFrameBuffers() 
+{
+	// Resize swap chain frame buffers to be same size as swap chain image views.
+	m_vkSwapChainFrameBuffers.resize(m_vkSwapChainImageViews.size());
 
+	// Go through all swap chain image views
+	for (size_t i = 0; i < m_vkSwapChainImageViews.size(); i++) 
+	{
+		VkImageView attachments[] = 
+		{
+			m_vkSwapChainImageViews[i]
+		};
+
+		VkFramebufferCreateInfo framebufferInfo = {};
+		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		framebufferInfo.renderPass = *static_cast<VKPipeline*>(m_object->GetPipeline())->vkGetRenderPass();
+		framebufferInfo.attachmentCount = 1;
+		framebufferInfo.pAttachments = attachments;
+		framebufferInfo.width = m_vkSwapChainExtent.width;
+		framebufferInfo.height = m_vkSwapChainExtent.height;
+		framebufferInfo.layers = 1;
+
+		if (vkCreateFramebuffer(*m_vkDevice, &framebufferInfo, nullptr, &m_vkSwapChainFrameBuffers[i])
+			!= VK_SUCCESS) 
+		{
+			throw std::runtime_error("failed to create framebuffer!");
+		}
+
+	}
+}
+
+void VKEngine::vkSetupCommandPool()
+{
+	// Get queue families.
+	vkQueueFamilyIndices queueFamilyIndices = vkFindQueueFamilies(*m_vkPhysicalDevice, m_vkSurface);
+	// Command pool create info.
+	VkCommandPoolCreateInfo poolInfo = {};
+	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	poolInfo.queueFamilyIndex = queueFamilyIndices.m_vkGraphicsFamily.value();
+	poolInfo.flags = 0; // Optional
+
+	// Create the command pool
+	m_vkCommandPool = new VkCommandPool();
+	if (vkCreateCommandPool(*m_vkDevice, &poolInfo, nullptr, m_vkCommandPool)
+		!= VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create command pool!");
+	}
+}
+
+void VKEngine::vkSetupCommandBuffers()
+{
+	// Resize command buffers vector to be same size as frame buffers.
+	m_vkCommandBuffers.resize(m_vkSwapChainFrameBuffers.size());
+
+	// Command buffer create info
+	VkCommandBufferAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.commandPool = *m_vkCommandPool;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandBufferCount = (uint32_t)m_vkCommandBuffers.size();
+
+	// Create the command buffers
+	if (vkAllocateCommandBuffers(*m_vkDevice, &allocInfo, m_vkCommandBuffers.data())
+		!= VK_SUCCESS)
+	{
+		throw runtime_error("Failed to allocate command buffers!");
+	}
+
+	// Start recording command buffers
+	// loop through command buffers.
+	for (size_t i = 0; i < m_vkCommandBuffers.size(); i++)
+	{
+		// Command buffer begin create info
+		VkCommandBufferBeginInfo beginInfo = {};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+		beginInfo.pInheritanceInfo = nullptr; // Optional
+		// Begin record
+		if (vkBeginCommandBuffer(m_vkCommandBuffers[i], &beginInfo) != VK_SUCCESS) 
+		{
+			throw std::runtime_error("failed to begin recording command buffer!");
+		}
+		// Begin Render Pass info
+		VkRenderPassBeginInfo renderPassInfo = {};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = 
+			*static_cast<VKPipeline*>(m_object->GetPipeline())->vkGetRenderPass();
+		renderPassInfo.framebuffer = m_vkSwapChainFrameBuffers[i];
+		renderPassInfo.renderArea.offset = { 0,0 };
+		renderPassInfo.renderArea.extent = m_vkSwapChainExtent;
+		// Clear Color of back screen.
+		VkClearValue clearColor = { 0.6f, 0.85f, 0.92f, 0.0f };
+		renderPassInfo.clearValueCount = 1;
+		renderPassInfo.pClearValues = &clearColor;
+
+		// Begin render pass
+		vkCmdBeginRenderPass(m_vkCommandBuffers[i], &renderPassInfo, 
+			VK_SUBPASS_CONTENTS_INLINE);
+
+		// Bind graphics pipeline
+		vkCmdBindPipeline(m_vkCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
+			*static_cast<VKPipeline*>(m_object->GetPipeline())->vkGetPipeline());
+		// Draw command buffer
+		vkCmdDraw(m_vkCommandBuffers[i], 3, 1, 0, 0);
+
+		// End render Pass
+		vkCmdEndRenderPass(m_vkCommandBuffers[i]);
+		// End Command buffer
+		if (vkEndCommandBuffer(m_vkCommandBuffers[i])
+			!= VK_SUCCESS) 
+		{
+			throw std::runtime_error("Failed to record command buffer.");
+		}
+		
+	}
+}
+
+#pragma endregion
 #endif

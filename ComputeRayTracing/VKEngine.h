@@ -49,6 +49,7 @@ private:
 	VkQueue* m_vkPresentQueue;
 	// Window Surface
 	VkSurfaceKHR* m_vkSurface;
+
 	// Swap chain
 	VkSwapchainKHR* m_vkSwapChain;
 	// Swap chain images
@@ -59,6 +60,13 @@ private:
 	VkExtent2D m_vkSwapChainExtent;
 	// Swap chain images
 	std::vector<VkImageView> m_vkSwapChainImageViews;
+	// Swap chain buffer images
+	std::vector<VkFramebuffer> m_vkSwapChainFrameBuffers;
+
+	// Command Pool
+	VkCommandPool* m_vkCommandPool;
+	// Command Buffers
+	std::vector<VkCommandBuffer> m_vkCommandBuffers;
 
 	// Vulkan Engine Init Code;
 	void Initialise();
@@ -99,6 +107,12 @@ private:
 		std::vector<VkImageView>& _vkSwapChainImageViews,
 		std::vector<VkImage>& _vkSwapChainImages,
 		VkFormat* _vkSwapChainImageFormat);
+	// Create Frame Buffers.
+	void vkCreateFrameBuffers();
+	// Create Command Pool.
+	void vkSetupCommandPool();
+	// Setup Command Bufers
+	void vkSetupCommandBuffers();
 public:
 	VKEngine();
 	~VKEngine();
