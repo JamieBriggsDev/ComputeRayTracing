@@ -9,7 +9,7 @@ GLObject::GLObject(const char* _modelFilePath)
 	// Load Model
 	m_model = new Model(_modelFilePath);
 	// Load Shader
-	m_shader = new GLPipeline("Shaders/SimpleVert.vert",
+	m_pipeline = new GLPipeline("Shaders/SimpleVert.vert",
 		"Shaders/SimpleFrag.frag");
 	// Set model Matrix
 	m_modelMatrix = glm::mat4();
@@ -28,16 +28,16 @@ void GLObject::Draw(Camera* _camera)
 	glm::mat4 MV = M * V;
 
 	// Send our transformations to the shader
-	glUniformMatrix4fv(m_shader->GetMVPID(), 1, GL_FALSE, &MVP[0][0]);
+	glUniformMatrix4fv(m_pipeline->GetMVPID(), 1, GL_FALSE, &MVP[0][0]);
 	//std::cout << "MVP: " << glGetError() << std::endl; 
-	glUniformMatrix4fv(m_shader->GetModelMatrixID(), 1, GL_FALSE, &M[0][0]);
+	glUniformMatrix4fv(m_pipeline->GetModelMatrixID(), 1, GL_FALSE, &M[0][0]);
 	//std::cout << "M: " << glGetError() << std::endl;
-	glUniformMatrix4fv(m_shader->GetViewMatrixID(), 1, GL_FALSE, &V[0][0]);
+	glUniformMatrix4fv(m_pipeline->GetViewMatrixID(), 1, GL_FALSE, &V[0][0]);
 	//std::cout << "V: " << glGetError() << std::endl;
 
 	// Send light position to the shader
 	glm::vec3 lightPosition = glm::vec3(4, 4, 4);
-	glUniform3f(m_shader->GetLightPositionWorldSpaceID(),
+	glUniform3f(m_pipeline->GetLightPositionWorldSpaceID(),
 		lightPosition.x, lightPosition.y, lightPosition.z);
 	//std::cout << "Light: " << glGetError() << std::endl;
 
@@ -47,7 +47,7 @@ void GLObject::Draw(Camera* _camera)
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, m_texture->GetData());
 		// Set TextureSampler sampler to use Texture Unit 0
-		glUniform1i(m_shader->GetTextureSamplerID(), 0);
+		glUniform1i(m_pipeline->GetTextureSamplerID(), 0);
 		//std::cout << "Texture Sampler: " << glGetError() << std::endl;
 	}
 
@@ -57,7 +57,7 @@ void GLObject::Draw(Camera* _camera)
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, m_heightMap->GetData());
 		// Set TextureSampler sampler to use Texture Unit 0
-		glUniform1i(m_shader->GetHeightMapSamplerID(), 1);
+		glUniform1i(m_pipeline->GetHeightMapSamplerID(), 1);
 		//std::cout << "Height Map Sampler: " << glGetError() << std::endl;
 	}
 
