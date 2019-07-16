@@ -320,17 +320,19 @@ xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
     <ClInclude Include="Controller.h" />
     <ClInclude Include="DrawEngine.h" />
     <ClInclude Include="GLObject.h" />
-    <ClInclude Include="IEngine.h" />
+    <ClInclude Include="GLShader.h" />
+    <ClInclude Include="Engine.h" />
     <ClInclude Include="GLEngine.h" />
     <ClInclude Include="HardModels.h" />
     <ClInclude Include="Model.h" />
-    <ClInclude Include="IObject.h" />
+    <ClInclude Include="Object.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Triangle.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="VKEngine.h" />
     <ClInclude Include="VKObject.h" />
+    <ClInclude Include="VKShader.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
@@ -338,15 +340,17 @@ xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="DrawEngine.cpp" />
     <ClCompile Include="GLObject.cpp" />
-    <ClCompile Include="IEngine.cpp" />
+    <ClCompile Include="GLShader.cpp" />
+    <ClCompile Include="Engine.cpp" />
     <ClCompile Include="GLEngine.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
-    <ClCompile Include="IObject.cpp" />
+    <ClCompile Include="Object.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="VKEngine.cpp" />
     <ClCompile Include="VKObject.cpp" />
+    <ClCompile Include="VKShader.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>

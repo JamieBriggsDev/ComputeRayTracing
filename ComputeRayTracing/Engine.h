@@ -5,7 +5,7 @@
 #include "DrawEngine.h"
 #include "Controller.h"
 
-class IEngine
+class Engine
 {
 protected:
 	// Window object
@@ -17,14 +17,14 @@ protected:
 	// Draw Engine
 	DrawEngine* m_myDrawEngine;
 	// Objects
-	IObject* m_object;
+	Object* m_object;
 	// DeltaTime
 	float m_deltaTime;
 
 
 public:
-	IEngine() {};
-	~IEngine();
+	Engine() {};
+	~Engine();
 
 	// Initialise code.
 	virtual void Initialise() = 0;

@@ -3,13 +3,13 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-#include "Model.h"
 #include "Shader.h"
+#include "Model.h"
 #include "Texture.h"
 
 class Camera;
 
-class IObject
+class Object
 {
 protected:
 	// Model
@@ -27,14 +27,14 @@ protected:
 public:
 	//Object(VkDevice _vkDevice);
 
-	IObject() {};
+	Object() {};
 
 	//Object(const char* _modelFilePath, TextureType _textureType, 
 	//	const char* _textureFilePath);
 	//Object(const char* _modelFilePath, TextureType _textureType,
 	//	const char* _textureFilePath, const char* _heightMapFilePath);
 
-	~IObject();
+	~Object();
 	// Get functions
 	Model* GetModel() { return m_model; }
 	Shader* GetShader() { return m_shader; }

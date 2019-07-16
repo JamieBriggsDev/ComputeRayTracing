@@ -1,10 +1,10 @@
 #pragma once
 #if GL
 
-#include "IEngine.h"
+#include "Engine.h"
 
 class GLEngine : 
-	public IEngine
+	public Engine
 {
 private:
 	// OpenGL Engine Init Code;

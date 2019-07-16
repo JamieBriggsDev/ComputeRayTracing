@@ -1,9 +1,9 @@
 #if GL
 
 #pragma once
-#include "IObject.h"
+#include "Object.h"
 class GLObject :
-	public IObject
+	public Object
 {
 public:
 	GLObject(const char* _modelFilePath);

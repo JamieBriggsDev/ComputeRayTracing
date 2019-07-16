@@ -1,9 +1,11 @@
 #if VK
-
 #pragma once
-#include "IObject.h"
+
+#include "Object.h"
+#include <vulkan/vulkan.h>
+
 class VKObject :
-	public IObject
+	public Object
 {
 public:
 	VKObject(VkDevice _vkDevice, const char* _modelFilePath);

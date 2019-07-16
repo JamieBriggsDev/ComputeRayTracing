@@ -21,7 +21,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 // Object Class
-#include "IObject.h"
+#include "Object.h"
 
 // Camera class
 class Camera;

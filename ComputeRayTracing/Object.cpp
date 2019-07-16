@@ -1,4 +1,4 @@
-#include "IObject.h"
+#include "Object.h"
 #include "Camera.h"
 
 //Object::Object(const char * _modelFilePath, TextureType _textureType, const char * _textureFilePath)
@@ -22,7 +22,7 @@
 //}
 
 
-IObject::~IObject()
+Object::~Object()
 {
 	// Clean up model
 	delete m_model;
@@ -35,7 +35,7 @@ IObject::~IObject()
 }
 
 // Set model matrix
-void IObject::SetModelMatrix(glm::mat4 _modelMatrix) 
+void Object::SetModelMatrix(glm::mat4 _modelMatrix) 
 { 
 	m_modelMatrix = _modelMatrix; 
 }

@@ -1,13 +1,13 @@
-#include "IEngine.h"
+#include "Engine.h"
 
 
-IEngine::~IEngine()
+Engine::~Engine()
 {
 	// Terminate GLFW.
 	glfwTerminate();
 }
 
-void IEngine::MainLoop()
+void Engine::MainLoop()
 {
 	// Get deltatime
 	glfwSetTime(0.0);

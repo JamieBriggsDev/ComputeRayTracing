@@ -17,7 +17,7 @@ void CreateGraphicsPipeline()
 #endif
 
 
-void DrawEngine::Update(Camera* _camera, Window* _window, IObject* _object)
+void DrawEngine::Update(Camera* _camera, Window* _window, Object* _object)
 {
 
 #if GL

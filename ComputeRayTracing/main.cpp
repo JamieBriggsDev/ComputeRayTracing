@@ -22,9 +22,9 @@ int main()
 
 	// Initialise Engine based on API
 #if GL
-	IEngine* JBEngine = new GLEngine();
+	Engine* JBEngine = new GLEngine();
 #elif VK
-	IEngine* JBEngine = new VKEngine();
+	Engine* JBEngine = new VKEngine();
 #endif
 	// Start main loop
 	JBEngine->MainLoop();

@@ -1,7 +1,7 @@
 #pragma once
 #if VK
 
-#include "IEngine.h"
+#include "Engine.h"
 
 // Vulkan
 #include <vulkan/vulkan.h>
@@ -32,7 +32,7 @@ struct vkSwapChainSupportDetails
 };
 
 class VKEngine :
-	public IEngine
+	public Engine
 {
 private:
 	// Vulkan Instace
