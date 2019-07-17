@@ -240,6 +240,7 @@ void VKEngine::MainLoop()
 	} // Check if the ESC key was pressed or the window was closed
 	while (m_myWindow->CheckWindowClose(m_myController) == 0);
 
+	vkDeviceWaitIdle(*m_vkDevice);
 }
 
 

@@ -9,6 +9,7 @@
 // Optional
 #include <optional>
 
+
 // Vulkan Extensions
 const std::vector<const char*> vkDeviceExtensions = {
 VK_KHR_SWAPCHAIN_EXTENSION_NAME

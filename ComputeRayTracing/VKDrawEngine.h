@@ -5,6 +5,8 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 
+const int PRE_RENDERED_FRAMES = 1;
+
 class Object;
 class Camera;
 class Window;
@@ -15,10 +17,14 @@ class VKDrawEngine
 private:
 	// Reference to vulkan device.
 	VKEngine* m_vkEngineRef;
-	VkSemaphore m_vkImageAvailableSemaphore;
-	VkSemaphore m_vkRenderFinishedSemaphore;
+	// Semaphores for each pre rendered frame.
+	std::vector<VkSemaphore> m_vkImageAvailableSemaphore;
+	std::vector<VkSemaphore> m_vkRenderFinishedSemaphore;
+	std::vector<VkFence> m_vkInFlightFences;
+	// Frame Count
+	size_t m_currentFrame = 0;
 	// Create semaphore signals
-	void vkCreateSemaphores();
+	void vkCreateSyncObjects();
 public:
 	void Update(std::vector<VkCommandBuffer> _commandBuffers);
 	VKDrawEngine(VKEngine* _vkEngine);
