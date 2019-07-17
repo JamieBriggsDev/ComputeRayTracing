@@ -45,7 +45,7 @@ GLEngine::GLEngine()
 	// Create Camera
 	m_myCamera = new Camera();
 	// Create Draw Engine
-	m_myDrawEngine = new DrawEngine();
+	m_myDrawEngine = new GLDrawEngine();
 }
 
 void GLEngine::Initialise()
@@ -111,8 +111,12 @@ void GLEngine::MainLoop()
 		// Drawn objects
 		m_myDrawEngine->Update(m_myCamera, m_myWindow, m_object);
 
+		// Update Window
+		m_myWindow->Update();
+
 		// record new last time
 		LastTime = currentTime;
+
 
 	} // Check if the ESC key was pressed or the window was closed
 	while (m_myWindow->CheckWindowClose(m_myController) == 0);

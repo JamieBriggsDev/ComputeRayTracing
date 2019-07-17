@@ -2,7 +2,6 @@
 
 #include "Window.h"
 #include "Camera.h"
-#include "DrawEngine.h"
 #include "Controller.h"
 
 class Engine
@@ -14,8 +13,6 @@ protected:
 	Camera* m_myCamera;
 	// Controller Component
 	Controller* m_myController;
-	// Draw Engine
-	DrawEngine* m_myDrawEngine;
 	// Objects
 	Object* m_object;
 	// DeltaTime

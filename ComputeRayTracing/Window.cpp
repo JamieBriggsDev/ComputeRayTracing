@@ -83,7 +83,10 @@ int Window::Initialise()
 
 void Window::Update()
 {
-
+	// Swap Buffers
+	glfwSwapBuffers(GetWindowComponent());
+	// Poll Events
+	glfwPollEvents();
 }
 
 GLFWwindow* Window::GetWindowComponent()

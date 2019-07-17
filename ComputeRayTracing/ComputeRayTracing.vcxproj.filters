@@ -36,9 +36,6 @@
     <ClInclude Include="Controller.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DrawEngine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="HardModels.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -84,15 +81,18 @@
     <ClInclude Include="Pipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GLDrawEngine.h">
+      <Filter>Header Files\GL</Filter>
+    </ClInclude>
+    <ClInclude Include="VKDrawEngine.h">
+      <Filter>Header Files\VK</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Controller.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DrawEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
@@ -133,6 +133,12 @@
     </ClCompile>
     <ClCompile Include="GLPipeline.cpp">
       <Filter>Source Files\GL</Filter>
+    </ClCompile>
+    <ClCompile Include="GLDrawEngine.cpp">
+      <Filter>Source Files\GL</Filter>
+    </ClCompile>
+    <ClCompile Include="VKDrawEngine.cpp">
+      <Filter>Source Files\VK</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

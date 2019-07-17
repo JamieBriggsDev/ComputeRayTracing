@@ -318,7 +318,7 @@ xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Controller.h" />
-    <ClInclude Include="DrawEngine.h" />
+    <ClInclude Include="GLDrawEngine.h" />
     <ClInclude Include="GLObject.h" />
     <ClInclude Include="GLPipeline.h" />
     <ClInclude Include="Engine.h" />
@@ -330,6 +330,7 @@ xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Triangle.h" />
     <ClInclude Include="Vertex.h" />
+    <ClInclude Include="VKDrawEngine.h" />
     <ClInclude Include="VKEngine.h" />
     <ClInclude Include="VKObject.h" />
     <ClInclude Include="VKPipeline.h" />
@@ -338,7 +339,7 @@ xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Controller.cpp" />
-    <ClCompile Include="DrawEngine.cpp" />
+    <ClCompile Include="GLDrawEngine.cpp" />
     <ClCompile Include="GLObject.cpp" />
     <ClCompile Include="GLPipeline.cpp" />
     <ClCompile Include="Engine.cpp" />
@@ -348,6 +349,7 @@ xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Pipeline.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="VKDrawEngine.cpp" />
     <ClCompile Include="VKEngine.cpp" />
     <ClCompile Include="VKObject.cpp" />
     <ClCompile Include="VKShader.cpp" />

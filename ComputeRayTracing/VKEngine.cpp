@@ -75,7 +75,7 @@ VKEngine::VKEngine()
 	// Create Camera
 	m_myCamera = new Camera();
 	// Create Draw Engine
-	m_myDrawEngine = new DrawEngine();
+	m_myDrawEngine = new VKDrawEngine(this);
 }
 
 VKEngine::~VKEngine()
@@ -229,7 +229,10 @@ void VKEngine::MainLoop()
 		m_myCamera->Update(m_myWindow, m_myController, m_deltaTime);
 
 		// Drawn objects
-		m_myDrawEngine->Update(m_myCamera, m_myWindow, m_object);
+		m_myDrawEngine->Update(m_vkCommandBuffers);
+
+		// Update Window
+		m_myWindow->Update();
 
 		// record new last time
 		LastTime = currentTime;
@@ -620,6 +623,7 @@ void VKEngine::vkCreateLogicalDevice(VkPhysicalDevice* _vkPhysicalDevice, VkDevi
 	}
 
 	vkGetDeviceQueue(*_vkDevice, indices.m_vkGraphicsFamily.value(), 0, _vkGraphicsQueue);
+	vkGetDeviceQueue(*_vkDevice, indices.m_vkPresentFamily.value(), 0, m_vkPresentQueue);
 }
 
 void VKEngine::vkCreateSurface(VkInstance* _vkInsance, GLFWwindow* _window, VkSurfaceKHR* _vkSurface)

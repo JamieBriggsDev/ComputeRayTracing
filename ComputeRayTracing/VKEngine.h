@@ -2,6 +2,7 @@
 #if VK
 
 #include "Engine.h"
+#include "VKDrawEngine.h"
 
 // Vulkan
 #include <vulkan/vulkan.h>
@@ -35,6 +36,9 @@ class VKEngine :
 	public Engine
 {
 private:
+	// VKDraw Engine
+	VKDrawEngine* m_myDrawEngine;
+
 	// Vulkan Instace
 	VkInstance* m_vkInstance;
 	// Vulkan Physical Device
@@ -118,6 +122,19 @@ private:
 public:
 	VKEngine();
 	~VKEngine();
+
+	// Getter Functions
+	// Get Vulkan Device
+	VkDevice* vkGetDevice() { return m_vkDevice; }
+	// Get Graphics Queue
+	VkQueue* vkGetGraphicsQueue() { return m_vkGraphicsQueue; }
+	// Get Present Queue
+	VkQueue* vkGetPresentQueue() { return m_vkPresentQueue; }
+	// Get Swap chain
+	VkSwapchainKHR* vkGetSwapChain() { return m_vkSwapChain; }
+	// Get Command Buffers
+	std::vector<VkCommandBuffer> vkGetCommandBuffers() { return m_vkCommandBuffers; }
+
 };
 
 #endif
