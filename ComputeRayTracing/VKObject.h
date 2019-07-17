@@ -2,15 +2,17 @@
 #pragma once
 
 #include "Object.h"
+
 #include <vulkan/vulkan.h>
+#include <array>
+
+class VKEngine;
 
 class VKObject :
 	public Object
 {
 public:
-	VKObject(VkDevice* _vkDevice, 
-		VkExtent2D _vkExtent, 
-		VkFormat _vkSwapChainFormat,
+	VKObject(VKEngine* _vkEngine,
 		const char* _modelFilePath);
 	~VKObject();
 

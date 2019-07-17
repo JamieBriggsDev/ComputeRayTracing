@@ -332,6 +332,7 @@ xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="VKDrawEngine.h" />
     <ClInclude Include="VKEngine.h" />
+    <ClInclude Include="VKModel.h" />
     <ClInclude Include="VKObject.h" />
     <ClInclude Include="VKPipeline.h" />
     <ClInclude Include="Window.h" />
@@ -351,16 +352,17 @@ xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="VKDrawEngine.cpp" />
     <ClCompile Include="VKEngine.cpp" />
+    <ClCompile Include="VKModel.cpp" />
     <ClCompile Include="VKObject.cpp" />
-    <ClCompile Include="VKShader.cpp" />
+    <ClCompile Include="VKPipeline.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\frag.spv" />
     <None Include="Shaders\SimpleFrag.frag" />
     <None Include="Shaders\SimpleVert.vert" />
-    <None Include="Shaders\Triangle.frag" />
-    <None Include="Shaders\Triangle.vert" />
+    <None Include="Shaders\Shader.frag" />
+    <None Include="Shaders\Shader.vert" />
     <None Include="Shaders\vert.spv" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
