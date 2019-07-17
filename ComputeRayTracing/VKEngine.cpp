@@ -787,9 +787,13 @@ void VKEngine::vkSetupCommandBuffers()
 		VkBuffer vertexBuffers[] = { temp->vkGetVertexBuffer() };
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(m_vkCommandBuffers[i], 0, 1, vertexBuffers, offsets);
+		vkCmdBindIndexBuffer(m_vkCommandBuffers[i], 
+			temp->vkGetIndexBuffer(), 
+			0, 
+			VK_INDEX_TYPE_UINT16);
 
-		// Draw command buffer
-		vkCmdDraw(m_vkCommandBuffers[i], static_cast<uint32_t>(temp->vkGetVertices().size()), 1, 0, 0);
+		// Draw with indices.
+		vkCmdDrawIndexed(m_vkCommandBuffers[i], static_cast<uint32_t>(temp->vkGetIndices().size()), 1, 0, 0, 0);
 		
 		// End render Pass
 		vkCmdEndRenderPass(m_vkCommandBuffers[i]);

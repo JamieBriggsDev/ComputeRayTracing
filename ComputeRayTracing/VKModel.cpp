@@ -11,6 +11,8 @@ VKModel::VKModel(VKEngine* _vkEngine)
 	m_vkEngineRef = _vkEngine;
 	// Setup vertex buffers.
 	vkCreateVertexBuffer();
+	// Setup index buffers.
+	vkCreateIndexBuffer();
 }
 
 
@@ -20,6 +22,10 @@ VKModel::~VKModel()
 	vkDestroyBuffer(*m_vkEngineRef->vkGetDevice(), m_vkVertexBuffer, nullptr);
 	// Free vertex memory.
 	vkFreeMemory(*m_vkEngineRef->vkGetDevice(), m_vkVertexBufferMemory, nullptr);
+	// Destroy index buffer.
+	vkDestroyBuffer(*m_vkEngineRef->vkGetDevice(), m_vkIndexBuffer, nullptr);
+	// Free index memory.
+	vkFreeMemory(*m_vkEngineRef->vkGetDevice(), m_vkIndexBufferMemory, nullptr);
 }
 
 uint32_t VKModel::vkFindMemoryType(uint32_t _typeFilter, VkMemoryPropertyFlags _vkProperties)
@@ -79,6 +85,45 @@ void VKModel::vkCreateVertexBuffer()
 	vkDestroyBuffer(*m_vkEngineRef->vkGetDevice(), stagingBuffer, nullptr);
 	vkFreeMemory(*m_vkEngineRef->vkGetDevice(), stagingBufferMemory, nullptr);
 
+}
+
+void VKModel::vkCreateIndexBuffer()
+{
+	// Find index buffer size.
+	VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+	// Setup staging buffer.
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	vkSetupBuffer(bufferSize, 
+		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | 
+		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+		stagingBuffer, 
+		stagingBufferMemory);
+
+	// Copy staging data.
+	void* data;
+	vkMapMemory(*m_vkEngineRef->vkGetDevice(), 
+		stagingBufferMemory,
+		0, 
+		bufferSize,
+		0,
+		&data);
+	memcpy(data, indices.data(), (size_t)bufferSize);
+	vkUnmapMemory(*m_vkEngineRef->vkGetDevice(), stagingBufferMemory);
+	// Setup index buffer.
+	vkSetupBuffer(bufferSize, 
+		VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+		VK_BUFFER_USAGE_INDEX_BUFFER_BIT, 
+		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+		m_vkIndexBuffer, 
+		m_vkIndexBufferMemory);
+	// Transfer staging buffer into index buffer.
+	vkCopyBuffer(stagingBuffer, m_vkIndexBuffer, bufferSize);
+
+	// Cleanup index buffer.
+	vkDestroyBuffer(*m_vkEngineRef->vkGetDevice(), stagingBuffer, nullptr);
+	vkFreeMemory(*m_vkEngineRef->vkGetDevice(), stagingBufferMemory, nullptr);
 }
 
 void VKModel::vkSetupBuffer(VkDeviceSize _size,
