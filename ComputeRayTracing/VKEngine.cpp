@@ -177,7 +177,7 @@ void VKEngine::Initialise()
 	// Create frame buffers
 	vkCreateFrameBuffers();
 	// Create command buffers.
-	vkSetupCommandBuffers();
+	vkCreateCommandBuffers();
 }
 
 void VKEngine::MainLoop()
@@ -729,7 +729,7 @@ void VKEngine::vkSetupCommandPool()
 	}
 }
 
-void VKEngine::vkSetupCommandBuffers()
+void VKEngine::vkCreateCommandBuffers()
 {
 	// Resize command buffers vector to be same size as frame buffers.
 	m_vkCommandBuffers.resize(m_vkSwapChainFrameBuffers.size());
@@ -755,7 +755,7 @@ void VKEngine::vkSetupCommandBuffers()
 		// Command buffer begin create info
 		VkCommandBufferBeginInfo beginInfo = {};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+		//beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 		beginInfo.pInheritanceInfo = nullptr; // Optional
 		// Begin record
 		if (vkBeginCommandBuffer(m_vkCommandBuffers[i], &beginInfo) != VK_SUCCESS) 
@@ -776,25 +776,34 @@ void VKEngine::vkSetupCommandBuffers()
 		renderPassInfo.pClearValues = &clearColor;
 
 		// Begin render pass
-		vkCmdBeginRenderPass(m_vkCommandBuffers[i], &renderPassInfo, 
-			VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBeginRenderPass(m_vkCommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-		// Bind graphics pipeline
-		vkCmdBindPipeline(m_vkCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
-			*static_cast<VKPipeline*>(m_object->GetPipeline())->vkGetPipeline());
+			// Bind graphics pipeline
+			vkCmdBindPipeline(m_vkCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
+				*static_cast<VKPipeline*>(m_object->GetPipeline())->vkGetPipeline());
 
-		VKModel* temp = static_cast<VKModel*>(m_object->GetModel());
+			VKModel* temp = static_cast<VKModel*>(m_object->GetModel());
 
-		VkBuffer vertexBuffers[] = { temp->vkGetVertexBuffer() };
-		VkDeviceSize offsets[] = { 0 };
-		vkCmdBindVertexBuffers(m_vkCommandBuffers[i], 0, 1, vertexBuffers, offsets);
-		vkCmdBindIndexBuffer(m_vkCommandBuffers[i], 
-			temp->vkGetIndexBuffer(), 
-			0, 
-			VK_INDEX_TYPE_UINT16);
+			// Bind Vertex and Index buffers.
+			VkBuffer vertexBuffers[] = { temp->vkGetVertexBuffer() };
+			VkDeviceSize offsets[] = { 0 };
+			vkCmdBindVertexBuffers(m_vkCommandBuffers[i], 0, 1, vertexBuffers, offsets);
+			vkCmdBindIndexBuffer(m_vkCommandBuffers[i], 
+				temp->vkGetIndexBuffer(), 
+				0, 
+				VK_INDEX_TYPE_UINT16);
 
-		// Draw with indices.
-		vkCmdDrawIndexed(m_vkCommandBuffers[i], static_cast<uint32_t>(temp->vkGetIndices().size()), 1, 0, 0, 0);
+			VKPipeline* myPipeline = static_cast<VKPipeline*>(m_object->GetPipeline());
+			// Bind Descriptor Sets
+			vkCmdBindDescriptorSets(m_vkCommandBuffers[i], 
+				VK_PIPELINE_BIND_POINT_GRAPHICS, 
+				*myPipeline->vkGetPipelineLayout(),
+				0, 1, 
+				&myPipeline->vkGetDescriptorSets()[i],
+				0, 
+				nullptr);
+			// Draw with indices.
+			vkCmdDrawIndexed(m_vkCommandBuffers[i], static_cast<uint32_t>(temp->vkGetIndices().size()), 1, 0, 0, 0);
 		
 		// End render Pass
 		vkCmdEndRenderPass(m_vkCommandBuffers[i]);

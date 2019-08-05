@@ -36,11 +36,11 @@ private:
 	// Create the Render Pass
 	void CreateRenderPass(VkFormat _vkSwapChainImageFormat);
 	// Create Descriptor Sets.
-	void CreateDescriptorSets();
+	void CreateDescriptorSetLayout();
 	// Create Descriptor Pools.
 	void CreateDescriptorPools();
 	// Create Descriptor Sets.
-	void CreateDescriptorSets();
+	void CreateDescriptorSets(VKModel* _vkModel);
 public:
 	VKPipeline(VKEngine* _vkEngine,
 		VkExtent2D _vkSwapChainExtent,
@@ -50,7 +50,8 @@ public:
 		VKModel* _model);
 	VkRenderPass* vkGetRenderPass() { return m_vkRenderPass; }
 	VkPipeline* vkGetPipeline() { return m_vkPipeline; }
-
+	VkPipelineLayout* vkGetPipelineLayout() { return m_vkPipelineLayout; }
+	std::vector<VkDescriptorSet> vkGetDescriptorSets() { return m_vkDescriptorSets; }
 	~VKPipeline();
 };
 

@@ -121,7 +121,7 @@ private:
 	// Create Command Pool.
 	void vkSetupCommandPool();
 	// Setup Command Buffers.
-	void vkSetupCommandBuffers();
+	void vkCreateCommandBuffers();
 public:
 	VKEngine();
 	~VKEngine();

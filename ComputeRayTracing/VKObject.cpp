@@ -13,11 +13,12 @@ VKObject::VKObject(VKEngine* _vkEngine,
 {
 	m_model = new VKModel(_vkEngine);
 
-	m_pipeline = new VKPipeline(_vkEngine->vkGetDevice(), 
+	m_pipeline = new VKPipeline(_vkEngine, 
 		_vkEngine->vkGetSwapChainExtent(), 
 		_vkEngine->vkGetSwapChainImageFormat(), 
 		"Shaders/vert.spv",
-		"Shaders/frag.spv");
+		"Shaders/frag.spv",
+		static_cast<VKModel*>(m_model));
 
 	m_modelMatrix = glm::mat4();
 }

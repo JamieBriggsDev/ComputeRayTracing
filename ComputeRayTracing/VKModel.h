@@ -58,13 +58,19 @@ public:
 		VkDeviceMemory& _bufferMemory);
 	// Update uniform buffer data.
 	void vkUpdateUniformBuffer(uint32_t _currentImage);
-
-
-	VkBuffer vkGetVertexBuffer() { return m_vkVertexBuffer; }
-	VkBuffer vkGetIndexBuffer() { return m_vkIndexBuffer; }
-	std::vector<Vertex> vkGetVertices() { return vertices; }
-	std::vector<uint16_t> vkGetIndices() { return indices; }
+	// Copys buffer
 	void vkCopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+
+	// Gets Vertex Buffer
+	VkBuffer vkGetVertexBuffer() { return m_vkVertexBuffer; }
+	// Gets Index Buffer
+	VkBuffer vkGetIndexBuffer() { return m_vkIndexBuffer; }
+	// Gets Vertices
+	std::vector<Vertex> vkGetVertices() { return vertices; }
+	// Gets Indices
+	std::vector<uint16_t> vkGetIndices() { return indices; }
+	// Gets Uniform Buffers
+	std::vector<VkBuffer> vkGetUniformBuffers() { return m_vkUniformBuffers; }
 
 	VKModel(VKEngine* _vkEngine);
 	~VKModel();

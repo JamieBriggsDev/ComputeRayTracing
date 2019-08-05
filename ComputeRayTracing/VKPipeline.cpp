@@ -15,14 +15,16 @@ VKPipeline::VKPipeline(VKEngine* _vkEngine,
 	m_vkEngineRef = _vkEngine;
 	// Create Render Pass
 	CreateRenderPass(_vkSwapChainImageFormat);
-	// Create descriptor set
-	CreateDescriptorSets();
-	// Create descriptor pools
-	CreateDescriptorPools();
+	// Create descriptor set layout
+	CreateDescriptorSetLayout();
 	// Create Pipeline
 	CreatePipelineLayout(_vkSwapChainExtent, 
 		_vertexFilePath, 
 		_fragmentFilePath);
+	// Create descriptor pools
+	CreateDescriptorPools();
+	// Create descriptor set
+	CreateDescriptorSets(_model);
 }
 
 VKPipeline::~VKPipeline()
@@ -140,7 +142,7 @@ void VKPipeline::CreatePipelineLayout(VkExtent2D _vkSwapChainExtent,
 	rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 	rasterizer.lineWidth = 1.0f;
 	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-	rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+	rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	rasterizer.depthBiasEnable = VK_FALSE;
 
 	// Disable Multisampling
@@ -295,7 +297,7 @@ void VKPipeline::CreateRenderPass(VkFormat _vkSwapChainImageFormat)
 
 }
 
-void VKPipeline::CreateDescriptorSets()
+void VKPipeline::CreateDescriptorSetLayout()
 {
 	// Descriptor set binding info
 	VkDescriptorSetLayoutBinding uboLayoutBinding = {};
@@ -342,7 +344,7 @@ void VKPipeline::CreateDescriptorPools()
 	}
 }
 
-void VKPipeline::CreateDescriptorSets()
+void VKPipeline::CreateDescriptorSets(VKModel* _vkModel)
 {
 	size_t SwapChainImageSize = m_vkEngineRef->vkGetSwapChainImages().size();
 	// Descriptor sets layout allocate info
@@ -352,16 +354,37 @@ void VKPipeline::CreateDescriptorSets()
 	allocInfo.descriptorPool = *m_vkDescriptorPool;
 	allocInfo.descriptorSetCount = static_cast<uint32_t>(SwapChainImageSize);
 	allocInfo.pSetLayouts = layouts.data();
-	// Allocate descriptor sets
+	// Allocate Descirptor Sets.
 	m_vkDescriptorSets.resize(SwapChainImageSize);
-	if (vkAllocateDescriptorSets(*m_vkEngineRef->vkGetDevice(), 
-		&allocInfo,
-		m_vkDescriptorSets.data()) != VK_SUCCESS) 
+	if (vkAllocateDescriptorSets(*m_vkEngineRef->vkGetDevice(), &allocInfo, m_vkDescriptorSets.data()) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to allocate descriptor sets!");
 	}
-
-	// CONFIGURE DESCRIPTOR SETS!!!!
+	// Insert data into descriptor sets.
+	for (size_t i = 0; i < SwapChainImageSize; i++)
+	{
+		// Descriptor buffer info.
+		VkDescriptorBufferInfo bufferInfo = {};
+		bufferInfo.buffer = _vkModel->vkGetUniformBuffers()[i];
+		bufferInfo.offset = 0;
+		bufferInfo.range = sizeof(UniformBufferObject);
+		// Write descriptor sets.
+		VkWriteDescriptorSet descriptorWrite = {};
+		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrite.dstSet = m_vkDescriptorSets[i];
+		descriptorWrite.dstBinding = 0;
+		descriptorWrite.dstArrayElement = 0;
+		// Define descriptor type.
+		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrite.descriptorCount = 1;
+		// Image info.
+		descriptorWrite.pBufferInfo = &bufferInfo;
+		descriptorWrite.pImageInfo = nullptr; // Optional
+		descriptorWrite.pTexelBufferView = nullptr; // Optional
+		// Update descriptor sets.
+		vkUpdateDescriptorSets(*m_vkEngineRef->vkGetDevice(),
+			1, &descriptorWrite, 0, nullptr);
+	}
 }
 
 #endif
