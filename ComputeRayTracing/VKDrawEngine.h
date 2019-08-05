@@ -7,7 +7,7 @@
 
 const int PRE_RENDERED_FRAMES = 1;
 
-class Object;
+class VKObject;
 class Camera;
 class Window;
 class VKEngine;
@@ -26,7 +26,7 @@ private:
 	// Create semaphore signals
 	void vkCreateSyncObjects();
 public:
-	void Update(std::vector<VkCommandBuffer> _commandBuffers);
+	void Update(VKObject* _object, std::vector<VkCommandBuffer> _commandBuffers);
 	VKDrawEngine(VKEngine* _vkEngine);
 	~VKDrawEngine();
 };

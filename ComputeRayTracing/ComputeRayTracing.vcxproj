@@ -351,7 +351,6 @@ xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Pipeline.cpp" />
     <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="UniformBufferObject.cpp" />
     <ClCompile Include="VKDrawEngine.cpp" />
     <ClCompile Include="VKEngine.cpp" />
     <ClCompile Include="VKModel.cpp" />

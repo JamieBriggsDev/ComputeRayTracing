@@ -33,4 +33,9 @@ void VKObject::Draw(Camera* _camera)
 
 }
 
+void VKObject::Update(uint32_t _currentSwapChainImage)
+{
+	static_cast<VKModel*>(m_model)->vkUpdateUniformBuffer(_currentSwapChainImage);
+}
+
 #endif

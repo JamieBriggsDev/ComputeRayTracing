@@ -145,7 +145,8 @@ public:
 	VkCommandPool* vkGetCommandPool() { return m_vkCommandPool; }
 	// Get Command Buffers
 	std::vector<VkCommandBuffer> vkGetCommandBuffers() { return m_vkCommandBuffers; }
-
+	// Get swap chain images
+	std::vector<VkImage> vkGetSwapChainImages() { return m_vkSwapChainImages; }
 };
 
 #endif

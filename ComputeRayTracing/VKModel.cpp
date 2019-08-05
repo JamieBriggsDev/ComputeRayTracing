@@ -1,7 +1,11 @@
 #if VK
 
-#include "VKModel.h"
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <chrono>
 
+#include "VKModel.h"
 #include "VKEngine.h"
 
 
@@ -13,6 +17,8 @@ VKModel::VKModel(VKEngine* _vkEngine)
 	vkCreateVertexBuffer();
 	// Setup index buffers.
 	vkCreateIndexBuffer();
+	// Setup uniform buffers
+	vkCreateUniformBuffers();
 }
 
 
@@ -26,6 +32,8 @@ VKModel::~VKModel()
 	vkDestroyBuffer(*m_vkEngineRef->vkGetDevice(), m_vkIndexBuffer, nullptr);
 	// Free index memory.
 	vkFreeMemory(*m_vkEngineRef->vkGetDevice(), m_vkIndexBufferMemory, nullptr);
+	// Destroy uniform buffers.
+	vkCleanupUniformBuffers(m_vkEngineRef->vkGetSwapChainImages().size());
 }
 
 uint32_t VKModel::vkFindMemoryType(uint32_t _typeFilter, VkMemoryPropertyFlags _vkProperties)
@@ -197,6 +205,71 @@ void VKModel::vkCopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize 
 
 	vkQueueSubmit(*m_vkEngineRef->vkGetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
 	vkQueueWaitIdle(*m_vkEngineRef->vkGetGraphicsQueue());
+}
+
+void VKModel::vkCreateUniformBuffers()
+{
+	// Gets the uniform buffer object size.
+	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+	// Resizes the uniform buffers to the same size as the swap chain images.
+	m_vkUniformBuffers.resize(m_vkEngineRef->vkGetSwapChainImages().size());
+	m_vkUniformBuffersMemory.resize(m_vkEngineRef->vkGetSwapChainImages().size());
+	// Sets up the individual buffers.
+	for (size_t i = 0; i < m_vkEngineRef->vkGetSwapChainImages().size(); i++) {
+		vkSetupBuffer(bufferSize, 
+			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+			VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+			m_vkUniformBuffers[i], 
+			m_vkUniformBuffersMemory[i]);
+	}
+}
+
+void VKModel::vkCleanupUniformBuffers(int _size)
+{
+	// Destroys all the uniform buffers and its memory
+	//  counterparts.
+	for (size_t i = 0; i < _size; i++) 
+	{
+		vkDestroyBuffer(*m_vkEngineRef->vkGetDevice(), 
+			m_vkUniformBuffers[i], 
+			nullptr);
+		vkFreeMemory(*m_vkEngineRef->vkGetDevice(),
+			m_vkUniformBuffersMemory[i], 
+			nullptr);
+	}
+}
+
+void VKModel::vkUpdateUniformBuffer(uint32_t _currentImage)
+{
+	// TODO - Use delta time.
+	static auto startTime = std::chrono::high_resolution_clock::now();
+
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+	// Update ubo
+	UniformBufferObject ubo = {};
+	ubo.m_model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.m_view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.m_proj = glm::perspective(glm::radians(45.0f), 
+		m_vkEngineRef->vkGetSwapChainExtent().width / 
+		(float)m_vkEngineRef->vkGetSwapChainExtent().height, 
+		0.1f, 10.0f);
+
+	ubo.m_proj[1][1] *= -1;
+
+	void* data;
+	vkMapMemory(*m_vkEngineRef->vkGetDevice(), 
+		m_vkUniformBuffersMemory[_currentImage], 
+		0, 
+		sizeof(ubo), 
+		0, 
+		&data);
+
+	memcpy(data, &ubo, sizeof(ubo));
+	vkUnmapMemory(*m_vkEngineRef->vkGetDevice(),
+		m_vkUniformBuffersMemory[_currentImage]);
 }
 
 #endif

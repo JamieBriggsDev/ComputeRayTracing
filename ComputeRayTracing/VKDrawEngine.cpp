@@ -3,20 +3,18 @@
 #include "VKDrawEngine.h"
 #include "Window.h"
 #include "Camera.h"
-#include "Object.h"
+#include "VKObject.h"
 #include "VKEngine.h"
 
 // GLFW to handle window and keyboard/ mouse input
 #include <GLFW/glfw3.h>
 
 
-void VKDrawEngine::Update(std::vector<VkCommandBuffer> _commandBuffers)
+void VKDrawEngine::Update(VKObject* _object, std::vector<VkCommandBuffer> _commandBuffers)
 {
 	// Wait for fences
 	vkWaitForFences(*m_vkEngineRef->vkGetDevice(), 1, &m_vkInFlightFences[m_currentFrame], 
 		VK_TRUE, std::numeric_limits<uint64_t>::max());
-	// Reset fences
-	vkResetFences(*m_vkEngineRef->vkGetDevice(), 1, &m_vkInFlightFences[m_currentFrame]);
 
 	// Get next image index
 	uint32_t imageIndex;
@@ -26,6 +24,10 @@ void VKDrawEngine::Update(std::vector<VkCommandBuffer> _commandBuffers)
 		m_vkImageAvailableSemaphore[m_currentFrame],
 		VK_NULL_HANDLE,
 		&imageIndex);
+
+	// Update object here
+	_object->Update(imageIndex);
+
 
 	// Create submit info for queue submission and synchronization.
 	VkSubmitInfo submitInfo = {};
@@ -43,6 +45,9 @@ void VKDrawEngine::Update(std::vector<VkCommandBuffer> _commandBuffers)
 	VkSemaphore signalSemaphores[] = { m_vkRenderFinishedSemaphore[m_currentFrame] };
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
+
+	// Reset fences
+	vkResetFences(*m_vkEngineRef->vkGetDevice(), 1, &m_vkInFlightFences[m_currentFrame]);
 
 	// Submit queue
 	if (vkQueueSubmit(*m_vkEngineRef->vkGetGraphicsQueue(), 1, &submitInfo, m_vkInFlightFences[m_currentFrame]) 
