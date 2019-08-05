@@ -11,9 +11,10 @@ VKPipeline::VKPipeline(VkDevice* _vkDevice,
 {
 	// Pointer to device to destroy later
 	m_vkDevice = _vkDevice;
-
 	// Create Render Pass
 	CreateRenderPass(_vkSwapChainImageFormat);
+	// Create descriptor set
+	CreateDescriptorSets();
 	// Create Pipeline
 	CreatePipelineLayout(_vkSwapChainExtent, _vertexFilePath, _fragmentFilePath);
 }
@@ -24,6 +25,8 @@ VKPipeline::~VKPipeline()
 	vkDestroyPipelineLayout(*m_vkDevice, *m_vkPipelineLayout, nullptr);
 	// Destroy render pass
 	vkDestroyRenderPass(*m_vkDevice, *m_vkRenderPass, nullptr);
+	// Destroy descriptor sets
+	vkDestroyDescriptorSetLayout(*m_vkDevice, *m_vkDescriptorSetLayout, nullptr);
 	// Destroy Pipeline
 	vkDestroyPipeline(*m_vkDevice, *m_vkPipeline, nullptr);
 }
@@ -174,8 +177,8 @@ void VKPipeline::CreatePipelineLayout(VkExtent2D _vkSwapChainExtent,
 
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutInfo.setLayoutCount = 0; // Optional
-	pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
+	pipelineLayoutInfo.setLayoutCount = 1;
+	pipelineLayoutInfo.pSetLayouts = m_vkDescriptorSetLayout;
 	pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 	pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
@@ -277,6 +280,28 @@ void VKPipeline::CreateRenderPass(VkFormat _vkSwapChainImageFormat)
 	}
 
 
+}
+
+void VKPipeline::CreateDescriptorSets()
+{
+	// Descriptor set binding info
+	VkDescriptorSetLayoutBinding uboLayoutBinding = {};
+	uboLayoutBinding.binding = 0;
+	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	uboLayoutBinding.descriptorCount = 1;
+	// Describe shader stage the uniform object is for
+	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
+	// Layout info
+	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	layoutInfo.bindingCount = 1;
+	layoutInfo.pBindings = &uboLayoutBinding;
+	// Create the desacriptor ste layout
+	m_vkDescriptorSetLayout = new VkDescriptorSetLayout();
+	if (vkCreateDescriptorSetLayout(*m_vkDevice, &layoutInfo, nullptr, m_vkDescriptorSetLayout) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create descriptor set layout!");
+	}
 }
 
 

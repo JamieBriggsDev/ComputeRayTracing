@@ -73,6 +73,8 @@ private:
 	// Command Buffers
 	std::vector<VkCommandBuffer> m_vkCommandBuffers;
 
+
+
 	// Vulkan Engine Init Code;
 	void Initialise();
 	// Vulkan Engine Main Loop
@@ -118,7 +120,7 @@ private:
 	void vkCreateFrameBuffers();
 	// Create Command Pool.
 	void vkSetupCommandPool();
-	// Setup Command Bufers
+	// Setup Command Buffers.
 	void vkSetupCommandBuffers();
 public:
 	VKEngine();

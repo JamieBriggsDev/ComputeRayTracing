@@ -13,10 +13,13 @@ private:
 	VkDevice* m_vkDevice;
 	// Render Pass
 	VkRenderPass* m_vkRenderPass;
+	// Descriptor Layout
+	VkDescriptorSetLayout* m_vkDescriptorSetLayout;
 	// Pipeline Layout
 	VkPipelineLayout* m_vkPipelineLayout;
 	// Graphics Pipeline
 	VkPipeline* m_vkPipeline;
+
 
 	// Create Pipeline
 	void CreatePipelineLayout(VkExtent2D _vkSwapChainExtent,
@@ -24,6 +27,8 @@ private:
 		const char * _fragmentFilePath);
 	// Create the Render Pass
 	void CreateRenderPass(VkFormat _vkSwapChainImageFormat);
+	// Create Descriptor Sets.
+	void CreateDescriptorSets();
 public:
 	VKPipeline(VkDevice* _vkDevice,
 		VkExtent2D _vkSwapChainExtent,
@@ -32,6 +37,7 @@ public:
 		const char * _fragmentFilePath);
 	VkRenderPass* vkGetRenderPass() { return m_vkRenderPass; }
 	VkPipeline* vkGetPipeline() { return m_vkPipeline; }
+
 	~VKPipeline();
 };
 
