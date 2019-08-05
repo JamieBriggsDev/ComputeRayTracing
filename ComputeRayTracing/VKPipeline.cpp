@@ -4,32 +4,39 @@
 #include "Window.h"
 
 // Init Vulkan Shader Component
-VKPipeline::VKPipeline(VkDevice* _vkDevice,
+VKPipeline::VKPipeline(VKEngine* _vkEngine,
 	VkExtent2D _vkSwapChainExtent,
 	VkFormat _vkSwapChainImageFormat,
 	const char* _vertexFilePath, 
-	const char * _fragmentFilePath)
+	const char* _fragmentFilePath,
+	VKModel* _model)
 {
 	// Pointer to device to destroy later
-	m_vkDevice = _vkDevice;
+	m_vkEngineRef = _vkEngine;
 	// Create Render Pass
 	CreateRenderPass(_vkSwapChainImageFormat);
 	// Create descriptor set
 	CreateDescriptorSets();
+	// Create descriptor pools
+	CreateDescriptorPools();
 	// Create Pipeline
-	CreatePipelineLayout(_vkSwapChainExtent, _vertexFilePath, _fragmentFilePath);
+	CreatePipelineLayout(_vkSwapChainExtent, 
+		_vertexFilePath, 
+		_fragmentFilePath);
 }
 
 VKPipeline::~VKPipeline()
 {
 	// Destroy pipeline
-	vkDestroyPipelineLayout(*m_vkDevice, *m_vkPipelineLayout, nullptr);
+	vkDestroyPipelineLayout(*m_vkEngineRef->vkGetDevice(), *m_vkPipelineLayout, nullptr);
 	// Destroy render pass
-	vkDestroyRenderPass(*m_vkDevice, *m_vkRenderPass, nullptr);
+	vkDestroyRenderPass(*m_vkEngineRef->vkGetDevice(), *m_vkRenderPass, nullptr);
 	// Destroy descriptor sets
-	vkDestroyDescriptorSetLayout(*m_vkDevice, *m_vkDescriptorSetLayout, nullptr);
+	vkDestroyDescriptorSetLayout(*m_vkEngineRef->vkGetDevice(), *m_vkDescriptorSetLayout, nullptr);
+	// Destroy descriptor pool
+	vkDestroyDescriptorPool(*m_vkEngineRef->vkGetDevice(), *m_vkDescriptorPool, nullptr);
 	// Destroy Pipeline
-	vkDestroyPipeline(*m_vkDevice, *m_vkPipeline, nullptr);
+	vkDestroyPipeline(*m_vkEngineRef->vkGetDevice(), *m_vkPipeline, nullptr);
 }
 
 VkShaderModule VKPipeline::CreateShaderModule(VkDevice _vkDevice, const std::vector<char>& _code)
@@ -58,8 +65,8 @@ void VKPipeline::CreatePipelineLayout(VkExtent2D _vkSwapChainExtent,
 	std::vector<char> vertShaderCode = ReadFile(_vertexFilePath);
 
 	// Create the shader modules
-	VkShaderModule fragShaderModule = CreateShaderModule(*m_vkDevice, fragShaderCode);
-	VkShaderModule vertShaderModule = CreateShaderModule(*m_vkDevice, vertShaderCode);
+	VkShaderModule fragShaderModule = CreateShaderModule(*m_vkEngineRef->vkGetDevice(), fragShaderCode);
+	VkShaderModule vertShaderModule = CreateShaderModule(*m_vkEngineRef->vkGetDevice(), vertShaderCode);
 
 	// Vertex shader stage create info
 	VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
@@ -188,7 +195,7 @@ void VKPipeline::CreatePipelineLayout(VkExtent2D _vkSwapChainExtent,
 	pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 	pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
-	if (vkCreatePipelineLayout(*m_vkDevice, &pipelineLayoutInfo, nullptr, m_vkPipelineLayout)
+	if (vkCreatePipelineLayout(*m_vkEngineRef->vkGetDevice(), &pipelineLayoutInfo, nullptr, m_vkPipelineLayout)
 		!= VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create pipeline layout!");
@@ -217,15 +224,15 @@ void VKPipeline::CreatePipelineLayout(VkExtent2D _vkSwapChainExtent,
 
 	// Create graphics pipline
 	m_vkPipeline = new VkPipeline();
-	if (vkCreateGraphicsPipelines(*m_vkDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, m_vkPipeline)
+	if (vkCreateGraphicsPipelines(*m_vkEngineRef->vkGetDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, m_vkPipeline)
 		!= VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create graphics pipeline!");
 	}
 	
 	// Destroy shader modules at the end
-	vkDestroyShaderModule(*m_vkDevice, fragShaderModule, nullptr);
-	vkDestroyShaderModule(*m_vkDevice, vertShaderModule, nullptr);
+	vkDestroyShaderModule(*m_vkEngineRef->vkGetDevice(), fragShaderModule, nullptr);
+	vkDestroyShaderModule(*m_vkEngineRef->vkGetDevice(), vertShaderModule, nullptr);
 }
 
 void VKPipeline::CreateRenderPass(VkFormat _vkSwapChainImageFormat)
@@ -279,7 +286,7 @@ void VKPipeline::CreateRenderPass(VkFormat _vkSwapChainImageFormat)
 
 	// Create the render pass
 	m_vkRenderPass = new VkRenderPass();
-	if (vkCreateRenderPass(*m_vkDevice, &renderPassInfo, nullptr, m_vkRenderPass) 
+	if (vkCreateRenderPass(*m_vkEngineRef->vkGetDevice(), &renderPassInfo, nullptr, m_vkRenderPass) 
 		!= VK_SUCCESS) 
 	{
 		throw std::runtime_error("failed to create render pass!");
@@ -305,10 +312,56 @@ void VKPipeline::CreateDescriptorSets()
 	layoutInfo.pBindings = &uboLayoutBinding;
 	// Create the desacriptor ste layout
 	m_vkDescriptorSetLayout = new VkDescriptorSetLayout();
-	if (vkCreateDescriptorSetLayout(*m_vkDevice, &layoutInfo, nullptr, m_vkDescriptorSetLayout) != VK_SUCCESS) {
+	if (vkCreateDescriptorSetLayout(*m_vkEngineRef->vkGetDevice(), &layoutInfo, nullptr, m_vkDescriptorSetLayout) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create descriptor set layout!");
 	}
 }
 
+void VKPipeline::CreateDescriptorPools()
+{
+	// Descriptor pool size info
+	VkDescriptorPoolSize poolSize = {};
+	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSize.descriptorCount = 
+		static_cast<uint32_t>(m_vkEngineRef->vkGetSwapChainImages().size());
+	// Descriptor pool create info
+	VkDescriptorPoolCreateInfo poolInfo = {};
+	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	poolInfo.poolSizeCount = 1;
+	poolInfo.pPoolSizes = &poolSize;
+	// Define max sets.
+	poolInfo.maxSets = static_cast<uint32_t>(m_vkEngineRef->vkGetSwapChainImages().size());
+	// Create the descriptor pool.
+	m_vkDescriptorPool = new VkDescriptorPool();
+	if (vkCreateDescriptorPool(*m_vkEngineRef->vkGetDevice(), 
+		&poolInfo, 
+		nullptr, 
+		m_vkDescriptorPool) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to create descriptor pool!");
+	}
+}
+
+void VKPipeline::CreateDescriptorSets()
+{
+	size_t SwapChainImageSize = m_vkEngineRef->vkGetSwapChainImages().size();
+	// Descriptor sets layout allocate info
+	std::vector<VkDescriptorSetLayout> layouts(SwapChainImageSize, *m_vkDescriptorSetLayout);
+	VkDescriptorSetAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool = *m_vkDescriptorPool;
+	allocInfo.descriptorSetCount = static_cast<uint32_t>(SwapChainImageSize);
+	allocInfo.pSetLayouts = layouts.data();
+	// Allocate descriptor sets
+	m_vkDescriptorSets.resize(SwapChainImageSize);
+	if (vkAllocateDescriptorSets(*m_vkEngineRef->vkGetDevice(), 
+		&allocInfo,
+		m_vkDescriptorSets.data()) != VK_SUCCESS) 
+	{
+		throw std::runtime_error("failed to allocate descriptor sets!");
+	}
+
+	// CONFIGURE DESCRIPTOR SETS!!!!
+}
 
 #endif
