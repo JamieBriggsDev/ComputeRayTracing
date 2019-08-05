@@ -7,6 +7,7 @@
 #include "Controller.h"
 #include "VKObject.h"
 #include "VKPipeline.h"
+#include "VKModel.h"
 
 #pragma region Debug Callbacks
 
@@ -164,17 +165,17 @@ void VKEngine::Initialise()
 	vkCreateSwapChain(m_vkDevice, m_vkPhysicalDevice, m_vkSurface, m_vkSwapChain);
 	// Create image views
 	vkCreateImageViews(m_vkDevice, m_vkSwapChainImageViews, m_vkSwapChainImages, &m_vkSwapChainImageFormat);
+	// Create command pool.
+	vkSetupCommandPool();
 
 	// Create an object
-	m_object = new VKObject(m_vkDevice, m_vkSwapChainExtent, m_vkSwapChainImageFormat,
+	m_object = new VKObject(this,
 		"Resources/Models/Sphere.obj");
 	// Model matrix : an identity matrix (model will be at the origin)
 	m_object->SetModelMatrix(glm::mat4(1.0f));
 
 	// Create frame buffers
 	vkCreateFrameBuffers();
-	// Create command pool.
-	vkSetupCommandPool();
 	// Create command buffers.
 	vkSetupCommandBuffers();
 }
@@ -769,7 +770,7 @@ void VKEngine::vkSetupCommandBuffers()
 		renderPassInfo.renderArea.offset = { 0,0 };
 		renderPassInfo.renderArea.extent = m_vkSwapChainExtent;
 		// Clear Color of back screen.
-		VkClearValue clearColor = { 0.6f, 0.85f, 0.92f, 0.0f };
+		VkClearValue clearColor = { 0.92f, 0.6f, 0.6f, 0.0f };
 		renderPassInfo.clearValueCount = 1;
 		renderPassInfo.pClearValues = &clearColor;
 
@@ -780,9 +781,20 @@ void VKEngine::vkSetupCommandBuffers()
 		// Bind graphics pipeline
 		vkCmdBindPipeline(m_vkCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
 			*static_cast<VKPipeline*>(m_object->GetPipeline())->vkGetPipeline());
-		// Draw command buffer
-		vkCmdDraw(m_vkCommandBuffers[i], 3, 1, 0, 0);
 
+		VKModel* temp = static_cast<VKModel*>(m_object->GetModel());
+
+		VkBuffer vertexBuffers[] = { temp->vkGetVertexBuffer() };
+		VkDeviceSize offsets[] = { 0 };
+		vkCmdBindVertexBuffers(m_vkCommandBuffers[i], 0, 1, vertexBuffers, offsets);
+		vkCmdBindIndexBuffer(m_vkCommandBuffers[i], 
+			temp->vkGetIndexBuffer(), 
+			0, 
+			VK_INDEX_TYPE_UINT16);
+
+		// Draw with indices.
+		vkCmdDrawIndexed(m_vkCommandBuffers[i], static_cast<uint32_t>(temp->vkGetIndices().size()), 1, 0, 0, 0);
+		
 		// End render Pass
 		vkCmdEndRenderPass(m_vkCommandBuffers[i]);
 		// End Command buffer

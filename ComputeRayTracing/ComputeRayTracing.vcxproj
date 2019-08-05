@@ -333,6 +333,7 @@ xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="VKDrawEngine.h" />
     <ClInclude Include="VKEngine.h" />
+    <ClInclude Include="VKModel.h" />
     <ClInclude Include="VKObject.h" />
     <ClInclude Include="VKPipeline.h" />
     <ClInclude Include="Window.h" />
@@ -353,6 +354,7 @@ xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
     <ClCompile Include="UniformBufferObject.cpp" />
     <ClCompile Include="VKDrawEngine.cpp" />
     <ClCompile Include="VKEngine.cpp" />
+    <ClCompile Include="VKModel.cpp" />
     <ClCompile Include="VKObject.cpp" />
     <ClCompile Include="VKPipeline.cpp" />
     <ClCompile Include="Window.cpp" />

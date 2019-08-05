@@ -129,12 +129,20 @@ public:
 	// Getter Functions
 	// Get Vulkan Device
 	VkDevice* vkGetDevice() { return m_vkDevice; }
+	// Get Physical Device.
+	VkPhysicalDevice* vkGetPhysicalDevice() { return m_vkPhysicalDevice; }
 	// Get Graphics Queue
 	VkQueue* vkGetGraphicsQueue() { return m_vkGraphicsQueue; }
 	// Get Present Queue
 	VkQueue* vkGetPresentQueue() { return m_vkPresentQueue; }
 	// Get Swap chain
 	VkSwapchainKHR* vkGetSwapChain() { return m_vkSwapChain; }
+	// Get Swap Chain Format
+	VkFormat vkGetSwapChainImageFormat() { return m_vkSwapChainImageFormat; }
+	// Get Extent
+	VkExtent2D vkGetSwapChainExtent() { return m_vkSwapChainExtent; }
+	// Get Command Pool
+	VkCommandPool* vkGetCommandPool() { return m_vkCommandPool; }
 	// Get Command Buffers
 	std::vector<VkCommandBuffer> vkGetCommandBuffers() { return m_vkCommandBuffers; }
 
