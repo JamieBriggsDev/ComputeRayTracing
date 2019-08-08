@@ -12,4 +12,6 @@ Ray Tracing was derived from the understanding of how light works to allow us to
 #### The Ray
 A ray consists of an origin, and a direction.
 ### The algorithm
-Within a scene in a graphical application, the user sees through a view port, in which the camera is pointing through. This view port consists of a grid of pixels in the screen (width, height). For each of these different pixels, a ray is passed through to see if it will hit anything within the environment by checking each individual object. The most easiest scenario is that
+Within a scene in a graphical application, the user sees through a view port, in which the camera is pointing through. This view port consists of a grid of pixels in the screen (width, height). For each of these different pixels, a ray is passed through to see if it will hit anything within the environment by checking each individual object. The most easiest scenario is that...
+
+## Work In Progress..
