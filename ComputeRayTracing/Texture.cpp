@@ -9,6 +9,11 @@
 #include "Texture.h"
 
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
+
+
 Texture::Texture(TextureType _type, const char* _imagePath)
 {
 	// Save type
@@ -105,6 +110,30 @@ GLuint Texture::LoadBMP(const char * _imagePath)
 	return textureID;
 #endif
 	return -1;
+}
+
+#include <iostream>
+ImageDetails Texture::LoadImage(const char * _imagePath)
+{
+	// Image details struct.
+	ImageDetails details;
+	// Load image.
+	details.pixels = stbi_load(_imagePath,
+		&details.textureWidth,
+		&details.textureHeight,
+		&details.textureChannels,
+		STBI_rgb_alpha);
+	// Save texture size (with * height * 4 bytes per pixel.
+	m_textureSize = details.textureWidth * details.textureHeight * 4;
+
+	// Check if image loaded
+	if (!details.pixels)
+	{
+		throw std::runtime_error("Failed to load texture image!");
+	}
+	// Return result.
+	return details;
+
 }
 
 // Get Data.
