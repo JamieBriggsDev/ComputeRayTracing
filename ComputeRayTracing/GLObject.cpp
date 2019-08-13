@@ -19,7 +19,19 @@ GLObject::~GLObject()
 {
 }
 
-void GLObject::Draw(Camera* _camera)
+void GLObject::Update(float _deltaTime)
+{
+	// Init timer
+	static float Timer;
+	if (Timer == NULL)
+		Timer = _deltaTime;
+	else
+		Timer += _deltaTime;
+
+	m_modelMatrix = glm::rotate(glm::mat4(1.0f), Timer * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
+void GLObject::Draw(Camera* _camera, float _deltaTime)
 {
 	// MVP
 	glm::mat4 MVP = _camera->GetProjectionView() * m_modelMatrix;

@@ -108,8 +108,11 @@ void GLEngine::MainLoop()
 		// Update the camera
 		m_myCamera->Update(m_myWindow, m_myController, m_deltaTime);
 
+		// Update object
+		m_object->Update(m_deltaTime);
+
 		// Drawn objects
-		m_myDrawEngine->Update(m_myCamera, m_myWindow, m_object);
+		m_myDrawEngine->Update(m_myCamera, m_myWindow, m_object, m_deltaTime);
 
 		// Update Window
 		m_myWindow->Update();

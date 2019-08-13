@@ -12,14 +12,14 @@
 
 
 
-void GLDrawEngine::Update(Camera* _camera, Window* _window, Object* _object)
+void GLDrawEngine::Update(Camera* _camera, Window* _window, Object* _object, float _deltaTime)
 {
 
 	// Clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Draw Object
-	_object->Draw(_camera);
+	_object->Draw(_camera, _deltaTime);
 }
 
 GLDrawEngine::GLDrawEngine()

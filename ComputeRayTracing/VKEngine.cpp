@@ -189,6 +189,11 @@ void VKEngine::MainLoop()
 	float FrameRefreshTime = 0.5f;
 	float LastFPSUpdate = 0.0f;
 
+	//static auto startTime = std::chrono::high_resolution_clock::now();
+
+	//auto currentTime = std::chrono::high_resolution_clock::now();
+	//float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
 	long long int TotalFrames = 0;
 	do {
 		// Get delta time by comparing current time and last time
@@ -230,8 +235,8 @@ void VKEngine::MainLoop()
 		m_myCamera->Update(m_myWindow, m_myController, m_deltaTime);
 
 		// Draw objects
-		m_myDrawEngine->Update(static_cast<VKObject*>(m_object), 
-			m_vkCommandBuffers);
+		m_myDrawEngine->Update(static_cast<VKObject*>(m_object),
+			m_vkCommandBuffers, m_deltaTime);
 
 		// Update Window
 		m_myWindow->Update();

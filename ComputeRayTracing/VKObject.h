@@ -18,9 +18,10 @@ public:
 		const char* _modelFilePath);
 	~VKObject();
 
-	void Update(uint32_t _currentSwapChainImage);
+	void Update(float _deltaTime);
+	void UpdateUniformBuffer(uint32_t _currentSwapChainImage, float _deltaTime);
 
-	void Draw(Camera* _camera);
+	void Draw(Camera* _camera, float _deltaTime);
 };
 
 #endif

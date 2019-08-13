@@ -42,6 +42,8 @@ public:
 	// Set function
 	void SetModelMatrix(glm::mat4 _modelMatrix);
 
-	virtual void Draw(Camera* _camera) = 0;
+	virtual void Update(float _deltaTime) = 0;
+
+	virtual void Draw(Camera* _camera, float _deltaTime) = 0;
 };
 

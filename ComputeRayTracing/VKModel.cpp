@@ -240,17 +240,18 @@ void VKModel::vkCleanupUniformBuffers(int _size)
 	}
 }
 
-void VKModel::vkUpdateUniformBuffer(uint32_t _currentImage)
+void VKModel::vkUpdateUniformBuffer(uint32_t _currentImage, float _deltaTime)
 {
-	// TODO - Use delta time.
-	static auto startTime = std::chrono::high_resolution_clock::now();
+	// Init timer
+	static float Timer;
+	if (Timer == NULL)
+		Timer = _deltaTime;
+	else
+		Timer += _deltaTime;
 
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
-	// Update ubo
+	// Update ubo TODO - MOVE TO VKOBJECT
 	UniformBufferObject ubo = {};
-	ubo.m_model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.m_model = glm::rotate(glm::mat4(1.0f), Timer * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.m_view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.m_proj = glm::perspective(glm::radians(45.0f), 
 		m_vkEngineRef->vkGetSwapChainExtent().width / 
