@@ -38,10 +38,10 @@ private:
 	// Uniform Buffer Memory
 	std::vector<VkDeviceMemory> m_vkUniformBuffersMemory;
 
+public:
 	// Finds the memory type for creating vertex bufers.
 	uint32_t vkFindMemoryType(uint32_t _typeFilter, 
 		VkMemoryPropertyFlags _vkProperties);
-public:
 	// Creates the vertex buffer
 	void vkCreateVertexBuffer();
 	// Creates the index buffer

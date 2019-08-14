@@ -126,6 +126,12 @@ public:
 	VKEngine();
 	~VKEngine();
 
+	// Command buffer recorder helper begin
+	VkCommandBuffer vkBeginSingleTimeCommands();
+	// Command buffer recorder helper end
+	void vkEndSingleTimeCommands(VkCommandBuffer _commandBuffer);
+	
+
 	// Getter Functions
 	// Get Vulkan Device
 	VkDevice* vkGetDevice() { return m_vkDevice; }

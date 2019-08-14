@@ -104,6 +104,43 @@ VKEngine::~VKEngine()
 
 }
 
+VkCommandBuffer VKEngine::vkBeginSingleTimeCommands()
+{
+	// Command buffer allocation info
+	VkCommandBufferAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandPool = *m_vkCommandPool;
+	allocInfo.commandBufferCount = 1;
+	// Command buffer to make
+	VkCommandBuffer commandBuffer;
+	vkAllocateCommandBuffers(*m_vkDevice, &allocInfo, &commandBuffer);
+	// Command buffer begin info
+	VkCommandBufferBeginInfo beginInfo = {};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+	// Begin command buffer recording.
+	vkBeginCommandBuffer(commandBuffer, &beginInfo);
+	// Return command buffer.
+	return commandBuffer;
+}
+
+void VKEngine::vkEndSingleTimeCommands(VkCommandBuffer _commandBuffer)
+{
+	// End the command buffer
+	vkEndCommandBuffer(_commandBuffer);
+	// Command buffer submit info
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &_commandBuffer;
+	// Submit to queue.
+	vkQueueSubmit(*m_vkGraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(*m_vkGraphicsQueue);
+	// Free the command buffer.
+	vkFreeCommandBuffers(*m_vkDevice, *m_vkCommandPool, 1, &_commandBuffer);
+}
+
 void VKEngine::Initialise()
 {
 	// If vulkan, create vulkan instance

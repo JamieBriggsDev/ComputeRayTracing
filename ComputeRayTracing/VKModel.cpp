@@ -170,22 +170,8 @@ void VKModel::vkSetupBuffer(VkDeviceSize _size,
 
 void VKModel::vkCopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
 {
-	// Setup command buffer to transfer buffer
-	VkCommandBufferAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandPool = *m_vkEngineRef->vkGetCommandPool();
-	allocInfo.commandBufferCount = 1;
-	// Setup Command buffer
-	VkCommandBuffer commandBuffer;
-	vkAllocateCommandBuffers(*m_vkEngineRef->vkGetDevice(), &allocInfo, &commandBuffer);
-
-	// Setup recording command buffer.
-	VkCommandBufferBeginInfo beginInfo = {};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-	// Start command buffer.
-	vkBeginCommandBuffer(commandBuffer, &beginInfo);
+	// Start command buffer recording.
+	VkCommandBuffer commandBuffer = m_vkEngineRef->vkBeginSingleTimeCommands();
 
 	// Transfer source buffer to destination buffer.
 	VkBufferCopy copyRegion = {};
@@ -194,17 +180,8 @@ void VKModel::vkCopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize 
 	copyRegion.size = size;
 	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
-	// End command buffer.
-	vkEndCommandBuffer(commandBuffer);
-
-	// Submit command buffer.
-	VkSubmitInfo submitInfo = {};
-	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &commandBuffer;
-
-	vkQueueSubmit(*m_vkEngineRef->vkGetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-	vkQueueWaitIdle(*m_vkEngineRef->vkGetGraphicsQueue());
+	// End command buffer
+	m_vkEngineRef->vkEndSingleTimeCommands(commandBuffer);
 }
 
 void VKModel::vkCreateUniformBuffers()
