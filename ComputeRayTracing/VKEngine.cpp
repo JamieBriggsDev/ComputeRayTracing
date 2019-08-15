@@ -8,6 +8,7 @@
 #include "VKObject.h"
 #include "VKPipeline.h"
 #include "VKModel.h"
+#include "VKTexture.h"
 
 #pragma region Debug Callbacks
 
@@ -584,9 +585,12 @@ bool VKEngine::vkIsDeviceSuitable(VkPhysicalDevice _vkDevice, VkSurfaceKHR* _vkS
 		vkSwapChainSupportDetails swapChainSupport = vkQuerySwapChainSupport(_vkDevice, _vkSurface);
 		swapChainAdequate = !swapChainSupport.m_vkFormats.empty() && !swapChainSupport.m_vkPresentModes.empty();
 	}
+	// Get device featues 
+	VkPhysicalDeviceFeatures features;
+	vkGetPhysicalDeviceFeatures(_vkDevice, &features);
 	// Returns true if queue families are gained, device extensions
 	//  are supported, and if the swap chain is adequate
-	return indices.isComplete() && ExtensionsSupported && swapChainAdequate;
+	return indices.isComplete() && ExtensionsSupported && swapChainAdequate && features.samplerAnisotropy;
 }
 
 void VKEngine::vkPickPhysicalDevice(VkInstance* _vkInstance, VkPhysicalDevice* _vkPhysicalDevice, VkSurfaceKHR* _vkSurface)
@@ -640,6 +644,7 @@ void VKEngine::vkCreateLogicalDevice(VkPhysicalDevice* _vkPhysicalDevice, VkDevi
 	}
 
 	VkPhysicalDeviceFeatures deviceFeatures = {};
+	deviceFeatures.samplerAnisotropy = VK_TRUE;
 
 	VkDeviceCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -694,30 +699,34 @@ void VKEngine::vkCreateImageViews(VkDevice* _vkDevice,
 	// Loop to iterate over the swap chain images
 	for (size_t i = 0; i < _vkSwapChainImages.size(); i++)
 	{
-		// Create image view
-		VkImageViewCreateInfo createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		createInfo.image = _vkSwapChainImages[i];
-		// Specify view type
-		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		createInfo.format = *_vkSwapChainImageFormat;
-		// Specify components
-		createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-		// Specify sub resource range
-		createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		createInfo.subresourceRange.baseMipLevel = 0;
-		createInfo.subresourceRange.levelCount = 1;
-		createInfo.subresourceRange.baseArrayLayer = 0;
-		createInfo.subresourceRange.layerCount = 1;
-		// Create view
-		if (vkCreateImageView(*_vkDevice, &createInfo, nullptr, &_vkSwapChainImageViews[i])
-			!= VK_SUCCESS)
-		{
-			throw std::runtime_error("failed to create image views!");
-		}
+		_vkSwapChainImageViews[i] = VKTexture::CreateImageView(*m_vkDevice,
+			_vkSwapChainImages[i],
+			*_vkSwapChainImageFormat);
+		// TODO Remove!!!
+		//// Create image view 
+		//VkImageViewCreateInfo createInfo = {};
+		//createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		//createInfo.image = _vkSwapChainImages[i];
+		//// Specify view type
+		//createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		//createInfo.format = *_vkSwapChainImageFormat;
+		//// Specify components
+		//createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+		//createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+		//createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+		//createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+		//// Specify sub resource range
+		//createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		//createInfo.subresourceRange.baseMipLevel = 0;
+		//createInfo.subresourceRange.levelCount = 1;
+		//createInfo.subresourceRange.baseArrayLayer = 0;
+		//createInfo.subresourceRange.layerCount = 1;
+		//// Create view
+		//if (vkCreateImageView(*_vkDevice, &createInfo, nullptr, &_vkSwapChainImageViews[i])
+		//	!= VK_SUCCESS)
+		//{
+		//	throw std::runtime_error("failed to create image views!");
+		//}
 	}
 }
 

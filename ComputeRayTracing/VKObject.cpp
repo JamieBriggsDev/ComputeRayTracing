@@ -14,14 +14,14 @@ VKObject::VKObject(VKEngine* _vkEngine,
 {
 	m_model = new VKModel(_vkEngine);
 
-	m_texture = new VKTexture(static_cast<VKModel*>(m_model),_vkEngine,"Resources/Textures/texture.jpg");
+	m_texture = new VKTexture(static_cast<VKModel*>(m_model),_vkEngine,"Resources/Textures/Elliot.jpg");
 
 	m_pipeline = new VKPipeline(_vkEngine, 
 		_vkEngine->vkGetSwapChainExtent(), 
 		_vkEngine->vkGetSwapChainImageFormat(), 
 		"Shaders/vert.spv",
 		"Shaders/frag.spv",
-		static_cast<VKModel*>(m_model));
+		this);
 
 	m_modelMatrix = glm::mat4();
 }

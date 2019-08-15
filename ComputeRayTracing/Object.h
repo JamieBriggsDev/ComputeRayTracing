@@ -39,6 +39,7 @@ public:
 	Model* GetModel() { return m_model; }
 	Pipeline* GetPipeline() { return m_pipeline; }
 	glm::mat4 GetModelMatrix() { return m_modelMatrix; }
+	Texture* GetTexture() { return m_texture; }
 	// Set function
 	void SetModelMatrix(glm::mat4 _modelMatrix);
 

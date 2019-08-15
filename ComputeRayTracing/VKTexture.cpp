@@ -4,6 +4,30 @@
 
 #include <iostream>
 
+VKTexture::VKTexture(VKModel* _modelRef, VKEngine* _engineRef, const char* _imagePath)
+{
+	// Keep model and engine reference
+	m_vkModelRef = _modelRef;
+	m_vkEngineRef = _engineRef;
+	// Get image details
+	auto details = LoadImage(_imagePath);
+	// Bind texture
+	CreateTexture(details);
+	// Create texture image view.
+	CreateTextureImageView();
+}
+
+
+VKTexture::~VKTexture()
+{
+	// Clean up image view
+	vkDestroyImageView(*m_vkEngineRef->vkGetDevice(), *m_vkTextureImageView, nullptr);
+	// Clean up texture
+	vkDestroyImage(*m_vkEngineRef->vkGetDevice(), *m_vkTextureImage, nullptr);
+	// Free memory
+	vkFreeMemory(*m_vkEngineRef->vkGetDevice(), *m_vkTextureImageMemory, nullptr);
+}
+
 void VKTexture::vkTransitionImageLayout(VkFormat _format, VkImageLayout _oldLayout, VkImageLayout _newLayout)
 {
 	// Start command buffer recording.
@@ -163,16 +187,7 @@ void VKTexture::CreateImage(uint32_t _width, uint32_t _height, VkFormat _format,
 		*m_vkTextureImageMemory, 0);
 }
 
-VKTexture::VKTexture(VKModel* _modelRef, VKEngine* _engineRef, const char* _imagePath)
-{
-	// Keep model and engine reference
-	m_vkModelRef = _modelRef;
-	m_vkEngineRef = _engineRef;
-	// Get image details
-	auto details = LoadImage(_imagePath);
-	// Bind texture
-	CreateTexture(details);
-}
+
 
 void VKTexture::CreateTexture(ImageDetails _details)
 {
@@ -214,12 +229,34 @@ void VKTexture::CreateTexture(ImageDetails _details)
 }
 
 
-VKTexture::~VKTexture()
+void VKTexture::CreateTextureImageView()
 {
-	// Clean up texture
-	vkDestroyImage(*m_vkEngineRef->vkGetDevice(), *m_vkTextureImage, nullptr);
-	// Free memory
-	vkFreeMemory(*m_vkEngineRef->vkGetDevice(), *m_vkTextureImageMemory, nullptr);
+	m_vkTextureImageView = new VkImageView();
+	*m_vkTextureImageView = CreateImageView(*m_vkEngineRef->vkGetDevice(), *m_vkTextureImage, VK_FORMAT_R8G8B8A8_UNORM);
+}
+
+
+VkImageView VKTexture::CreateImageView(VkDevice _device, VkImage _image, VkFormat _format)
+{
+	// Texture Image view create info
+	VkImageViewCreateInfo viewInfo = {};
+	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	viewInfo.image = _image;
+	viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	viewInfo.format = _format;
+	viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	viewInfo.subresourceRange.baseMipLevel = 0;
+	viewInfo.subresourceRange.levelCount = 1;
+	viewInfo.subresourceRange.baseArrayLayer = 0;
+	viewInfo.subresourceRange.layerCount = 1;
+	// Create the image view
+	VkImageView TextureImageView;
+	if (vkCreateImageView(_device, &viewInfo, nullptr, &TextureImageView) != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create texture image view!");
+	}
+
+	return TextureImageView;
 }
 
 #endif

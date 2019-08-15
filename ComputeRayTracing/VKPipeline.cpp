@@ -1,5 +1,7 @@
 #if VK
 #include "VKPipeline.h"
+#include "VKObject.h"
+#include "VKTexture.h"
 #include "Vertex.h"
 #include "Window.h"
 
@@ -7,14 +9,16 @@
 VKPipeline::VKPipeline(VKEngine* _vkEngine,
 	VkExtent2D _vkSwapChainExtent,
 	VkFormat _vkSwapChainImageFormat,
-	const char* _vertexFilePath, 
-	const char* _fragmentFilePath,
-	VKModel* _model)
+	const char* _vertexFilePath,
+	const char* _fragmentFilePath, 
+	VKObject* _object)
 {
 	// Pointer to device to destroy later
 	m_vkEngineRef = _vkEngine;
 	// Create Render Pass
 	CreateRenderPass(_vkSwapChainImageFormat);
+	// Create texture samplers
+	CreateTextureSampler();
 	// Create descriptor set layout
 	CreateDescriptorSetLayout();
 	// Create Pipeline
@@ -24,7 +28,7 @@ VKPipeline::VKPipeline(VKEngine* _vkEngine,
 	// Create descriptor pools
 	CreateDescriptorPools();
 	// Create descriptor set
-	CreateDescriptorSets(_model);
+	CreateDescriptorSets(_object);
 }
 
 VKPipeline::~VKPipeline()
@@ -39,6 +43,8 @@ VKPipeline::~VKPipeline()
 	vkDestroyDescriptorPool(*m_vkEngineRef->vkGetDevice(), *m_vkDescriptorPool, nullptr);
 	// Destroy Pipeline
 	vkDestroyPipeline(*m_vkEngineRef->vkGetDevice(), *m_vkPipeline, nullptr);
+	// Destroy samplers
+	vkDestroySampler(*m_vkEngineRef->vkGetDevice(), *m_vkTextureSampler, nullptr);
 }
 
 VkShaderModule VKPipeline::CreateShaderModule(VkDevice _vkDevice, const std::vector<char>& _code)
@@ -307,11 +313,21 @@ void VKPipeline::CreateDescriptorSetLayout()
 	// Describe shader stage the uniform object is for
 	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 	uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
+
+	// Sampler layout binding info
+	VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
+	samplerLayoutBinding.binding = 1;
+	samplerLayoutBinding.descriptorCount = 1;
+	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	samplerLayoutBinding.pImmutableSamplers = nullptr;
+	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
 	// Layout info
+	std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
 	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = 1;
-	layoutInfo.pBindings = &uboLayoutBinding;
+	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());;
+	layoutInfo.pBindings = bindings.data();
 	// Create the desacriptor ste layout
 	m_vkDescriptorSetLayout = new VkDescriptorSetLayout();
 	if (vkCreateDescriptorSetLayout(*m_vkEngineRef->vkGetDevice(), &layoutInfo, nullptr, m_vkDescriptorSetLayout) != VK_SUCCESS) {
@@ -322,17 +338,19 @@ void VKPipeline::CreateDescriptorSetLayout()
 void VKPipeline::CreateDescriptorPools()
 {
 	// Descriptor pool size info
-	VkDescriptorPoolSize poolSize = {};
-	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	poolSize.descriptorCount = 
-		static_cast<uint32_t>(m_vkEngineRef->vkGetSwapChainImages().size());
+	std::array<VkDescriptorPoolSize, 2> poolSizes = {};
+	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSizes[0].descriptorCount = static_cast<uint32_t>(m_vkEngineRef->vkGetSwapChainImages().size());
+	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	poolSizes[1].descriptorCount = static_cast<uint32_t>(m_vkEngineRef->vkGetSwapChainImages().size());
 	// Descriptor pool create info
 	VkDescriptorPoolCreateInfo poolInfo = {};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.poolSizeCount = 1;
-	poolInfo.pPoolSizes = &poolSize;
+	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+	poolInfo.pPoolSizes = poolSizes.data();
 	// Define max sets.
 	poolInfo.maxSets = static_cast<uint32_t>(m_vkEngineRef->vkGetSwapChainImages().size());
+
 	// Create the descriptor pool.
 	m_vkDescriptorPool = new VkDescriptorPool();
 	if (vkCreateDescriptorPool(*m_vkEngineRef->vkGetDevice(), 
@@ -344,7 +362,7 @@ void VKPipeline::CreateDescriptorPools()
 	}
 }
 
-void VKPipeline::CreateDescriptorSets(VKModel* _vkModel)
+void VKPipeline::CreateDescriptorSets(VKObject *_vkObject)
 {
 	size_t SwapChainImageSize = m_vkEngineRef->vkGetSwapChainImages().size();
 	// Descriptor sets layout allocate info
@@ -365,25 +383,70 @@ void VKPipeline::CreateDescriptorSets(VKModel* _vkModel)
 	{
 		// Descriptor buffer info.
 		VkDescriptorBufferInfo bufferInfo = {};
-		bufferInfo.buffer = _vkModel->vkGetUniformBuffers()[i];
+		bufferInfo.buffer = static_cast<VKModel*>(_vkObject->GetModel())->vkGetUniformBuffers()[i];
 		bufferInfo.offset = 0;
 		bufferInfo.range = sizeof(UniformBufferObject);
+		// Descriptor image info
+		VkDescriptorImageInfo imageInfo = {};
+		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		imageInfo.imageView = *static_cast<VKTexture*>(_vkObject->GetTexture())->GetTextureImageView();
+		imageInfo.sampler = *m_vkTextureSampler;
+
 		// Write descriptor sets.
-		VkWriteDescriptorSet descriptorWrite = {};
-		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrite.dstSet = m_vkDescriptorSets[i];
-		descriptorWrite.dstBinding = 0;
-		descriptorWrite.dstArrayElement = 0;
-		// Define descriptor type.
-		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrite.descriptorCount = 1;
-		// Image info.
-		descriptorWrite.pBufferInfo = &bufferInfo;
-		descriptorWrite.pImageInfo = nullptr; // Optional
-		descriptorWrite.pTexelBufferView = nullptr; // Optional
+		std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
+		// uniform buffer descriptor sets
+		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrites[0].dstSet = m_vkDescriptorSets[i];
+		descriptorWrites[0].dstBinding = 0;
+		descriptorWrites[0].dstArrayElement = 0;
+		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrites[0].descriptorCount = 1;
+		descriptorWrites[0].pBufferInfo = &bufferInfo;
+		// texture sampler descriptor sets
+		descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrites[1].dstSet = m_vkDescriptorSets[i];
+		descriptorWrites[1].dstBinding = 1;
+		descriptorWrites[1].dstArrayElement = 0;
+		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		descriptorWrites[1].descriptorCount = 1;
+		descriptorWrites[1].pImageInfo = &imageInfo;
 		// Update descriptor sets.
 		vkUpdateDescriptorSets(*m_vkEngineRef->vkGetDevice(),
-			1, &descriptorWrite, 0, nullptr);
+			static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 
+			0, nullptr);
+	}
+}
+
+void VKPipeline::CreateTextureSampler()
+{
+	// Texture sampler create info.
+	VkSamplerCreateInfo samplerInfo = {};
+	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerInfo.magFilter = VK_FILTER_LINEAR;
+	samplerInfo.minFilter = VK_FILTER_LINEAR;
+	// Sampler address mode.
+	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	// Anisotropy settings.
+	samplerInfo.anisotropyEnable = VK_TRUE;
+	samplerInfo.maxAnisotropy = 1;
+	// Border color
+	samplerInfo.unnormalizedCoordinates = VK_FALSE;
+	// Comparison functions disabled
+	samplerInfo.compareEnable = VK_FALSE;
+	samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+	// Mipmap mode
+	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+	samplerInfo.mipLodBias = 0.0f;
+	samplerInfo.minLod = 0.0f;
+	samplerInfo.maxLod = 0.0f;
+	// Create sampler
+	m_vkTextureSampler = new VkSampler();
+	if (vkCreateSampler(*m_vkEngineRef->vkGetDevice(), &samplerInfo,
+		nullptr, m_vkTextureSampler) != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create texture sampler!");
 	}
 }
 

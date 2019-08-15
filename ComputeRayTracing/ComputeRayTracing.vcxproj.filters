@@ -55,7 +55,9 @@
     <ClCompile Include="VKPipeline.cpp">
       <Filter>Source %28.cpp%29\VK</Filter>
     </ClCompile>
-    <ClCompile Include="VKTexture.cpp" />
+    <ClCompile Include="VKTexture.cpp">
+      <Filter>Source %28.cpp%29\VK</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -121,7 +123,9 @@
     <ClInclude Include="VKPipeline.h">
       <Filter>Headers %28.h%29\VK</Filter>
     </ClInclude>
-    <ClInclude Include="VKTexture.h" />
+    <ClInclude Include="VKTexture.h">
+      <Filter>Headers %28.h%29\VK</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\frag.spv">

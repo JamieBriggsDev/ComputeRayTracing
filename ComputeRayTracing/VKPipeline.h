@@ -24,7 +24,8 @@ private:
 	VkPipelineLayout* m_vkPipelineLayout;
 	// Graphics Pipeline
 	VkPipeline* m_vkPipeline;
-
+	// Texture Sampler
+	VkSampler* m_vkTextureSampler;
 
 	// Creates a shader module
 	VkShaderModule CreateShaderModule(VkDevice _vkDevice, 
@@ -40,14 +41,19 @@ private:
 	// Create Descriptor Pools.
 	void CreateDescriptorPools();
 	// Create Descriptor Sets.
-	void CreateDescriptorSets(VKModel* _vkModel);
+	void CreateDescriptorSets(VKObject * _vkObject);
+	// Creates texture sampler.
+	void CreateTextureSampler();
 public:
 	VKPipeline(VKEngine* _vkEngine,
+
 		VkExtent2D _vkSwapChainExtent,
+
 		VkFormat _vkSwapChainImageFormat,
+
 		const char* _vertexFilePath,
-		const char * _fragmentFilePath,
-		VKModel* _model);
+
+		const char * _fragmentFilePath, VKObject * _object);
 	VkRenderPass* vkGetRenderPass() { return m_vkRenderPass; }
 	VkPipeline* vkGetPipeline() { return m_vkPipeline; }
 	VkPipelineLayout* vkGetPipelineLayout() { return m_vkPipelineLayout; }
