@@ -135,8 +135,6 @@ private:
 	void vkCreateCommandBuffers();
 	// Setup depth buffer resources.
 	void vkSetupDepthBufferResources();
-	// Find depth format.
-	VkFormat vkFindDepthFormat();
 	// Check for stentil component.
 	bool vkHasStencilComponent(VkFormat format);
 	// Finds supported format.
@@ -161,10 +159,12 @@ public:
 		VkDeviceMemory &_deviceMemory);
 	// Transition Image Layout
 	static void vkTransitionImageLayout(VKEngine* _engine,
+		VkImage _image, VkFormat _format, 
+		VkImageLayout _oldLayout, 
+		VkImageLayout _newLayout);
 
-
-			VkImage _image,
-			VkFormat _format, VkImageLayout _oldLayout, VkImageLayout _newLayout);
+	// Find depth format.
+	VkFormat vkFindDepthFormat();
 
 	// Command buffer recorder helper begin
 	VkCommandBuffer vkBeginSingleTimeCommands();
