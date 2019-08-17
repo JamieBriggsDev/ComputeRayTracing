@@ -3,6 +3,11 @@
 
 #include "Engine.h"
 #include "VKDrawEngine.h"
+// GLM
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 // Vulkan
 #include <vulkan/vulkan.h>
@@ -73,7 +78,12 @@ private:
 	// Command Buffers
 	std::vector<VkCommandBuffer> m_vkCommandBuffers;
 
-
+	// Depth Image
+	VkImage* m_vkDepthImage;
+	// Depth image memory
+	VkDeviceMemory* m_vkDepthImageMemory;
+	// Depth image view
+	VkImageView* m_vkDepthImageView;
 
 	// Vulkan Engine Init Code;
 	void Initialise();
@@ -116,21 +126,51 @@ private:
 		std::vector<VkImageView>& _vkSwapChainImageViews,
 		std::vector<VkImage>& _vkSwapChainImages,
 		VkFormat* _vkSwapChainImageFormat);
+
 	// Create Frame Buffers.
 	void vkCreateFrameBuffers();
 	// Create Command Pool.
 	void vkSetupCommandPool();
 	// Setup Command Buffers.
 	void vkCreateCommandBuffers();
+	// Setup depth buffer resources.
+	void vkSetupDepthBufferResources();
+	// Find depth format.
+	VkFormat vkFindDepthFormat();
+	// Check for stentil component.
+	bool vkHasStencilComponent(VkFormat format);
+	// Finds supported format.
+	VkFormat vkFindSupportedFormat(const std::vector<VkFormat>& candidates,
+		VkImageTiling tiling,
+		VkFormatFeatureFlags features);
 public:
 	VKEngine();
 	~VKEngine();
+
+	// Static helper functions.
+	// Find memory type
+	static uint32_t vkFindMemoryType(uint32_t _typeFilter, VkMemoryPropertyFlags _vkProperties, VKEngine* _vkEngine);
+	// Create Image
+	static void vkSetupImage(uint32_t _width,
+		uint32_t _height,
+		VkFormat _format,
+		VkImageTiling _tiling,
+		VkImageUsageFlags _usage,
+		VkMemoryPropertyFlags _properties,
+		VKEngine* _vkEngine, VkImage &_image, 
+		VkDeviceMemory &_deviceMemory);
+	// Transition Image Layout
+	static void vkTransitionImageLayout(VKEngine* _engine,
+
+
+			VkImage _image,
+			VkFormat _format, VkImageLayout _oldLayout, VkImageLayout _newLayout);
 
 	// Command buffer recorder helper begin
 	VkCommandBuffer vkBeginSingleTimeCommands();
 	// Command buffer recorder helper end
 	void vkEndSingleTimeCommands(VkCommandBuffer _commandBuffer);
-	
+
 
 	// Getter Functions
 	// Get Vulkan Device

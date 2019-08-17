@@ -36,26 +36,6 @@ VKModel::~VKModel()
 	vkCleanupUniformBuffers(m_vkEngineRef->vkGetSwapChainImages().size());
 }
 
-uint32_t VKModel::vkFindMemoryType(uint32_t _typeFilter, VkMemoryPropertyFlags _vkProperties)
-{
-	// Physical device memory properties container.
-	VkPhysicalDeviceMemoryProperties memProperties;
-	// Get Reuquirements.
-	vkGetPhysicalDeviceMemoryProperties(*m_vkEngineRef->vkGetPhysicalDevice(),
-		&memProperties);
-	// Loop through memory types.
-	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) 
-	{
-		if ((_typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & _vkProperties)
-			== _vkProperties)
-		{
-			return i;
-		}
-	}
-
-	throw std::runtime_error("failed to find suitable memory type!");
-}
-
 void VKModel::vkCreateVertexBuffer()
 {
 	// Get Buffer Size
@@ -159,7 +139,7 @@ void VKModel::vkSetupBuffer(VkDeviceSize _size,
 	VkMemoryAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = vkFindMemoryType(memRequirements.memoryTypeBits, _properties);
+	allocInfo.memoryTypeIndex = VKEngine::vkFindMemoryType(memRequirements.memoryTypeBits, _properties, m_vkEngineRef);
 
 	if (vkAllocateMemory(*tempDevice, &allocInfo, nullptr, &_bufferMemory) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate buffer memory!");

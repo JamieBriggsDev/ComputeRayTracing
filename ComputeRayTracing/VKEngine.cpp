@@ -216,6 +216,9 @@ void VKEngine::Initialise()
 	vkCreateFrameBuffers();
 	// Create command buffers.
 	vkCreateCommandBuffers();
+
+	// Setup depth resources
+	vkSetupDepthBufferResources();
 }
 
 void VKEngine::MainLoop()
@@ -701,7 +704,7 @@ void VKEngine::vkCreateImageViews(VkDevice* _vkDevice,
 	{
 		_vkSwapChainImageViews[i] = VKTexture::CreateImageView(*m_vkDevice,
 			_vkSwapChainImages[i],
-			*_vkSwapChainImageFormat);
+			*_vkSwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 		// TODO Remove!!!
 		//// Create image view 
 		//VkImageViewCreateInfo createInfo = {};
@@ -730,7 +733,153 @@ void VKEngine::vkCreateImageViews(VkDevice* _vkDevice,
 	}
 }
 
-void VKEngine::vkCreateFrameBuffers() 
+uint32_t VKEngine::vkFindMemoryType(uint32_t _typeFilter, VkMemoryPropertyFlags _vkProperties, VKEngine* _vkEngine)
+{
+	// Physical device memory properties container.
+	VkPhysicalDeviceMemoryProperties memProperties;
+	// Get Reuquirements.
+	vkGetPhysicalDeviceMemoryProperties(*_vkEngine->vkGetPhysicalDevice(),
+		&memProperties);
+	// Loop through memory types.
+	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) 
+	{
+		if ((_typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & _vkProperties)
+			== _vkProperties)
+		{
+			return i;
+		}
+	}
+
+	throw std::runtime_error("failed to find suitable memory type!");
+}
+
+void VKEngine::vkSetupImage(uint32_t _width, uint32_t _height, VkFormat _format, VkImageTiling _tiling, VkImageUsageFlags _usage, VkMemoryPropertyFlags _properties, VKEngine * _vkEngine, VkImage &_image, VkDeviceMemory &_deviceMemory)
+{
+	// Image create info
+	VkImageCreateInfo imageInfo = {};
+	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	imageInfo.imageType = VK_IMAGE_TYPE_2D;
+	imageInfo.extent.width = static_cast<uint32_t>(_width);
+	imageInfo.extent.height = static_cast<uint32_t>(_height);
+	imageInfo.extent.depth = 1;
+	imageInfo.mipLevels = 1;
+	imageInfo.arrayLayers = 1;
+	// Image format
+	imageInfo.format = _format;
+	// Tiling mode
+	imageInfo.tiling = _tiling;
+	// Image layout
+	imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	// Image usage
+	imageInfo.usage = _usage;
+	// Image sharing mode
+	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	// Image samples
+	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+	// flags
+	imageInfo.flags = 0;
+
+	// Create the image
+	//_image = new VkImage();
+	if (vkCreateImage(*_vkEngine->vkGetDevice(), &imageInfo, nullptr, &_image) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to create image!");
+	}
+
+	// Allocate texture image memory
+	VkMemoryRequirements memRequirements;
+	vkGetImageMemoryRequirements(*_vkEngine->vkGetDevice(),
+		_image,
+		&memRequirements);
+
+	// Allocate info
+	VkMemoryAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = memRequirements.size;
+	// Find memory type
+	allocInfo.memoryTypeIndex = VKEngine::vkFindMemoryType(memRequirements.memoryTypeBits,
+		_properties, _vkEngine);
+	// Allocate memory
+	//_deviceMemory = new VkDeviceMemory();
+	if (vkAllocateMemory(*_vkEngine->vkGetDevice(), &allocInfo, nullptr, &_deviceMemory) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate image memory!");
+	}
+	// Bind image to memory.
+	vkBindImageMemory(*_vkEngine->vkGetDevice(),
+		_image,
+		_deviceMemory, 0);
+}
+
+void VKEngine::vkTransitionImageLayout(VKEngine* _engine, VkImage _image, VkFormat _format, VkImageLayout _oldLayout, VkImageLayout _newLayout)
+{
+	// Start command buffer recording.
+	VkCommandBuffer commandBuffer = _engine->vkBeginSingleTimeCommands();
+
+	// Image memory barrier
+	VkImageMemoryBarrier barrier = {};
+	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.oldLayout = _oldLayout;
+	barrier.newLayout = _newLayout;
+	// Ignore queue families
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	// Image params
+	barrier.image = _image;
+	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	barrier.subresourceRange.baseMipLevel = 0;
+	barrier.subresourceRange.levelCount = 1;
+	barrier.subresourceRange.baseArrayLayer = 0;
+	barrier.subresourceRange.layerCount = 1;
+	// No mipmapping
+	barrier.srcAccessMask = 0;
+	barrier.dstAccessMask = 0;
+
+	// Get source and destination pipeline stage
+	VkPipelineStageFlags sourceStage;
+	VkPipelineStageFlags destinationStage;
+
+	if (_oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && _newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+		barrier.srcAccessMask = 0;
+		barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+	}
+	else if (_oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && _newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+		sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	}
+	else if (_oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && _newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+		barrier.srcAccessMask = 0;
+		barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+	}
+	else {
+		throw std::invalid_argument("unsupported layout transition!");
+	}
+
+
+	// Submit pipeline barrier
+	vkCmdPipelineBarrier(
+		commandBuffer,
+		sourceStage,
+		destinationStage,
+		0,
+		0, nullptr,
+		0, nullptr,
+		1, &barrier
+	);
+
+	// End command buffer recording.
+	_engine->vkEndSingleTimeCommands(commandBuffer);
+}
+
+void VKEngine::vkCreateFrameBuffers()
 {
 	// Resize swap chain frame buffers to be same size as swap chain image views.
 	m_vkSwapChainFrameBuffers.resize(m_vkSwapChainImageViews.size());
@@ -866,6 +1015,71 @@ void VKEngine::vkCreateCommandBuffers()
 		}
 		
 	}
+}
+
+void VKEngine::vkSetupDepthBufferResources()
+{
+	// Get depth format.
+	VkFormat depthFormat = vkFindDepthFormat();
+	// Create image.
+	m_vkDepthImage = new VkImage();
+	m_vkDepthImageMemory = new VkDeviceMemory();
+	VKEngine::vkSetupImage(m_vkSwapChainExtent.width,
+		m_vkSwapChainExtent.height,
+		depthFormat,
+		VK_IMAGE_TILING_OPTIMAL,
+		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+		this,
+		*m_vkDepthImage,
+		*m_vkDepthImageMemory);
+
+	// Create depth image view
+	m_vkDepthImageView = new VkImageView();
+	*m_vkDepthImageView = VKTexture::CreateImageView(*m_vkDevice, *m_vkDepthImage, 
+		depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+
+	vkTransitionImageLayout(this, *m_vkDepthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+
+
+	std::cout << "HELP ME";
+}
+
+VkFormat VKEngine::vkFindDepthFormat()
+{
+	// Find supported format.
+	return vkFindSupportedFormat(
+		{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+		VK_IMAGE_TILING_OPTIMAL,
+		VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+	);
+}
+
+bool VKEngine::vkHasStencilComponent(VkFormat format)
+{
+	return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
+}
+
+VkFormat VKEngine::vkFindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
+{
+	// Go through all candidates.
+	for (VkFormat format : candidates) 
+	{
+		// Get physical device format properties.
+		VkFormatProperties props;
+		vkGetPhysicalDeviceFormatProperties(*m_vkPhysicalDevice, format, &props);
+		// Find suitable format
+		if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) 
+		{
+			return format;
+		}
+		else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
+			return format;
+		}
+
+	}
+	// Error if no supported format.
+	throw std::runtime_error("Failed to find supported format!");
 }
 
 
