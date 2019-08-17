@@ -211,14 +211,13 @@ void VKEngine::Initialise()
 		"Resources/Models/Sphere.obj");
 	// Model matrix : an identity matrix (model will be at the origin)
 	m_object->SetModelMatrix(glm::mat4(1.0f));
-
+	// Setup depth resources
+	vkSetupDepthBufferResources();
 	// Create frame buffers
 	vkCreateFrameBuffers();
 	// Create command buffers.
 	vkCreateCommandBuffers();
 
-	// Setup depth resources
-	vkSetupDepthBufferResources();
 }
 
 void VKEngine::MainLoop()
@@ -825,6 +824,23 @@ void VKEngine::vkTransitionImageLayout(VKEngine* _engine, VkImage _image, VkForm
 	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 	// Image params
 	barrier.image = _image;
+
+	// Check for depth stenco; attachment
+	if (_newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+	{
+		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+
+		if (vkHasStencilComponent(_format))
+		{
+			barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+		}
+	}
+	else 
+	{
+		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	}
+
+
 	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	barrier.subresourceRange.baseMipLevel = 0;
 	barrier.subresourceRange.levelCount = 1;
@@ -860,7 +876,7 @@ void VKEngine::vkTransitionImageLayout(VKEngine* _engine, VkImage _image, VkForm
 		destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 	}
 	else {
-		throw std::invalid_argument("unsupported layout transition!");
+		throw std::invalid_argument("Unsupported layout transition!");
 	}
 
 
@@ -887,16 +903,16 @@ void VKEngine::vkCreateFrameBuffers()
 	// Go through all swap chain image views
 	for (size_t i = 0; i < m_vkSwapChainImageViews.size(); i++) 
 	{
-		VkImageView attachments[] = 
-		{
-			m_vkSwapChainImageViews[i]
+		std::array<VkImageView, 2> attachments = {
+			m_vkSwapChainImageViews[i],
+			*m_vkDepthImageView
 		};
 
 		VkFramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		framebufferInfo.renderPass = *static_cast<VKPipeline*>(m_object->GetPipeline())->vkGetRenderPass();
 		framebufferInfo.attachmentCount = 1;
-		framebufferInfo.pAttachments = attachments;
+		framebufferInfo.pAttachments = attachments.data();
 		framebufferInfo.width = m_vkSwapChainExtent.width;
 		framebufferInfo.height = m_vkSwapChainExtent.height;
 		framebufferInfo.layers = 1;
@@ -932,7 +948,12 @@ void VKEngine::vkSetupCommandPool()
 void VKEngine::vkCreateCommandBuffers()
 {
 	// Resize command buffers vector to be same size as frame buffers.
-	m_vkCommandBuffers.resize(m_vkSwapChainFrameBuffers.size());
+	m_vkCommandBuffers.resize(m_vkSwapChainImageViews.size());
+
+	// Clear Colors
+	std::array<VkClearValue, 2> clearValues = {};
+	clearValues[0].color = { 0.92f, 0.6f, 0.6f, 0.0f };
+	clearValues[1].depthStencil = { 1.0f, 0 };
 
 	// Command buffer create info
 	VkCommandBufferAllocateInfo allocInfo = {};
@@ -971,9 +992,8 @@ void VKEngine::vkCreateCommandBuffers()
 		renderPassInfo.renderArea.offset = { 0,0 };
 		renderPassInfo.renderArea.extent = m_vkSwapChainExtent;
 		// Clear Color of back screen.
-		VkClearValue clearColor = { 0.92f, 0.6f, 0.6f, 0.0f };
-		renderPassInfo.clearValueCount = 1;
-		renderPassInfo.pClearValues = &clearColor;
+		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+		renderPassInfo.pClearValues = clearValues.data();
 
 		// Begin render pass
 		vkCmdBeginRenderPass(m_vkCommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -1036,8 +1056,26 @@ void VKEngine::vkSetupDepthBufferResources()
 
 	// Create depth image view
 	m_vkDepthImageView = new VkImageView();
-	*m_vkDepthImageView = VKTexture::CreateImageView(*m_vkDevice, *m_vkDepthImage, 
-		depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+
+	// Texture Image view create info
+	VkImageViewCreateInfo viewInfo = {};
+	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	viewInfo.image = *m_vkDepthImage;
+	viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	viewInfo.format = depthFormat;
+	viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+	viewInfo.subresourceRange.baseMipLevel = 0;
+	viewInfo.subresourceRange.levelCount = 1;
+	viewInfo.subresourceRange.baseArrayLayer = 0;
+	viewInfo.subresourceRange.layerCount = 1;
+	// Create the image view
+	if (vkCreateImageView(*m_vkDevice, &viewInfo, nullptr, m_vkDepthImageView) != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create texture image view!");
+	}
+
+	//*m_vkDepthImageView = VKTexture::CreateImageView(*m_vkDevice, *m_vkDepthImage, 
+	//	depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 
 	vkTransitionImageLayout(this, *m_vkDepthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 

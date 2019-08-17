@@ -135,8 +135,6 @@ private:
 	void vkCreateCommandBuffers();
 	// Setup depth buffer resources.
 	void vkSetupDepthBufferResources();
-	// Check for stentil component.
-	bool vkHasStencilComponent(VkFormat format);
 	// Finds supported format.
 	VkFormat vkFindSupportedFormat(const std::vector<VkFormat>& candidates,
 		VkImageTiling tiling,
@@ -162,6 +160,8 @@ public:
 		VkImage _image, VkFormat _format, 
 		VkImageLayout _oldLayout, 
 		VkImageLayout _newLayout);
+	// Check for stentil component.
+	static bool vkHasStencilComponent(VkFormat format);
 
 	// Find depth format.
 	VkFormat vkFindDepthFormat();
