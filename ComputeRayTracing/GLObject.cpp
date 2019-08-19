@@ -11,6 +11,8 @@ GLObject::GLObject(const char* _modelFilePath)
 	// Load Shader
 	m_pipeline = new GLPipeline("Shaders/SimpleVert.vert",
 		"Shaders/SimpleFrag.frag");
+	//m_pipeline = new GLPipeline("Shaders/Shader.vert",
+	//	"Shaders/Shader.frag");
 	// Set model Matrix
 	m_modelMatrix = glm::mat4();
 }

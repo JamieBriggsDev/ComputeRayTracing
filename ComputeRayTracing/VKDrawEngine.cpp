@@ -10,7 +10,7 @@
 #include <GLFW/glfw3.h>
 
 
-void VKDrawEngine::Update(VKObject* _object, std::vector<VkCommandBuffer> _commandBuffers, float _deltaTime)
+void VKDrawEngine::Update(VKObject* _object, std::vector<VkCommandBuffer> _commandBuffers, Camera* _camera, float _deltaTime)
 {
 	// Wait for fences
 	vkWaitForFences(*m_vkEngineRef->vkGetDevice(), 1, &m_vkInFlightFences[m_currentFrame], 
@@ -26,7 +26,7 @@ void VKDrawEngine::Update(VKObject* _object, std::vector<VkCommandBuffer> _comma
 		&imageIndex);
 
 	// Update object here
-	_object->UpdateUniformBuffer(imageIndex, _deltaTime);
+	_object->UpdateUniformBuffer(imageIndex, _camera, _deltaTime);
 
 
 	// Create submit info for queue submission and synchronization.

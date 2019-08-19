@@ -7,6 +7,7 @@
 #include "Model.h"
 #include "Vertex.h"
 #include "UniformBufferObject.h"
+#include "Camera.h"
 
 class VKEngine;
 
@@ -60,7 +61,7 @@ public:
 		VkBuffer& _buffer,
 		VkDeviceMemory& _bufferMemory);
 	// Update uniform buffer data.
-	void vkUpdateUniformBuffer(uint32_t _currentImage, float _deltaTime);
+	void vkUpdateUniformBuffer(uint32_t _currentImage, Camera* _camera, float _deltaTime);
 	// Copys buffer
 	void vkCopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 

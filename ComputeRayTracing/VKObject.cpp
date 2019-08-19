@@ -41,10 +41,10 @@ void VKObject::Update(float _deltaTime)
 {
 }
 
-void VKObject::UpdateUniformBuffer(uint32_t _currentSwapChainImage, float _deltaTime)
+void VKObject::UpdateUniformBuffer(uint32_t _currentSwapChainImage, Camera* _camera, float _deltaTime)
 {
 
-	static_cast<VKModel*>(m_model)->vkUpdateUniformBuffer(_currentSwapChainImage, _deltaTime);
+	static_cast<VKModel*>(m_model)->vkUpdateUniformBuffer(_currentSwapChainImage, _camera, _deltaTime);
 }
 
 #endif

@@ -19,7 +19,7 @@ public:
 	~VKObject();
 
 	void Update(float _deltaTime);
-	void UpdateUniformBuffer(uint32_t _currentSwapChainImage, float _deltaTime);
+	void UpdateUniformBuffer(uint32_t _currentSwapChainImage, Camera* _camera, float _deltaTime);
 
 	void Draw(Camera* _camera, float _deltaTime);
 };

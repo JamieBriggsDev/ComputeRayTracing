@@ -34,7 +34,7 @@ void GLModel::GLBindBuffers()
 	glGenBuffers(1, &m_normalBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, m_normalBuffer);
 	glBufferData(GL_ARRAY_BUFFER, normalBufferSize, &m_normalBufferData[0], GL_STATIC_DRAW);
-	// Bind UV bufferw
+	// Bind UV buffer
 	glGenBuffers(1, &m_uvBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, m_uvBuffer);
 	glBufferData(GL_ARRAY_BUFFER, uvBufferSize, &m_uvBufferData[0], GL_STATIC_DRAW);

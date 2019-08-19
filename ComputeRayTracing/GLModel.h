@@ -12,6 +12,10 @@ private:
 	// Element Buffer
 	GLuint m_elementBuffer;
 
+	// VAO ID
+	GLuint m_vao;
+	GLuint m_vbo[3];
+
 	// Vertex handle
 	GLuint m_vertexArrayID;
 

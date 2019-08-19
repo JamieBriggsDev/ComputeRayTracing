@@ -275,8 +275,8 @@ void VKEngine::MainLoop()
 		m_myCamera->Update(m_myWindow, m_myController, m_deltaTime);
 
 		// Draw objects
-		m_myDrawEngine->Update(static_cast<VKObject*>(m_object),
-			m_vkCommandBuffers, m_deltaTime);
+		m_myDrawEngine->Update(static_cast<VKObject*>(m_object), 
+			m_vkCommandBuffers, m_myCamera, m_deltaTime);
 
 		// Update Window
 		m_myWindow->Update();

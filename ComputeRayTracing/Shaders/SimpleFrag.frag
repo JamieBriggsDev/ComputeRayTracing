@@ -58,4 +58,6 @@ void main(){
 		// Specular : reflective highlight, like a mirror
 		MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,5) / (distance*distance);
 
+	color =  vec3(UV, 0.0);
+
 }

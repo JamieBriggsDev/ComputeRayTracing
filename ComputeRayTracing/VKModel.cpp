@@ -201,7 +201,7 @@ void VKModel::vkCleanupUniformBuffers(int _size)
 	}
 }
 
-void VKModel::vkUpdateUniformBuffer(uint32_t _currentImage, float _deltaTime)
+void VKModel::vkUpdateUniformBuffer(uint32_t _currentImage, Camera* _camera, float _deltaTime)
 {
 	// Init timer
 	static float Timer;
@@ -211,13 +211,20 @@ void VKModel::vkUpdateUniformBuffer(uint32_t _currentImage, float _deltaTime)
 		Timer += _deltaTime;
 
 	// Update ubo TODO - MOVE TO VKOBJECT
+	//UniformBufferObject ubo = {};
+	//ubo.m_model = glm::rotate(glm::mat4(1.0f), Timer * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	//ubo.m_view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	//ubo.m_proj = glm::perspective(glm::radians(45.0f), 
+	//	m_vkEngineRef->vkGetSwapChainExtent().width / 
+	//	(float)m_vkEngineRef->vkGetSwapChainExtent().height, 
+	//	0.1f, 10.0f);
 	UniformBufferObject ubo = {};
-	ubo.m_model = glm::rotate(glm::mat4(1.0f), Timer * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.m_view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.m_proj = glm::perspective(glm::radians(45.0f), 
-		m_vkEngineRef->vkGetSwapChainExtent().width / 
-		(float)m_vkEngineRef->vkGetSwapChainExtent().height, 
-		0.1f, 10.0f);
+	ubo.m_model = glm::rotate(glm::mat4(1.0f), Timer * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	ubo.m_view = _camera->GetView();
+	ubo.m_proj = _camera->GetProjectionView();
+		//m_vkEngineRef->vkGetSwapChainExtent().width /
+		//(float)m_vkEngineRef->vkGetSwapChainExtent().height,
+		//0.1f, 10.0f);
 
 	ubo.m_proj[1][1] *= -1;
 
