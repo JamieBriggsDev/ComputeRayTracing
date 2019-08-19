@@ -20,6 +20,21 @@ Camera::~Camera()
 {
 }
 
+void Camera::ResetLocation()
+{
+	// Reset position
+	m_position = glm::vec3(0, 0, 5);
+	// Reset angles
+	m_horizontalAngle = 3.14f;
+	m_verticalAngle = 0.0f;
+	// Reset View Matrix
+	m_viewMtx = glm::lookAt(
+		glm::vec3(4, 3, 3), // Camera is at (4,3,3), in World Space
+		glm::vec3(0, 0, 0), // and looks at the origin
+		glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
+	);
+}
+
 glm::mat4 Camera::GetProjectionView() 
 {
 	return m_projectionMtx * m_viewMtx;
@@ -28,6 +43,11 @@ glm::mat4 Camera::GetProjectionView()
 glm::mat4 Camera::GetView()
 {
 	return m_viewMtx;
+}
+
+glm::mat4 Camera::GetProjection()
+{
+	return m_projectionMtx;
 }
 
 void Camera::Update(Window* _window, Controller* _controller, float _deltaTime)
@@ -88,6 +108,11 @@ void Camera::Update(Window* _window, Controller* _controller, float _deltaTime)
 	if (_controller->IsKeyPressed(_window, GLFW_KEY_LEFT_SHIFT))
 	{
 		m_position -= up * _deltaTime * m_speed;
+	}
+	// Take input from controller to reset camera
+	if (_controller->IsKeyPressed(_window, GLFW_KEY_R))
+	{
+		ResetLocation();
 	}
 
 	// Update View Matrix

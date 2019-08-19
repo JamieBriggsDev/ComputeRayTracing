@@ -23,7 +23,9 @@ private:
 public:
 	Camera();
 	~Camera();
+	void ResetLocation();
 	glm::mat4 GetProjectionView();
+	glm::mat4 GetProjection();
 	glm::mat4 GetView();
 	void Update(Window* _window, Controller* _controller, float _deltaTime);
 };

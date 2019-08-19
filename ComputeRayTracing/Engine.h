@@ -4,6 +4,9 @@
 #include "Camera.h"
 #include "Controller.h"
 
+#define VULKAN_CLEAR_COLOUR { 0.92f, 0.6f, 0.6f, 0.0f }
+#define OPENGL_CLEAR_COLOUR 0.6f, 0.85f, 0.92f, 0.0f
+
 class Engine
 {
 protected:

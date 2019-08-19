@@ -221,10 +221,7 @@ void VKModel::vkUpdateUniformBuffer(uint32_t _currentImage, Camera* _camera, flo
 	UniformBufferObject ubo = {};
 	ubo.m_model = glm::rotate(glm::mat4(1.0f), Timer * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	ubo.m_view = _camera->GetView();
-	ubo.m_proj = _camera->GetProjectionView();
-		//m_vkEngineRef->vkGetSwapChainExtent().width /
-		//(float)m_vkEngineRef->vkGetSwapChainExtent().height,
-		//0.1f, 10.0f);
+	ubo.m_proj = _camera->GetProjection();
 
 	ubo.m_proj[1][1] *= -1;
 

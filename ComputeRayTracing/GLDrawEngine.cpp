@@ -3,6 +3,7 @@
 #include "GLDrawEngine.h"
 #include "Camera.h"
 #include "Window.h"
+#include "Engine.h"
 
 // GLEW before everything else
 #include <GL/glew.h>
@@ -25,7 +26,7 @@ void GLDrawEngine::Update(Camera* _camera, Window* _window, Object* _object, flo
 GLDrawEngine::GLDrawEngine()
 {
 	// light blue background
-	glClearColor(0.6f, 0.85f, 0.92f, 0.0f);
+	glClearColor(OPENGL_CLEAR_COLOUR);
 
 	// Enable face culling
 	glEnable(GL_CULL_FACE);

@@ -69,6 +69,8 @@ void GLEngine::MainLoop()
 	float FrameRefreshTime = 0.5f;
 	float LastFPSUpdate = 0.0f;
 
+	// Reset camera before loop
+	m_myCamera->ResetLocation();
 	long long int TotalFrames = 0;
 	do {
 		// Get delta time by comparing current time and last time

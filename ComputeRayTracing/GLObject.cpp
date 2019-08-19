@@ -54,7 +54,6 @@ void GLObject::Draw(Camera* _camera, float _deltaTime)
 	glUniform3f(m_pipeline->GetLightPositionWorldSpaceID(),
 		lightPosition.x, lightPosition.y, lightPosition.z);
 
-	//std::cout << "Light: " << glGetError() << std::endl;
 
 	if (m_texture)
 	{

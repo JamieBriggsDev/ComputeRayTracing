@@ -234,6 +234,9 @@ void VKEngine::MainLoop()
 	//auto currentTime = std::chrono::high_resolution_clock::now();
 	//float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
+	// Reset camera locations
+	m_myCamera->ResetLocation();
+
 	long long int TotalFrames = 0;
 	do {
 		// Get delta time by comparing current time and last time
@@ -951,7 +954,7 @@ void VKEngine::vkCreateCommandBuffers()
 
 	// Clear Colors
 	std::array<VkClearValue, 2> clearValues = {};
-	clearValues[0].color = { 0.92f, 0.6f, 0.6f, 0.0f };
+	clearValues[0].color = VULKAN_CLEAR_COLOUR;
 	clearValues[1].depthStencil = { 1.0f, 0 };
 
 	// Command buffer create info
