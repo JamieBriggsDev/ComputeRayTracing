@@ -7,6 +7,8 @@ GLPipeline::GLPipeline(const char* _vertexFilePath, const char * _fragmentFilePa
 	// Create the shaders
 	GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
 	GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+	m_vertexShaderID = VertexShaderID;
+	m_fragmentShaderID = FragmentShaderID;
 
 	// Read the Vertex Shader code from the file
 	GLOpenVertexShader(_vertexFilePath);
@@ -73,19 +75,19 @@ GLPipeline::GLPipeline(const char* _vertexFilePath, const char * _fragmentFilePa
 	m_programID = ProgramID;
 	glUseProgram(m_programID);
 	// Set MVP Matrix Handle
-	m_mvpMatrixID = glGetUniformLocation(m_programID, "MVP");
-	// Set View Matrix Handle
-	m_viewMatrixID = glGetUniformLocation(m_programID, "V");
-	// Set Model Matrix Handle
-	m_modelMatrixID = glGetUniformLocation(m_programID, "M");
+	//m_mvpMatrixID = glGetUniformLocation(m_programID, "MVP");
+	//// Set View Matrix Handle
+	//m_viewMatrixID = glGetUniformLocation(m_programID, "V");
+	//// Set Model Matrix Handle
+	//m_modelMatrixID = glGetUniformLocation(m_programID, "M");
 	// Set MV Matrix Handle
 	//m_modelViewMatrixID = glGetUniformLocation(m_programID, "MV");
 	// Set MVP Matrix Handle
-	m_lightPositionWorldSpace = glGetUniformLocation(m_programID, "LightPosition_worldspace");
+	//m_lightPositionWorldSpace = glGetUniformLocation(m_programID, "LightPosition_worldspace");
 	// Set Texture Sampler Handle
 	m_texSamplerID = glGetUniformLocation(m_programID, "TextureSampler");
-	// Set Height Map Sampler Handle
-	m_heightSamplerID = glGetUniformLocation(m_programID, "HeightMapSampler");
+	//// Set Height Map Sampler Handle
+	//m_heightSamplerID = glGetUniformLocation(m_programID, "HeightMapSampler");
 }
 
 GLPipeline::~GLPipeline()

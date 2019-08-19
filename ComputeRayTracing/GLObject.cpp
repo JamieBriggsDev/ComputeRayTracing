@@ -3,16 +3,17 @@
 #include "GLObject.h"
 #include "GLPipeline.h"
 #include "Camera.h"
+#include "UniformBufferObject.h"
 
 GLObject::GLObject(const char* _modelFilePath)
 {
 	// Load Model
 	m_model = new GLModel(_modelFilePath);
 	// Load Shader
-	m_pipeline = new GLPipeline("Shaders/SimpleVert.vert",
-		"Shaders/SimpleFrag.frag");
-	//m_pipeline = new GLPipeline("Shaders/Shader.vert",
-	//	"Shaders/Shader.frag");
+	//m_pipeline = new GLPipeline("Shaders/SimpleVert.vert",
+	//	"Shaders/SimpleFrag.frag");
+	m_pipeline = new GLPipeline("Shaders/Shader.vert",
+		"Shaders/Shader.frag");
 	// Set model Matrix
 	m_modelMatrix = glm::mat4();
 }
@@ -41,18 +42,42 @@ void GLObject::Draw(Camera* _camera, float _deltaTime)
 	glm::mat4 V = _camera->GetView();
 	glm::mat4 MV = M * V;
 
-	// Send our transformations to the shader
-	glUniformMatrix4fv(m_pipeline->GetMVPID(), 1, GL_FALSE, &MVP[0][0]);
-	//std::cout << "MVP: " << glGetError() << std::endl; 
-	glUniformMatrix4fv(m_pipeline->GetModelMatrixID(), 1, GL_FALSE, &M[0][0]);
-	//std::cout << "M: " << glGetError() << std::endl;
-	glUniformMatrix4fv(m_pipeline->GetViewMatrixID(), 1, GL_FALSE, &V[0][0]);
-	//std::cout << "V: " << glGetError() << std::endl;
+
+
+	//// Send our transformations to the shader
+	//glUniformMatrix4fv(m_pipeline->GetMVPID(), 1, GL_FALSE, &MVP[0][0]);
+	////std::cout << "MVP: " << glGetError() << std::endl; 
+	//glUniformMatrix4fv(m_pipeline->GetModelMatrixID(), 1, GL_FALSE, &M[0][0]);
+	////std::cout << "M: " << glGetError() << std::endl;
+	//glUniformMatrix4fv(m_pipeline->GetViewMatrixID(), 1, GL_FALSE, &V[0][0]);
+	////std::cout << "V: " << glGetError() << std::endl;
 
 	// Send light position to the shader
-	glm::vec3 lightPosition = glm::vec3(4, 4, 4);
-	glUniform3f(m_pipeline->GetLightPositionWorldSpaceID(),
-		lightPosition.x, lightPosition.y, lightPosition.z);
+	//glm::vec3 lightPosition = glm::vec3(4, 4, 4);
+	//glUniform3f(m_pipeline->GetLightPositionWorldSpaceID(),
+	//	lightPosition.x, lightPosition.y, lightPosition.z);
+
+	// Attempt to pass UBO through
+	GLuint Matrices_binding = 0;
+	int uboID = glGetUniformBlockIndex(m_pipeline->GetProgramID(), "UniformBufferObject");
+	glUniformBlockBinding(m_pipeline->GetProgramID(), uboID, Matrices_binding);
+	// Create ubo
+	GLuint ubo;
+	glGenBuffers(1, &ubo);
+	glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+	glBufferData(GL_UNIFORM_BUFFER,sizeof(glm::mat4) * 3, NULL, GL_STREAM_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	// Create struct
+	UniformBufferObject uniformBufferObject;
+	uniformBufferObject.m_model = m_modelMatrix;
+	uniformBufferObject.m_view = _camera->GetView();
+	uniformBufferObject.m_proj = _camera->GetProjection();
+
+	glBindBufferRange(GL_UNIFORM_BUFFER, uboID,
+		ubo, 0, sizeof(glm::mat4) * 3);
+	//// Pass object
+	//glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &uniformBufferObject);
+	//TODO TODO TDO OT ODTODO TODO 
 
 
 	if (m_texture)
@@ -63,16 +88,6 @@ void GLObject::Draw(Camera* _camera, float _deltaTime)
 		// Set TextureSampler sampler to use Texture Unit 0
 		glUniform1i(m_pipeline->GetTextureSamplerID(), 0);
 		//std::cout << "Texture Sampler: " << glGetError() << std::endl;
-	}
-
-	if (m_heightMap)
-	{
-		// Bind our texture in Texture Unit 0
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, m_heightMap->GetData());
-		// Set TextureSampler sampler to use Texture Unit 0
-		glUniform1i(m_pipeline->GetHeightMapSamplerID(), 1);
-		//std::cout << "Height Map Sampler: " << glGetError() << std::endl;
 	}
 
 	// 1rst attribute buffer : vertices
@@ -87,12 +102,23 @@ void GLObject::Draw(Camera* _camera, float _deltaTime)
 		(void*)0            // array buffer offset
 	);
 
+	// 3rd attribute buffer : normals
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLModel*>(m_model)->GetNormalBuffer());
+	glVertexAttribPointer(
+		1,                  // attribute 2. must match the layout in the shader.
+		3,                  // size
+		GL_FLOAT,           // type
+		GL_FALSE,           // normalized?
+		0,                  // stride
+		(void*)0            // array buffer offset
+	);
 
 	// 2nd attribute buffer : UV
-	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
 	glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLModel*>(m_model)->GetUVBuffer());
 	glVertexAttribPointer(
-		1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
+		2,                                // attribute. No particular reason for 1, but must match the layout in the shader.
 		2,                                // size : U+V => 2
 		GL_FLOAT,                         // type
 		GL_FALSE,                         // normalized?
@@ -101,17 +127,6 @@ void GLObject::Draw(Camera* _camera, float _deltaTime)
 	);
 
 
-	// 3rd attribute buffer : normals
-	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLModel*>(m_model)->GetNormalBuffer());
-	glVertexAttribPointer(
-		2,                  // attribute 2. must match the layout in the shader.
-		3,                  // size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
-		0,                  // stride
-		(void*)0            // array buffer offset
-	);
 
 	// Index buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLModel*>(m_model)->GetElementBuffer());
