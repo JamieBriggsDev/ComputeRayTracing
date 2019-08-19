@@ -5,27 +5,19 @@
 #include <vector>
 
 #include "HardModels.h"
+#include "Vertex.h"
 
 class Model
 {
-private:
-	// Buffers
-	GLuint m_vertexBuffer;
-	GLuint m_uvBuffer;
-	GLuint m_normalBuffer;
-	// Element Buffer
-	GLuint m_elementBuffer;
-
-	// Buffer Data
+protected:
 	std::vector<glm::vec3> m_vertexBufferData;
 	std::vector<glm::vec3> m_normalBufferData;
 	std::vector<glm::vec2> m_uvBufferData;
-	std::vector<unsigned short> m_indicesBufferData;
+	std::vector<uint32_t> m_indicesBufferData;
 
-	// Vertex handle
-	GLuint m_vertexArrayID;
+	// Buffer Data
+	std::vector<Vertex> m_verticesData;
 
-	void GLBindBuffers();
 
 	bool LoadObj(const char* _filePath,
 		std::vector<glm::vec3> & out_vertices,
@@ -39,27 +31,20 @@ private:
 		std::vector<glm::vec2> & in_uvs,
 		std::vector<glm::vec3> & in_normals,
 
-		std::vector<unsigned short> & out_indices,
+		std::vector<uint32_t> & out_indices,
 		std::vector<glm::vec3> & out_vertices,
 		std::vector<glm::vec2> & out_uvs,
 		std::vector<glm::vec3> & out_normals
 	);
+
+	void CombineVertexData();
 public:
 	// Default constructor
-	Model();
+	Model() {};
 	// Constructor which loads .obj file
 	Model(const char* _objFilePath);
 
 	~Model();
-	// Get Indices Count
-	GLuint GetIndicesCount();
-	// Get Vertex Buffer
-	GLuint GetVertexBuffer();
-	// Get UV Buffer
-	GLuint GetUVBuffer();
-	// Get NormalBuffer
-	GLuint GetNormalBuffer();
-	// Get Element buffer
-	GLuint GetElementBuffer();
+
 };
 

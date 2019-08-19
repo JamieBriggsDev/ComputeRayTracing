@@ -9,10 +9,6 @@
 #include "Model.h"
 #include "Vertex.h"
 
-Model::Model()
-{
-
-}
 
 Model::Model(const char * _objFilePath)
 {
@@ -24,77 +20,14 @@ Model::Model(const char * _objFilePath)
 	m_indicesBufferData.clear();
 	indexVBO(vertexBufferData, uvBufferData, normalBufferData,
 		m_indicesBufferData, m_vertexBufferData, m_uvBufferData, m_normalBufferData);
-#if GL
-	GLBindBuffers();
-#elif VK
-
-#endif
+	// Combine vertex data
+	CombineVertexData();
 }
 
 
 Model::~Model()
 {
-	glDeleteBuffers(1, &m_vertexBuffer);
-	//glDeleteBuffers(1, &m_colorBuffer);
-	glDeleteVertexArrays(1, &m_vertexArrayID);
-}
 
-void Model::GLBindBuffers()
-{
-	// Bind IDs
-	glGenVertexArrays(1, &m_vertexArrayID);
-	glBindVertexArray(m_vertexArrayID);
-	// Get buffer sizes
-	int vertexBufferSize = m_vertexBufferData.size() * sizeof(glm::vec3);
-	int uvBufferSize = m_uvBufferData.size() * sizeof(glm::vec2);
-	int normalBufferSize = m_normalBufferData.size() * sizeof(glm::vec3);
-	int indicesBufferSize = m_indicesBufferData.size() * sizeof(unsigned short);
-	// Bind Vertex buffer
-	glGenBuffers(1, &m_vertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, vertexBufferSize, &m_vertexBufferData[0], GL_STATIC_DRAW);
-	// Bind UV buffer
-	glGenBuffers(1, &m_uvBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, m_uvBuffer);
-	glBufferData(GL_ARRAY_BUFFER, uvBufferSize, &m_uvBufferData[0], GL_STATIC_DRAW);
-	// Bind Normal buffer
-	glGenBuffers(1, &m_normalBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, m_normalBuffer);
-	glBufferData(GL_ARRAY_BUFFER, normalBufferSize, &m_normalBufferData[0], GL_STATIC_DRAW);
-	// Bind Element/ Index Buffer
-	glGenBuffers(1, &m_elementBuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_elementBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesBufferSize, &m_indicesBufferData[0], GL_STATIC_DRAW);
-}
-
-// Get Indices Count
-GLuint Model::GetIndicesCount()
-{
-	return m_indicesBufferData.size();
-}
-
-// Get Vertex Buffer
-GLuint Model::GetVertexBuffer() 
-{ 
-	return m_vertexBuffer; 
-}
-
-// Get UV Buffer
-GLuint Model::GetUVBuffer() 
-{
-	return m_uvBuffer;
-}
-
-// Get Normal Buffer
-GLuint Model::GetNormalBuffer()
-{
-	return m_normalBuffer;
-}
-
-// Get Element Buffer
-GLuint Model::GetElementBuffer()
-{
-	return m_elementBuffer;
 }
 
 bool Model::LoadObj(const char * _filePath, 
@@ -109,7 +42,7 @@ bool Model::LoadObj(const char * _filePath,
 
 	printf("Loading OBJ file %s...\n", _filePath);
 
-	std::vector<unsigned short> temp_indices;
+	std::vector<uint32_t> temp_indices;
 	std::vector<glm::vec3> temp_vertices;
 	std::vector<glm::vec2> temp_uvs;
 	std::vector<glm::vec3> temp_normals;
@@ -210,13 +143,13 @@ bool is_near(float v1, float v2) {
 // for a similar one.
 // Similar = same position + same UVs + same normal
 bool getSimilarVertexIndex(
-	glm::vec3 & in_vertex,
-	glm::vec2 & in_uv,
-	glm::vec3 & in_normal,
-	std::vector<glm::vec3> & out_vertices,
-	std::vector<glm::vec2> & out_uvs,
-	std::vector<glm::vec3> & out_normals,
-	unsigned short & result
+	glm::vec3 &in_vertex,
+	glm::vec2 &in_uv,
+	glm::vec3 &in_normal,
+	std::vector<glm::vec3> &out_vertices,
+	std::vector<glm::vec2> &out_uvs,
+	std::vector<glm::vec3> &out_normals,
+	uint32_t &result
 ) {
 	// Lame linear search
 	for (unsigned int i = 0; i < out_vertices.size(); i++) {
@@ -240,20 +173,20 @@ bool getSimilarVertexIndex(
 }
 
 void indexVBO_slow(
-	std::vector<glm::vec3> & in_vertices,
-	std::vector<glm::vec2> & in_uvs,
-	std::vector<glm::vec3> & in_normals,
+	std::vector<glm::vec3> &in_vertices,
+	std::vector<glm::vec2> &in_uvs,
+	std::vector<glm::vec3> &in_normals,
 
-	std::vector<unsigned short> & out_indices,
-	std::vector<glm::vec3> & out_vertices,
-	std::vector<glm::vec2> & out_uvs,
-	std::vector<glm::vec3> & out_normals
+	std::vector<uint32_t> &out_indices,
+	std::vector<glm::vec3> &out_vertices,
+	std::vector<glm::vec2> &out_uvs,
+	std::vector<glm::vec3> &out_normals
 ) {
 	// For each input vertex
 	for (unsigned int i = 0; i < in_vertices.size(); i++) {
 
 		// Try to find a similar vertex in out_XXXX
-		unsigned short index;
+		uint32_t index;
 		bool found = getSimilarVertexIndex(in_vertices[i], in_uvs[i], in_normals[i], out_vertices, out_uvs, out_normals, index);
 
 		if (found) { // A similar vertex is already in the VBO, use it instead !
@@ -263,7 +196,7 @@ void indexVBO_slow(
 			out_vertices.push_back(in_vertices[i]);
 			out_uvs.push_back(in_uvs[i]);
 			out_normals.push_back(in_normals[i]);
-			out_indices.push_back((unsigned short)out_vertices.size() - 1);
+			out_indices.push_back((uint32_t)out_vertices.size() - 1);
 		}
 	}
 }
@@ -279,10 +212,10 @@ struct PackedVertex {
 
 bool getSimilarVertexIndex_fast(
 	PackedVertex & packed,
-	std::map<PackedVertex, unsigned short> & VertexToOutIndex,
-	unsigned short & result
+	std::map<PackedVertex, uint32_t> & VertexToOutIndex,
+	uint32_t & result
 ) {
-	std::map<PackedVertex, unsigned short>::iterator it = VertexToOutIndex.find(packed);
+	std::map<PackedVertex, uint32_t>::iterator it = VertexToOutIndex.find(packed);
 	if (it == VertexToOutIndex.end()) {
 		return false;
 	}
@@ -297,12 +230,12 @@ void Model::indexVBO(
 	std::vector<glm::vec2> & in_uvs,
 	std::vector<glm::vec3> & in_normals,
 
-	std::vector<unsigned short> & out_indices,
+	std::vector<uint32_t> & out_indices,
 	std::vector<glm::vec3> & out_vertices,
 	std::vector<glm::vec2> & out_uvs,
 	std::vector<glm::vec3> & out_normals
 ) {
-	std::map<PackedVertex, unsigned short> VertexToOutIndex;
+	std::map<PackedVertex, uint32_t> VertexToOutIndex;
 
 	// For each input vertex
 	for (unsigned int i = 0; i < in_vertices.size(); i++) {
@@ -311,7 +244,7 @@ void Model::indexVBO(
 
 
 		// Try to find a similar vertex in out_XXXX
-		unsigned short index;
+		uint32_t index;
 		bool found = getSimilarVertexIndex_fast(packed, VertexToOutIndex, index);
 
 		if (found) { // A similar vertex is already in the VBO, use it instead !
@@ -321,9 +254,35 @@ void Model::indexVBO(
 			out_vertices.push_back(in_vertices[i]);
 			out_uvs.push_back(in_uvs[i]);
 			out_normals.push_back(in_normals[i]);
-			unsigned short newindex = (unsigned short)out_vertices.size() - 1;
+			uint32_t newindex = (uint32_t)out_vertices.size() - 1;
 			out_indices.push_back(newindex);
 			VertexToOutIndex[packed] = newindex;
 		}
 	}
+}
+
+void Model::CombineVertexData()
+{
+	for(int i = 0; i < m_vertexBufferData.size(); i++)
+	{
+		Vertex newVertex;
+		// Position Data
+		newVertex.pos.x = m_vertexBufferData[i].x;
+		newVertex.pos.y = m_vertexBufferData[i].y;
+		newVertex.pos.z = m_vertexBufferData[i].z;
+		// Normal Data
+		newVertex.normal.x = m_normalBufferData[i].x;
+		newVertex.normal.y = m_normalBufferData[i].y;
+		newVertex.normal.z = m_normalBufferData[i].z;
+		// UV Data
+		newVertex.texCoord.x = m_uvBufferData[i].x;
+		newVertex.texCoord.y = m_uvBufferData[i].y;
+		// Add to vertices
+		m_verticesData.push_back(newVertex);
+	}
+	std::cout << "Total Pos\t: " << m_vertexBufferData.size() << std::endl;
+	std::cout << "Total Norm\t: " << m_normalBufferData.size() << std::endl;
+	std::cout << "Total UVData\t: " << m_uvBufferData.size() << std::endl;
+
+	std::cout << "Total Vertices: " << m_vertexBufferData.size() << std::endl;
 }

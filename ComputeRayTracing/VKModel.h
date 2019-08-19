@@ -14,7 +14,7 @@ class VKModel :
 	public Model
 {
 private:
-	const std::vector<Vertex> vertices = {
+	std::vector<Vertex> vertices = {
 		{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
 		{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
 		{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
@@ -25,7 +25,7 @@ private:
 		{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
 		{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
 	};
-	const std::vector<uint16_t> indices = {
+	std::vector<uint32_t> indices = {
 		0, 1, 2, 2, 3, 0,
 		4, 5, 6, 6, 7, 4
 	};
@@ -71,11 +71,11 @@ public:
 	// Gets Vertices
 	std::vector<Vertex> vkGetVertices() { return vertices; }
 	// Gets Indices
-	std::vector<uint16_t> vkGetIndices() { return indices; }
+	std::vector<uint32_t> vkGetIndices() { return indices; }
 	// Gets Uniform Buffers
 	std::vector<VkBuffer> vkGetUniformBuffers() { return m_vkUniformBuffers; }
 
-	VKModel(VKEngine* _vkEngine);
+	VKModel(VKEngine* _vkEngine, const char* _objFilePath);
 	~VKModel();
 };
 

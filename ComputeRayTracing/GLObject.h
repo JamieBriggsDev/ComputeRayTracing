@@ -2,6 +2,8 @@
 
 #pragma once
 #include "Object.h"
+#include "GLModel.h"
+
 class GLObject :
 	public Object
 {

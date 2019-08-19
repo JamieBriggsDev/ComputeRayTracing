@@ -7,7 +7,7 @@
 GLObject::GLObject(const char* _modelFilePath)
 {
 	// Load Model
-	m_model = new Model(_modelFilePath);
+	m_model = new GLModel(_modelFilePath);
 	// Load Shader
 	m_pipeline = new GLPipeline("Shaders/SimpleVert.vert",
 		"Shaders/SimpleFrag.frag");
@@ -51,6 +51,7 @@ void GLObject::Draw(Camera* _camera, float _deltaTime)
 	glm::vec3 lightPosition = glm::vec3(4, 4, 4);
 	glUniform3f(m_pipeline->GetLightPositionWorldSpaceID(),
 		lightPosition.x, lightPosition.y, lightPosition.z);
+
 	//std::cout << "Light: " << glGetError() << std::endl;
 
 	if (m_texture)
@@ -75,7 +76,7 @@ void GLObject::Draw(Camera* _camera, float _deltaTime)
 
 	// 1rst attribute buffer : vertices
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, m_model->GetVertexBuffer());
+	glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLModel*>(m_model)->GetVertexBuffer());
 	glVertexAttribPointer(
 		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
 		3,                  // size
@@ -88,7 +89,7 @@ void GLObject::Draw(Camera* _camera, float _deltaTime)
 
 	// 2nd attribute buffer : UV
 	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, m_model->GetUVBuffer());
+	glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLModel*>(m_model)->GetUVBuffer());
 	glVertexAttribPointer(
 		1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
 		2,                                // size : U+V => 2
@@ -101,7 +102,7 @@ void GLObject::Draw(Camera* _camera, float _deltaTime)
 
 	// 3rd attribute buffer : normals
 	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, m_model->GetNormalBuffer());
+	glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLModel*>(m_model)->GetNormalBuffer());
 	glVertexAttribPointer(
 		2,                  // attribute 2. must match the layout in the shader.
 		3,                  // size
@@ -112,14 +113,14 @@ void GLObject::Draw(Camera* _camera, float _deltaTime)
 	);
 
 	// Index buffer
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_model->GetElementBuffer());
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLModel*>(m_model)->GetElementBuffer());
 
 	// Draw the triangle !
 	//glDrawArrays(GL_TRIANGLES, 0, m_model->GetIndicesCount());
 	glDrawElements(
 		GL_TRIANGLES,
-		m_model->GetIndicesCount(),
-		GL_UNSIGNED_SHORT,
+		static_cast<GLModel*>(m_model)->GetIndicesCount(),
+		GL_UNSIGNED_INT,
 		(void*)0
 	);
 

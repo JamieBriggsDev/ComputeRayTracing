@@ -21,9 +21,15 @@ VKPipeline::VKPipeline(VKEngine* _vkEngine,
 	CreateTextureSampler();
 	// Create descriptor set layout
 	CreateDescriptorSetLayout();
+	// Convert to SPV TODO
+	//ConvertToSPV(_vertexFilePath);
 	// Create Pipeline
-	CreatePipelineLayout(_vkSwapChainExtent, 
-		_vertexFilePath, 
+	//CreatePipelineLayout(_vkSwapChainExtent, 
+	//	"/Resources/Shaders/vert.spv", 
+	//	_fragmentFilePath);
+
+	CreatePipelineLayout(_vkSwapChainExtent,
+		_vertexFilePath,
 		_fragmentFilePath);
 	// Create descriptor pools
 	CreateDescriptorPools();
@@ -45,6 +51,17 @@ VKPipeline::~VKPipeline()
 	vkDestroyPipeline(*m_vkEngineRef->vkGetDevice(), *m_vkPipeline, nullptr);
 	// Destroy samplers
 	vkDestroySampler(*m_vkEngineRef->vkGetDevice(), *m_vkTextureSampler, nullptr);
+}
+
+void VKPipeline::ConvertToSPV(const char * _filePathName)
+{
+	// Call from batch file
+	std::string call;
+	call.append("/Shaders/CompileShaders.bat ");
+	call.append(_filePathName);
+	std::cout << call.c_str() << std::endl;
+	system(call.c_str());
+
 }
 
 VkShaderModule VKPipeline::CreateShaderModule(VkDevice _vkDevice, const std::vector<char>& _code)

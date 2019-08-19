@@ -9,8 +9,12 @@
 #include "VKEngine.h"
 
 
-VKModel::VKModel(VKEngine* _vkEngine)
+VKModel::VKModel(VKEngine* _vkEngine, const char* _objFilePath)
+	: Model(_objFilePath)
 {
+	vertices = m_verticesData;
+	indices = m_indicesBufferData;
+
 	// Reference device.
 	m_vkEngineRef = _vkEngine;
 	// Setup vertex buffers.

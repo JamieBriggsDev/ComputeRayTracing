@@ -1010,7 +1010,7 @@ void VKEngine::vkCreateCommandBuffers()
 			vkCmdBindIndexBuffer(m_vkCommandBuffers[i], 
 				temp->vkGetIndexBuffer(), 
 				0, 
-				VK_INDEX_TYPE_UINT16);
+				VK_INDEX_TYPE_UINT32);
 
 			VKPipeline* myPipeline = static_cast<VKPipeline*>(m_object->GetPipeline());
 			// Bind Descriptor Sets

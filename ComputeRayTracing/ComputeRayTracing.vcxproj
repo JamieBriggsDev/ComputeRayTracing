@@ -327,6 +327,7 @@ xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="GLDrawEngine.h" />
+    <ClInclude Include="GLModel.h" />
     <ClInclude Include="GLObject.h" />
     <ClInclude Include="GLPipeline.h" />
     <ClInclude Include="Engine.h" />
@@ -351,6 +352,7 @@ xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="GLDrawEngine.cpp" />
+    <ClCompile Include="GLModel.cpp" />
     <ClCompile Include="GLObject.cpp" />
     <ClCompile Include="GLPipeline.cpp" />
     <ClCompile Include="Engine.cpp" />
