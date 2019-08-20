@@ -112,11 +112,11 @@ GLPipeline::GLPipeline(const char* _vertexFilePath, const char * _fragmentFilePa
 	m_programID = ProgramID;
 	m_computeProgramID = ComputeProgramID;
 
-	glUseProgram(m_programID);
-	// Set MVP Matrix Handle
-	m_mvpMatrixID = glGetUniformLocation(m_programID, "MVP");
-	// Set Texture Sampler Handle
-	m_texSamplerID = glGetUniformLocation(m_programID, "TextureSampler");
+	//glUseProgram(m_programID);
+	//// Set MVP Matrix Handle
+	//m_mvpMatrixID = glGetUniformLocation(m_programID, "MVP");
+	//// Set Texture Sampler Handle
+	//m_texSamplerID = glGetUniformLocation(m_programID, "TextureSampler");
 
 
 	// Compute shader

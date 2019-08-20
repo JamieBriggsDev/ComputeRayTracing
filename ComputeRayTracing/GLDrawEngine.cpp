@@ -3,6 +3,7 @@
 #include "GLDrawEngine.h"
 #include "GLModel.h"
 #include "GLPipeline.h"
+#include "HardModels.h"
 #include "Camera.h"
 #include "Window.h"
 #include "Engine.h"
@@ -18,27 +19,26 @@
 void GLDrawEngine::Update(Camera* _camera, Window* _window, Object* _object, float _deltaTime)
 {
 
-	// Compute shader stuff first
-	glUseProgram(static_cast<GLPipeline*>(_object->GetPipeline())->GetComputeProgramID());
-	// Define groups (Window Resolution)
-	glDispatchCompute((GLuint)Window::s_windowWidth, (GLuint)Window::s_windowHeight, 1);
-	// Make sure writing to image has finished before read
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	//// Compute shader stuff first
+	//glUseProgram(m_pipeline->GetComputeProgramID());
+	//// Define groups (Window Resolution)
+	//glDispatchCompute((GLuint)Window::s_windowWidth, (GLuint)Window::s_windowHeight, 1);
+	//// Make sure writing to image has finished before read
+	//glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 	// Clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	// Use frag/vert shader program
-	glUseProgram(static_cast<GLPipeline*>(_object->GetPipeline())->GetProgramID());
+	// Use frag/vert shader program 
+	glUseProgram(m_pipeline->GetProgramID());
 	// MVP
-	//Model* model = _object->GetModel();
-	glm::mat4 MVP = _camera->GetProjectionView() * _object->GetModelMatrix();
+	//glm::mat4 MVP = _camera->GetProjectionView() * _object->GetModelMatrix();
 
 	// Send our transformations to the shader
-	glUniformMatrix4fv(static_cast<GLPipeline*>(_object->GetPipeline())->GetMVPID(), 1, GL_FALSE, &MVP[0][0]);
+	//glUniformMatrix4fv(static_cast<GLPipeline*>(_object->GetPipeline())->GetMVPID(), 1, GL_FALSE, &MVP[0][0]);
 
 	// 1rst attribute buffer : vertices
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLModel*>(_object->GetModel())->GetVertexBuffer());
+	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
 	glVertexAttribPointer(
 		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
 		3,                  // size
@@ -48,23 +48,11 @@ void GLDrawEngine::Update(Camera* _camera, Window* _window, Object* _object, flo
 		(void*)0            // array buffer offset
 	);
 
-	// 3rd attribute buffer : normals
-	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLModel*>(_object->GetModel())->GetNormalBuffer());
-	glVertexAttribPointer(
-		1,                  // attribute 2. must match the layout in the shader.
-		3,                  // size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
-		0,                  // stride
-		(void*)0            // array buffer offset
-	);
-
 	// 2nd attribute buffer : UV
-	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLModel*>(_object->GetModel())->GetUVBuffer());
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, m_uvBuffer);
 	glVertexAttribPointer(
-		2,                                // attribute. No particular reason for 1, but must match the layout in the shader.
+		1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
 		2,                                // size : U+V => 2
 		GL_FLOAT,                         // type
 		GL_FALSE,                         // normalized?
@@ -74,7 +62,7 @@ void GLDrawEngine::Update(Camera* _camera, Window* _window, Object* _object, flo
 
 
 	// Index buffer
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLModel*>(_object->GetModel())->GetElementBuffer());
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,m_indexBuffer);
 
 	// Draw the triangle !
 	//glDrawArrays(GL_TRIANGLES, 0, m_model->GetIndicesCount());
@@ -93,8 +81,35 @@ void GLDrawEngine::Update(Camera* _camera, Window* _window, Object* _object, flo
 
 }
 
+void GLDrawEngine::CreateScreenSpace()
+{
+	// Bind IDs
+	glGenVertexArrays(1, &m_vertexArrayID);
+	glBindVertexArray(m_vertexArrayID);
+
+	// Bind Vertex buffer
+	glGenBuffers(1, &m_vertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_screenSpaceVertices),
+		&g_screenSpaceVertices[0], GL_STATIC_DRAW);
+	// Bind UV buffer
+	glGenBuffers(1, &m_uvBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, m_uvBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_screenSpaceUVs), 
+		&g_screenSpaceUVs[0], GL_STATIC_DRAW);
+	// Bind Element/ Index Buffer
+	glGenBuffers(1, &m_indexBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(g_screenSpaceIndices),
+		&g_screenSpaceIndices[0], GL_STATIC_DRAW);
+}
+
 GLDrawEngine::GLDrawEngine()
 {
+	// Load Shaders
+	m_pipeline = new GLPipeline("Shaders/GLShader.vert",
+		"Shaders/GLShader.frag",
+		"Shaders/GLShader.comp");
 	// light blue background
 	glClearColor(OPENGL_CLEAR_COLOUR);
 
@@ -107,6 +122,9 @@ GLDrawEngine::GLDrawEngine()
 	glDepthFunc(GL_LESS);
 	// V sync off 
 	glfwSwapInterval(0);
+
+	// Create Screen Space
+	CreateScreenSpace();
 }
 
 

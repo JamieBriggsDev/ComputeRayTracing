@@ -4,9 +4,9 @@
 GLModel::GLModel(const char* _objFilePath) : Model(_objFilePath)
 {
 	// Bind buffers
-	GLBindBuffers();
+	//GLBindBuffers();
 }
-
+// TODO CLEAN UP OLD BUFFER MAKING CODE.
 
 GLModel::~GLModel()
 {

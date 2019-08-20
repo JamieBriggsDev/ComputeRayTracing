@@ -9,10 +9,6 @@ GLObject::GLObject(const char* _modelFilePath)
 {
 	// Load Model
 	m_model = new GLModel(_modelFilePath);
-	// Load Shader
-	m_pipeline = new GLPipeline("Shaders/GLShader.vert",
-		"Shaders/GLShader.frag",
-		"Shaders/GLShader.comp");
 	//m_pipeline = new GLPipeline("Shaders/Shader.vert",
 	//	"Shaders/Shader.frag");
 	// Set model Matrix

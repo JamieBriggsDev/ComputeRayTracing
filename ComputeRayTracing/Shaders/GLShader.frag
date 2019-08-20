@@ -1,15 +1,22 @@
-#version 450 core
+//#version 450 core
+//
+//// Interpolated values from the vertex shaders
+//in vec2 UV;
+//
+//// Values that stay constant for the whole mesh.
+//uniform sampler2D TextureSampler;
+//
+//// Color out.
+//out vec3 color;
+//
+//void main()
+//{
+//	color =  vec3(UV, 0.0);
+//}
 
-// Interpolated values from the vertex shaders
-in vec2 UV;
-
-// Ouput data
+#version 330 core
 out vec3 color;
-
-// Values that stay constant for the whole mesh.
-uniform sampler2D TextureSampler;
-
 void main()
 {
-	color =  vec3(UV, 0.0);
+  color = vec3(1,0,0);
 }

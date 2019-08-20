@@ -3,7 +3,6 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-#include "Pipeline.h"
 #include "Model.h"
 #include "Texture.h"
 
@@ -14,8 +13,6 @@ class Object
 protected:
 	// Model
 	Model* m_model;
-	// Shader
-	Pipeline* m_pipeline;
 	// Model matrix
 	glm::mat4 m_modelMatrix;
 	// Texture
@@ -37,7 +34,6 @@ public:
 	~Object();
 	// Get functions
 	Model* GetModel() { return m_model; }
-	Pipeline* GetPipeline() { return m_pipeline; }
 	glm::mat4 GetModelMatrix() { return m_modelMatrix; }
 	Texture* GetTexture() { return m_texture; }
 	// Set function
