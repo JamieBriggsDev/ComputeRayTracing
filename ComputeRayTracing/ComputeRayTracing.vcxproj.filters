@@ -137,19 +137,19 @@
     <None Include="Shaders\frag.spv">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Shaders\Shader.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="Shaders\Shader.vert">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="Shaders\SimpleFrag.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="Shaders\SimpleVert.vert">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="Shaders\vert.spv">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\VKShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\VKShader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\GLShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\GLShader.vert">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

@@ -75,7 +75,7 @@ GLPipeline::GLPipeline(const char* _vertexFilePath, const char * _fragmentFilePa
 	m_programID = ProgramID;
 	glUseProgram(m_programID);
 	// Set MVP Matrix Handle
-	//m_mvpMatrixID = glGetUniformLocation(m_programID, "MVP");
+	m_mvpMatrixID = glGetUniformLocation(m_programID, "MVP");
 	//// Set View Matrix Handle
 	//m_viewMatrixID = glGetUniformLocation(m_programID, "V");
 	//// Set Model Matrix Handle
