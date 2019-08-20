@@ -1,6 +1,8 @@
 #if GL
 
 #include "GLDrawEngine.h"
+#include "GLModel.h"
+#include "GLPipeline.h"
 #include "Camera.h"
 #include "Window.h"
 #include "Engine.h"
@@ -16,11 +18,79 @@
 void GLDrawEngine::Update(Camera* _camera, Window* _window, Object* _object, float _deltaTime)
 {
 
+	// Compute shader stuff first
+	glUseProgram(static_cast<GLPipeline*>(_object->GetPipeline())->GetComputeProgramID());
+	// Define groups (Window Resolution)
+	glDispatchCompute((GLuint)Window::s_windowWidth, (GLuint)Window::s_windowHeight, 1);
+	// Make sure writing to image has finished before read
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
 	// Clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// Use frag/vert shader program
+	glUseProgram(static_cast<GLPipeline*>(_object->GetPipeline())->GetProgramID());
+	// MVP
+	//Model* model = _object->GetModel();
+	glm::mat4 MVP = _camera->GetProjectionView() * _object->GetModelMatrix();
 
-	// Draw Object
-	_object->Draw(_camera, _deltaTime);
+	// Send our transformations to the shader
+	glUniformMatrix4fv(static_cast<GLPipeline*>(_object->GetPipeline())->GetMVPID(), 1, GL_FALSE, &MVP[0][0]);
+
+	// 1rst attribute buffer : vertices
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLModel*>(_object->GetModel())->GetVertexBuffer());
+	glVertexAttribPointer(
+		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+		3,                  // size
+		GL_FLOAT,           // type
+		GL_FALSE,           // normalized?
+		0,                  // stride
+		(void*)0            // array buffer offset
+	);
+
+	// 3rd attribute buffer : normals
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLModel*>(_object->GetModel())->GetNormalBuffer());
+	glVertexAttribPointer(
+		1,                  // attribute 2. must match the layout in the shader.
+		3,                  // size
+		GL_FLOAT,           // type
+		GL_FALSE,           // normalized?
+		0,                  // stride
+		(void*)0            // array buffer offset
+	);
+
+	// 2nd attribute buffer : UV
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLModel*>(_object->GetModel())->GetUVBuffer());
+	glVertexAttribPointer(
+		2,                                // attribute. No particular reason for 1, but must match the layout in the shader.
+		2,                                // size : U+V => 2
+		GL_FLOAT,                         // type
+		GL_FALSE,                         // normalized?
+		0,                                // stride
+		(void*)0                          // array buffer offset
+	);
+
+
+	// Index buffer
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLModel*>(_object->GetModel())->GetElementBuffer());
+
+	// Draw the triangle !
+	//glDrawArrays(GL_TRIANGLES, 0, m_model->GetIndicesCount());
+	glDrawElements(
+		GL_TRIANGLES,
+		static_cast<GLModel*>(_object->GetModel())->GetIndicesCount(),
+		GL_UNSIGNED_INT,
+		(void*)0
+	);
+
+
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
+
+
 }
 
 GLDrawEngine::GLDrawEngine()

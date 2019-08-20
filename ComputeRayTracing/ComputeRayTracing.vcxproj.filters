@@ -152,6 +152,9 @@
     <None Include="Shaders\GLShader.vert">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\GLShader.comp">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source %28.cpp%29">
