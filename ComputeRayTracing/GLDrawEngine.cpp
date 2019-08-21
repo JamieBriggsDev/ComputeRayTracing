@@ -114,7 +114,7 @@ GLDrawEngine::GLDrawEngine()
 	glClearColor(OPENGL_CLEAR_COLOUR);
 
 	// Enable face culling
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 
 	// Enable depth test
 	glEnable(GL_DEPTH_TEST);

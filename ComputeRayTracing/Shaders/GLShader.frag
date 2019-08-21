@@ -3,8 +3,7 @@
 //// Interpolated values from the vertex shaders
 //in vec2 UV;
 //
-//// Values that stay constant for the whole mesh.
-//uniform sampler2D TextureSampler;
+// Values that stay constant for the whole mesh.
 //
 //// Color out.
 //out vec3 color;
@@ -13,10 +12,13 @@
 //{
 //	color =  vec3(UV, 0.0);
 //}
-
 #version 330 core
+
+in vec2 UV;
+uniform sampler2D TextureSampler;
 out vec3 color;
+
 void main()
 {
-  color = vec3(1,0,0);
+  color = vec3(UV,0);
 }
