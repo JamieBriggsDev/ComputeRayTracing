@@ -15,6 +15,8 @@ protected:
 	Model* m_model;
 	// Model matrix
 	glm::mat4 m_modelMatrix;
+	// World position 
+	glm::vec3 m_position;
 	// Texture
 	Texture* m_texture;
 	// Texture
@@ -22,21 +24,18 @@ protected:
 
 
 public:
-	//Object(VkDevice _vkDevice);
-
 	Object() {};
-
-	//Object(const char* _modelFilePath, TextureType _textureType, 
-	//	const char* _textureFilePath);
-	//Object(const char* _modelFilePath, TextureType _textureType,
-	//	const char* _textureFilePath, const char* _heightMapFilePath);
-
 	~Object();
-	// Get functions
+	// Get Model
 	Model* GetModel() { return m_model; }
+	// Get Model Matrix
 	glm::mat4 GetModelMatrix() { return m_modelMatrix; }
+	// Get Texture TODO REMOVE?
 	Texture* GetTexture() { return m_texture; }
-	// Set function
+	// Get position
+	glm::vec3 GetPosition() { return m_position; }
+
+	// Set Model Matrix
 	void SetModelMatrix(glm::mat4 _modelMatrix);
 
 	virtual void Update(float _deltaTime) = 0;

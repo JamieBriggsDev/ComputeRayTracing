@@ -115,9 +115,9 @@ GLPipeline::GLPipeline(const char* _vertexFilePath, const char * _fragmentFilePa
 	//glUseProgram(m_programID);
 	//// Set MVP Matrix Handle
 	//m_mvpMatrixID = glGetUniformLocation(m_programID, "MVP");
+
 	// Set Texture Sampler Handle
 	m_texSamplerID = glGetUniformLocation(m_programID, "TextureSampler");
-
 
 	// Compute shader
 	GLCreateRayTexture();
@@ -210,11 +210,11 @@ void FindWorkGroupSizes()
 void GLPipeline::GLCreateRayTexture()
 {
 	// Gen texture
-	glGenTextures(1, &m_rayTextureOutput);
+	glGenTextures(1, &m_rayTextureOutputID);
 	// Set as active texture
 	glActiveTexture(GL_TEXTURE0); // TODO maybes TEXTURE1 if texture is used.
 	// Bind texture
-	glBindTexture(GL_TEXTURE_2D, m_rayTextureOutput);
+	glBindTexture(GL_TEXTURE_2D, m_rayTextureOutputID);
 	// Texture params
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -223,9 +223,16 @@ void GLPipeline::GLCreateRayTexture()
 	// Define resolution
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, Window::s_windowWidth, Window::s_windowHeight, 0, GL_RGBA, GL_FLOAT, NULL);
 	// Bind image texture
-	glBindImageTexture(0, m_rayTextureOutput, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-	// Check work group sizes
+	glBindImageTexture(0, m_rayTextureOutputID, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+
+	// Sphere Location position handle
+	m_objectPositionID = glGetUniformLocation(m_computeProgramID, "SphereLocation");
+	// Camera world matrix
+	m_cameraWorldMatrixID = glGetUniformLocation(m_cameraWorldMatrixID, "CameraWorldMatrix");
+	// Find camera position handle
+	m_cameraPosition = glGetUniformLocation(m_computeProgramID, "CameraPosition");
 #if DEBUG
+	// Check work group sizes
 	FindWorkGroupSizes();
 #endif
 

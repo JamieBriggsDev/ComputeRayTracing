@@ -20,5 +20,6 @@ out vec3 color;
 
 void main()
 {
-  color = vec3(UV,0);
+	color = texture(TextureSampler, UV).rgb;
+	//color = vec3(UV,0);
 }

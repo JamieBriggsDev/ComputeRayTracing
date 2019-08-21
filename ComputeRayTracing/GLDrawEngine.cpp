@@ -19,12 +19,24 @@
 void GLDrawEngine::Update(Camera* _camera, Window* _window, Object* _object, float _deltaTime)
 {
 
-	//// Compute shader stuff first
-	//glUseProgram(m_pipeline->GetComputeProgramID());
-	//// Define groups (Window Resolution)
-	//glDispatchCompute((GLuint)Window::s_windowWidth, (GLuint)Window::s_windowHeight, 1);
-	//// Make sure writing to image has finished before read
-	//glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	// Compute shader stuff first
+	glUseProgram(m_pipeline->GetComputeProgramID());
+	// Define groups (Window Resolution)
+	glDispatchCompute((GLuint)Window::s_windowWidth, (GLuint)Window::s_windowHeight, 1);
+	// Make sure writing to image has finished before read
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+
+	// Send camera position
+	//std::cout << _camera->GetPosition().x << std::endl;
+	//glUniform3f(m_pipeline->GetComputeProgramID(), _camera->GetPosition().x,
+	//	_camera->GetPosition().y, _camera->GetPosition().z);
+	// Send object position
+	glUniform3f(m_pipeline->GetObjectPositionID(), _object->GetPosition().x,
+		_object->GetPosition().y, _object->GetPosition().z);
+	// Send camera world matrix
+	glUniformMatrix4fv(m_pipeline->GetCameraWorldMatrixID(), 1, GL_FALSE, &_camera->GetView()[0][0]);
+
 
 	// Clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -35,6 +47,13 @@ void GLDrawEngine::Update(Camera* _camera, Window* _window, Object* _object, flo
 
 	// Send our transformations to the shader
 	//glUniformMatrix4fv(static_cast<GLPipeline*>(_object->GetPipeline())->GetMVPID(), 1, GL_FALSE, &MVP[0][0]);
+
+	// Bind texture
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_pipeline->GetRayTextureOutput());
+	// Make texture sampler to us unit 0
+	glUniform1i(m_pipeline->GetTextureSamplerID(), 0);
+
 
 	// 1rst attribute buffer : vertices
 	glEnableVertexAttribArray(0);
@@ -68,7 +87,7 @@ void GLDrawEngine::Update(Camera* _camera, Window* _window, Object* _object, flo
 	//glDrawArrays(GL_TRIANGLES, 0, m_model->GetIndicesCount());
 	glDrawElements(
 		GL_TRIANGLES,
-		static_cast<GLModel*>(_object->GetModel())->GetIndicesCount(),
+		sizeof(g_screenSpaceIndices),
 		GL_UNSIGNED_INT,
 		(void*)0
 	);
@@ -117,9 +136,9 @@ GLDrawEngine::GLDrawEngine()
 	//glEnable(GL_CULL_FACE);
 
 	// Enable depth test
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
 	// Accept fragment if it closer to the camera than the former one
-	glDepthFunc(GL_LESS);
+	//glDepthFunc(GL_LESS);
 	// V sync off 
 	glfwSwapInterval(0);
 
