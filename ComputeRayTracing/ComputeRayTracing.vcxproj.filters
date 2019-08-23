@@ -13,12 +13,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source %28.cpp%29</Filter>
     </ClCompile>
-    <ClCompile Include="Model.cpp">
-      <Filter>Source %28.cpp%29</Filter>
-    </ClCompile>
-    <ClCompile Include="Object.cpp">
-      <Filter>Source %28.cpp%29</Filter>
-    </ClCompile>
     <ClCompile Include="Pipeline.cpp">
       <Filter>Source %28.cpp%29</Filter>
     </ClCompile>
@@ -34,9 +28,6 @@
     <ClCompile Include="GLEngine.cpp">
       <Filter>Source %28.cpp%29\GL</Filter>
     </ClCompile>
-    <ClCompile Include="GLObject.cpp">
-      <Filter>Source %28.cpp%29\GL</Filter>
-    </ClCompile>
     <ClCompile Include="GLPipeline.cpp">
       <Filter>Source %28.cpp%29\GL</Filter>
     </ClCompile>
@@ -46,20 +37,14 @@
     <ClCompile Include="VKEngine.cpp">
       <Filter>Source %28.cpp%29\VK</Filter>
     </ClCompile>
-    <ClCompile Include="VKModel.cpp">
-      <Filter>Source %28.cpp%29\VK</Filter>
-    </ClCompile>
-    <ClCompile Include="VKObject.cpp">
-      <Filter>Source %28.cpp%29\VK</Filter>
-    </ClCompile>
     <ClCompile Include="VKPipeline.cpp">
       <Filter>Source %28.cpp%29\VK</Filter>
     </ClCompile>
     <ClCompile Include="VKTexture.cpp">
       <Filter>Source %28.cpp%29\VK</Filter>
     </ClCompile>
-    <ClCompile Include="GLModel.cpp">
-      <Filter>Source %28.cpp%29\GL</Filter>
+    <ClCompile Include="Sphere.cpp">
+      <Filter>Source %28.cpp%29</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -73,12 +58,6 @@
       <Filter>Headers %28.h%29</Filter>
     </ClInclude>
     <ClInclude Include="HardModels.h">
-      <Filter>Headers %28.h%29</Filter>
-    </ClInclude>
-    <ClInclude Include="Model.h">
-      <Filter>Headers %28.h%29</Filter>
-    </ClInclude>
-    <ClInclude Include="Object.h">
       <Filter>Headers %28.h%29</Filter>
     </ClInclude>
     <ClInclude Include="Pipeline.h">
@@ -105,9 +84,6 @@
     <ClInclude Include="GLEngine.h">
       <Filter>Headers %28.h%29\GL</Filter>
     </ClInclude>
-    <ClInclude Include="GLObject.h">
-      <Filter>Headers %28.h%29\GL</Filter>
-    </ClInclude>
     <ClInclude Include="GLPipeline.h">
       <Filter>Headers %28.h%29\GL</Filter>
     </ClInclude>
@@ -117,20 +93,14 @@
     <ClInclude Include="VKEngine.h">
       <Filter>Headers %28.h%29\VK</Filter>
     </ClInclude>
-    <ClInclude Include="VKModel.h">
-      <Filter>Headers %28.h%29\VK</Filter>
-    </ClInclude>
-    <ClInclude Include="VKObject.h">
-      <Filter>Headers %28.h%29\VK</Filter>
-    </ClInclude>
     <ClInclude Include="VKPipeline.h">
       <Filter>Headers %28.h%29\VK</Filter>
     </ClInclude>
     <ClInclude Include="VKTexture.h">
       <Filter>Headers %28.h%29\VK</Filter>
     </ClInclude>
-    <ClInclude Include="GLModel.h">
-      <Filter>Headers %28.h%29\GL</Filter>
+    <ClInclude Include="Sphere.h">
+      <Filter>Headers %28.h%29</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

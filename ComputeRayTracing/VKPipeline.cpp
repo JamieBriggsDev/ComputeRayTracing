@@ -1,6 +1,6 @@
 #if VK
 #include "VKPipeline.h"
-#include "VKObject.h"
+
 #include "VKTexture.h"
 #include "Vertex.h"
 #include "Window.h"

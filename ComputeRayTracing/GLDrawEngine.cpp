@@ -1,7 +1,6 @@
 #if GL
 
 #include "GLDrawEngine.h"
-#include "GLModel.h"
 #include "GLPipeline.h"
 #include "HardModels.h"
 #include "Camera.h"
@@ -14,9 +13,11 @@
 // GLFW to handle window and keyboard/ mouse input
 #include <GLFW/glfw3.h>
 
+// GL< Type ptr
+#include <glm/gtc/type_ptr.hpp>
 
 
-void GLDrawEngine::Update(Camera* _camera, Window* _window, Object* _object, float _deltaTime)
+void GLDrawEngine::Update(Camera* _camera, Window* _window, std::vector<Sphere> _spheres, float _deltaTime)
 {
 
 	// Compute shader stuff first
@@ -26,17 +27,22 @@ void GLDrawEngine::Update(Camera* _camera, Window* _window, Object* _object, flo
 	// Make sure writing to image has finished before read
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
-
-	// Send camera position
-	//std::cout << _camera->GetPosition().x << std::endl;
-	//glUniform3f(m_pipeline->GetComputeProgramID(), _camera->GetPosition().x,
-	//	_camera->GetPosition().y, _camera->GetPosition().z);
-	// Send object position
-	glUniform3f(m_pipeline->GetObjectPositionID(), _object->GetPosition().x,
-		_object->GetPosition().y, _object->GetPosition().z);
 	// Send camera world matrix
 	glUniformMatrix4fv(m_pipeline->GetCameraWorldMatrixID(), 1, GL_FALSE, &_camera->GetView()[0][0]);
 
+	// Send spheres to shader
+	for (int i = 0; i < _spheres.size(); i++) 
+	{
+		std::ostringstream os;
+		os << "uSpheres[" << i << "]";
+		int PositionID = glGetUniformLocation(m_pipeline->GetComputeProgramID(), os.str().append(".position").c_str());
+		int RadiusID = glGetUniformLocation(m_pipeline->GetComputeProgramID(), os.str().append(".radius").c_str());
+		int ColourID = glGetUniformLocation(m_pipeline->GetComputeProgramID(), os.str().append(".colour").c_str());
+
+		glUniform3fv(PositionID, 1, glm::value_ptr(_spheres.at(i).GetPosition()));
+		glUniform1f(RadiusID, _spheres.at(i).GetRadius());
+		glUniform3fv(ColourID, 1, glm::value_ptr(_spheres.at(i).GetColour()));
+	}
 
 	// Clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -45,8 +51,6 @@ void GLDrawEngine::Update(Camera* _camera, Window* _window, Object* _object, flo
 	// MVP
 	//glm::mat4 MVP = _camera->GetProjectionView() * _object->GetModelMatrix();
 
-	// Send our transformations to the shader
-	//glUniformMatrix4fv(static_cast<GLPipeline*>(_object->GetPipeline())->GetMVPID(), 1, GL_FALSE, &MVP[0][0]);
 
 	// Bind texture
 	glActiveTexture(GL_TEXTURE0);

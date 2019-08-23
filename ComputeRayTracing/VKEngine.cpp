@@ -5,7 +5,7 @@
 
 #include "VKEngine.h"
 #include "Controller.h"
-#include "VKObject.h"
+
 #include "VKPipeline.h"
 #include "VKModel.h"
 #include "VKTexture.h"

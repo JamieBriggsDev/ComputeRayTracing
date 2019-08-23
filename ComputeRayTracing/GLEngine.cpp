@@ -4,7 +4,7 @@
 #include <set>
 
 #include "GLEngine.h"
-#include "GLObject.h"
+
 #include "Controller.h"
 
 #pragma region Debug Callbacks
@@ -54,10 +54,12 @@ void GLEngine::Initialise()
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(MessageCallback, 0);
 
-	// Create an object
-	m_object = new GLObject("Resources/Models/Sphere.obj");
-	// Model matrix : an identity matrix (model will be at the origin)
-	m_object->SetModelMatrix(glm::mat4(1.0f));
+	// Setup Spheres
+	Sphere one;
+	one.SetPosition(glm::vec3(0.0f, 0.0f, -5.0f));
+	one.SetRadius(1.0f);
+	one.SetColour(glm::vec3(1.0f, 0.0f, 0.0f));
+	m_spheres.push_back(one);
 }
 
 void GLEngine::MainLoop()
@@ -68,6 +70,7 @@ void GLEngine::MainLoop()
 	float FrameRate = 0.0f;
 	float FrameRefreshTime = 0.5f;
 	float LastFPSUpdate = 0.0f;
+
 
 	// Reset camera before loop
 	m_myCamera->ResetLocation();
@@ -110,11 +113,8 @@ void GLEngine::MainLoop()
 		// Update the camera
 		m_myCamera->Update(m_myWindow, m_myController, m_deltaTime);
 
-		// Update object
-		m_object->Update(m_deltaTime);
-
 		// Drawn objects
-		m_myDrawEngine->Update(m_myCamera, m_myWindow, m_object, m_deltaTime);
+		m_myDrawEngine->Update(m_myCamera, m_myWindow, m_spheres, m_deltaTime);
 
 		// Update Window
 		m_myWindow->Update();

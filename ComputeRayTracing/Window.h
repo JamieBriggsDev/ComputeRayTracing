@@ -1,7 +1,7 @@
 #pragma once
 // Window Resolution
-#define WINDOW_WIDTH 1280
-#define WINDOW_HEIGHT 720
+#define WINDOW_WIDTH 1280	
+#define WINDOW_HEIGHT 960
 
 // Console input
 #include <stdio.h>
@@ -21,7 +21,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 // Object Class
-#include "Object.h"
+#include "Sphere.h"
 
 // Camera class
 class Camera;
