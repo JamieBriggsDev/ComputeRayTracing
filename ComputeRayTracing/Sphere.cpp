@@ -35,5 +35,10 @@ void Sphere::SetColour(glm::vec3 _col)
 
 void Sphere::Update(float _deltaTime)
 {
+	static float count = 0.f;
+	count += _deltaTime;
+
 	//Update Position
+	m_position.x = sin(count);
+	m_position.y = cos(count);
 }

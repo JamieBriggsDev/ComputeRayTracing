@@ -113,6 +113,8 @@ void GLEngine::MainLoop()
 		// Update the camera
 		m_myCamera->Update(m_myWindow, m_myController, m_deltaTime);
 
+		m_spheres[0].Update(m_deltaTime);
+
 		// Drawn objects
 		m_myDrawEngine->Update(m_myCamera, m_myWindow, m_spheres, m_deltaTime);
 
