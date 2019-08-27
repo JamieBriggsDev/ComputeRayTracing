@@ -57,9 +57,16 @@ void GLEngine::Initialise()
 	// Setup Spheres
 	Sphere one;
 	one.SetPosition(glm::vec3(0.0f, 0.0f, -5.0f));
-	one.SetRadius(1.0f);
+	one.SetRadius(.5f);
 	one.SetColour(glm::vec3(0.0f, 1.0f, 0.0f));
 	m_spheres.push_back(one);
+	Sphere two;
+	two.SetPosition(glm::vec3(0.0f, 0.0f, -5.0f));
+	two.SetRadius(1.0f);
+	two.SetColour(glm::vec3(0.0f, 0.0f, 1.0f));
+	m_spheres.push_back(two);
+
+
 }
 
 void GLEngine::MainLoop()
@@ -113,7 +120,10 @@ void GLEngine::MainLoop()
 		// Update the camera
 		m_myCamera->Update(m_myWindow, m_myController, m_deltaTime);
 
-		m_spheres[0].Update(m_deltaTime);
+		for (auto &sphere : m_spheres)
+		{
+			sphere.Update(m_deltaTime);
+		}
 
 		// Drawn objects
 		m_myDrawEngine->Update(m_myCamera, m_myWindow, m_spheres, m_deltaTime);
