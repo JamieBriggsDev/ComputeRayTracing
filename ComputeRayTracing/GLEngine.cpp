@@ -58,7 +58,7 @@ void GLEngine::Initialise()
 	Sphere one;
 	one.SetPosition(glm::vec3(0.0f, 0.0f, -5.0f));
 	one.SetRadius(1.0f);
-	one.SetColour(glm::vec3(1.0f, 0.0f, 0.0f));
+	one.SetColour(glm::vec3(0.0f, 1.0f, 0.0f));
 	m_spheres.push_back(one);
 }
 

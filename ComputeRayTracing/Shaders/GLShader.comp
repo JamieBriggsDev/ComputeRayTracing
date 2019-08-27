@@ -30,8 +30,6 @@ struct Plane
 uniform int totalSpheres;
 uniform Sphere uSpheres[1];
 
-uniform vec3 position;
-
 // Turns degrees to radians
 float ToRadians(float _degrees)
 {
@@ -39,26 +37,22 @@ float ToRadians(float _degrees)
 }
 
 // Casts a ray given origin and direction
-vec3 CastRay(vec3 _origin, vec3 _direction, Sphere _spheres)
+vec3 CastRay(vec3 _origin, vec3 _direction)
 {
-
+	for(int i = 0; i < 1; i++)
+	{
 		// Check sphere collision
-		vec3 omc = _origin - _spheres.position;
+		vec3 omc = _origin - uSpheres[0].position;
 		float b = dot(_direction, omc);
-		float c = dot(omc, omc) - _spheres.radius * _spheres.radius;
+		float c = dot(omc, omc) - uSpheres[0].radius * uSpheres[0].radius;
 		float bsqmc = b * b - c;
 
 		// hit one or both sides
 		if (bsqmc >= 0.0) 
 		{
-			return vec3(1.0f, 0.0f, 0.0f);
+			return uSpheres[0].colour;
 		}
-
-	
-
-
-
-
+	}
 	return vec3(0.6, 0.85, 0.92);
 }
 
@@ -94,10 +88,10 @@ void Render(Options _options) {
 //	vec3 ray_d = vec3(0.0, 0.0, -1.0); // ortho
 
 	Sphere sphere;
-	sphere.position = position;
-	sphere.radius = 1.0f;
+	sphere.position = uSpheres[0].position;
+	sphere.radius = uSpheres[0].radius;
 
-	vec4 pixel = vec4(CastRay(origin, rayDirection, sphere), 1.0f);
+	vec4 pixel = vec4(CastRay(origin, rayDirection), 1.0f);
   
 	// output to a specific pixel in the image
 	imageStore(img_output, _options.pixelCoords, pixel);

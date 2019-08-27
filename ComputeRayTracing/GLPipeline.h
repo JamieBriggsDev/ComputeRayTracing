@@ -45,9 +45,6 @@ private:
 	// Object Position
 	GLuint m_objectPositionID;
 public:
-
-	int m_positionID; // TODO
-
 	GLPipeline(const char* _vertexFilePath, const char* _fragmentFilePath,
 		const char* _computeFilePath);
 	// Get shader program ID

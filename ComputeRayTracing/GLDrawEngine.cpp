@@ -34,11 +34,6 @@ void GLDrawEngine::Update(Camera* _camera, Window* _window, std::vector<Sphere> 
 	// Send spheres to shader
 	for (int i = 0; i < _spheres.size(); i++) 
 	{
-		// position
-		glUniform3f(m_pipeline->m_positionID, _spheres[i].m_position.x,
-			_spheres[i].m_position.y,
-			_spheres[i].m_position.z);
-
 		std::ostringstream os;
 		os << "uSpheres[" << i << "]";
 		int PositionID = glGetUniformLocation(m_pipeline->GetComputeProgramID(), os.str().append(".position").c_str());
