@@ -56,13 +56,13 @@ void GLEngine::Initialise()
 
 	// Setup Spheres
 	Sphere one;
-	one.SetPosition(glm::vec3(0.0f, 0.0f, -5.0f));
-	one.SetRadius(.5f);
+	one.SetPosition(glm::vec3(0.5f, 0.0f, -4.0f));
+	one.SetRadius(1.0f);
 	one.SetColour(glm::vec3(0.0f, 1.0f, 0.0f));
 	m_spheres.push_back(one);
 	Sphere two;
 	two.SetPosition(glm::vec3(0.0f, 0.0f, -5.0f));
-	two.SetRadius(1.0f);
+	two.SetRadius(1.5f);
 	two.SetColour(glm::vec3(0.0f, 0.0f, 1.0f));
 	m_spheres.push_back(two);
 
