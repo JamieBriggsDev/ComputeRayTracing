@@ -7,6 +7,7 @@ class GLPipeline :
 	public Pipeline
 {
 private:
+	// TODO clean up unneeded handles
 	int GLOpenVertexShader(const char* _vertexFilePath);
 	int GLOpenFragmentShader(const char* _fragmentFilePath);
 	int GLOpenComputeShader(const char* _computeFilePath);
@@ -22,7 +23,7 @@ private:
 	GLuint m_computeProgramID;
 
 	// Camera Position
-	GLuint m_cameraPosition;
+	GLuint m_cameraPositionID;
 	// Matrix ID
 	GLuint m_mvpMatrixID;
 
@@ -44,6 +45,8 @@ private:
 	GLuint m_lightPositionWorldSpaceID;
 	// Object Position
 	GLuint m_objectPositionID;
+	// Light Position
+	GLuint m_lightPositionID;
 public:
 	GLPipeline(const char* _vertexFilePath, const char* _fragmentFilePath,
 		const char* _computeFilePath);
@@ -75,6 +78,8 @@ public:
 	GLuint GetObjectPositionID() { return m_objectPositionID; }
 	// Get ray trace texture
 	GLuint GetRayTextureOutput() { return m_rayTextureOutputID; }
+	// Get light position ID
+	GLuint GetLightPositionID() { return m_lightPositionID; }
 	~GLPipeline();
 };
 

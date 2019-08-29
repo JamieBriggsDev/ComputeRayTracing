@@ -20,7 +20,7 @@ protected:
 	// Controller Component
 	Controller* m_myController;
 	// Objects
-	//Object* m_object;
+	glm::vec3 m_light;
 	std::vector<Sphere> m_spheres;
 	// DeltaTime
 	float m_deltaTime;

@@ -230,7 +230,9 @@ void GLPipeline::GLCreateRayTexture()
 	// Camera world matrix
 	m_cameraWorldMatrixID = glGetUniformLocation(m_cameraWorldMatrixID, "CameraWorldMatrix");
 	// Find camera position handle
-	m_cameraPosition = glGetUniformLocation(m_computeProgramID, "CameraPosition");
+	m_cameraPositionID = glGetUniformLocation(m_computeProgramID, "CameraPosition");
+	// Find light position handle
+	m_lightPositionID = glGetUniformLocation(m_computeProgramID, "light");
 #if DEBUG
 	// Check work group sizes
 	FindWorkGroupSizes();

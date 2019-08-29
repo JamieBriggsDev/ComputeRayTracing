@@ -21,7 +21,8 @@ private:
 	GLPipeline* m_pipeline;
 public:
 	void Update(Camera* _camera, Window* _window, 
-		std::vector<Sphere> _spheres, float _deltaTime);
+		std::vector<Sphere> _spheres, glm::vec3 _light, 
+		float _deltaTime);
 
 	void CreateScreenSpace();
 	GLDrawEngine();

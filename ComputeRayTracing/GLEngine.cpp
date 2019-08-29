@@ -54,19 +54,6 @@ void GLEngine::Initialise()
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(MessageCallback, 0);
 
-	// Setup Spheres
-	Sphere one;
-	one.SetPosition(glm::vec3(0.5f, 0.0f, -4.0f));
-	one.SetRadius(1.0f);
-	one.SetColour(glm::vec3(0.0f, 1.0f, 0.0f));
-	m_spheres.push_back(one);
-	Sphere two;
-	two.SetPosition(glm::vec3(0.0f, 0.0f, -5.0f));
-	two.SetRadius(1.5f);
-	two.SetColour(glm::vec3(0.0f, 0.0f, 1.0f));
-	m_spheres.push_back(two);
-
-
 }
 
 void GLEngine::MainLoop()
@@ -77,7 +64,7 @@ void GLEngine::MainLoop()
 	float FrameRate = 0.0f;
 	float FrameRefreshTime = 0.5f;
 	float LastFPSUpdate = 0.0f;
-
+	static float totalTime;
 
 	// Reset camera before loop
 	m_myCamera->ResetLocation();
@@ -126,10 +113,16 @@ void GLEngine::MainLoop()
 		}
 
 		// Drawn objects
-		m_myDrawEngine->Update(m_myCamera, m_myWindow, m_spheres, m_deltaTime);
+		m_myDrawEngine->Update(m_myCamera, m_myWindow, m_spheres, m_light, m_deltaTime);
 
 		// Update Window
 		m_myWindow->Update();
+
+		totalTime += m_deltaTime;
+
+		cout << m_light.x << endl;
+		//m_light.x = sin(totalTime) * 12;
+		m_spheres[0].m_position.x = sin(totalTime/2) * 2;
 
 		// record new last time
 		LastTime = currentTime;

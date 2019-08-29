@@ -40,6 +40,6 @@ void Sphere::Update(float _deltaTime)
 	m_count += _deltaTime;
 
 	//Update Position
-	m_position.x = sin(m_count);// +m_position.x;
-	m_position.y = cos(m_count);// +m_position.y;
+	//m_position.x = sin(m_count);// +m_position.x;
+	//m_position.y = cos(m_count);// +m_position.y;
 }

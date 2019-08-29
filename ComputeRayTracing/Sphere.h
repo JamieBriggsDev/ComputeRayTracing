@@ -8,8 +8,6 @@ class Camera;
 class Sphere
 {
 private:
-	// Sphere Position
-	glm::vec3 m_position;
 	// Sphere Radius
 	float m_radius;
 	// Sphere Colour
@@ -17,6 +15,8 @@ private:
 	// Count
 	float m_count = 0.f;
 public:
+	// Sphere Position
+	glm::vec3 m_position;
 	// Get Position
 	glm::vec3 GetPosition();
 	// Get Radius

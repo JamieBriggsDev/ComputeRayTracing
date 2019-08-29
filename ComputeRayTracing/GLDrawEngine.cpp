@@ -17,7 +17,11 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-void GLDrawEngine::Update(Camera* _camera, Window* _window, std::vector<Sphere> _spheres, float _deltaTime)
+void GLDrawEngine::Update(Camera* _camera, 
+	Window* _window, 
+	std::vector<Sphere> _spheres, 
+	glm::vec3 _light, 
+	float _deltaTime)
 {
 
 	// Compute shader stuff first
@@ -29,7 +33,6 @@ void GLDrawEngine::Update(Camera* _camera, Window* _window, std::vector<Sphere> 
 
 	// Send camera world matrix
 	glUniformMatrix4fv(m_pipeline->GetCameraWorldMatrixID(), 1, GL_FALSE, &_camera->GetView()[0][0]);
-
 
 	// Send spheres to shader
 	for (int i = 0; i < _spheres.size(); i++) 
@@ -44,6 +47,9 @@ void GLDrawEngine::Update(Camera* _camera, Window* _window, std::vector<Sphere> 
 		glUniform1f(RadiusID, _spheres.at(i).GetRadius());
 		glUniform3fv(ColourID, 1, glm::value_ptr(_spheres.at(i).GetColour()));
 	}
+
+	// Send light position to shader
+	glUniform3fv(m_pipeline->GetLightPositionID(), 1, glm::value_ptr(_light));
 
 	// Clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
