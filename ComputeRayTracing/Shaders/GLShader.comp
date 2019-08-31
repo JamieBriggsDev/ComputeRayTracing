@@ -89,7 +89,7 @@ float FindLightIntensity(vec3 _position, vec3 _normal, vec3 _light)
 		if(dist > -1.0f)
 			if (dist <= lightDistance)
 				// Return 0 as light is blocked.
-				shadow = 0.4f;
+				shadow = 0.0f;
 				break;
 	}
 	// Find angle between light direction and normal
@@ -236,9 +236,9 @@ vec3 CastRay(Ray _ray)
 		// reflectionRay.direction = direction;
 		//vec3 colour = CastReflectionRay(reflectionRay, closestIndex);
 		//Check if hit anything
-
-		//return normal * FindLightIntensity(origin, normal, light);
-		return uSpheres[closestIndex].colour * FindLightIntensity(origin, normal, light);
+		//return normal;
+		return normal * FindLightIntensity(origin, normal, light);
+		//return uSpheres[closestIndex].colour * FindLightIntensity(origin, normal, light);
 
 
 		// return uSpheres[closestIndex].colour;
