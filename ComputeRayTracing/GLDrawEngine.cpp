@@ -31,8 +31,6 @@ void GLDrawEngine::Update(Camera* _camera,
 	// Make sure writing to image has finished before read
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
-	// Send camera world matrix
-	glUniformMatrix4fv(m_pipeline->GetCameraWorldMatrixID(), 1, GL_FALSE, &_camera->GetView()[0][0]);
 
 	// Send spheres to shader
 	for (int i = 0; i < _spheres.size(); i++) 

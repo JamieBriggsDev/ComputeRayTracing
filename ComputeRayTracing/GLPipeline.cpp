@@ -225,12 +225,6 @@ void GLPipeline::GLCreateRayTexture()
 	// Bind image texture
 	glBindImageTexture(0, m_rayTextureOutputID, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
-	// Sphere Location position handle
-	m_objectPositionID = glGetUniformLocation(m_computeProgramID, "SphereLocation");
-	// Camera world matrix
-	m_cameraWorldMatrixID = glGetUniformLocation(m_cameraWorldMatrixID, "CameraWorldMatrix");
-	// Find camera position handle
-	m_cameraPositionID = glGetUniformLocation(m_computeProgramID, "CameraPosition");
 	// Find light position handle
 	m_lightPositionID = glGetUniformLocation(m_computeProgramID, "light");
 #if DEBUG
