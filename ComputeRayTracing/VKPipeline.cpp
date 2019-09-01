@@ -1,6 +1,6 @@
 #if VK
 #include "VKPipeline.h"
-
+#include "VKObject.h"
 #include "VKTexture.h"
 #include "Vertex.h"
 #include "Window.h"
@@ -10,7 +10,7 @@ VKPipeline::VKPipeline(VKEngine* _vkEngine,
 	VkExtent2D _vkSwapChainExtent,
 	VkFormat _vkSwapChainImageFormat,
 	const char* _vertexFilePath,
-	const char* _fragmentFilePath, 
+	const char* _fragmentFilePath,
 	VKObject* _object)
 {
 	// Pointer to device to destroy later
@@ -21,13 +21,7 @@ VKPipeline::VKPipeline(VKEngine* _vkEngine,
 	CreateTextureSampler();
 	// Create descriptor set layout
 	CreateDescriptorSetLayout();
-	// Convert to SPV TODO
-	//ConvertToSPV(_vertexFilePath);
 	// Create Pipeline
-	//CreatePipelineLayout(_vkSwapChainExtent, 
-	//	"/Resources/Shaders/vert.spv", 
-	//	_fragmentFilePath);
-
 	CreatePipelineLayout(_vkSwapChainExtent,
 		_vertexFilePath,
 		_fragmentFilePath);
@@ -51,17 +45,6 @@ VKPipeline::~VKPipeline()
 	vkDestroyPipeline(*m_vkEngineRef->vkGetDevice(), *m_vkPipeline, nullptr);
 	// Destroy samplers
 	vkDestroySampler(*m_vkEngineRef->vkGetDevice(), *m_vkTextureSampler, nullptr);
-}
-
-void VKPipeline::ConvertToSPV(const char * _filePathName)
-{
-	// Call from batch file
-	std::string call;
-	call.append("/Shaders/CompileShaders.bat ");
-	call.append(_filePathName);
-	std::cout << call.c_str() << std::endl;
-	system(call.c_str());
-
 }
 
 VkShaderModule VKPipeline::CreateShaderModule(VkDevice _vkDevice, const std::vector<char>& _code)
@@ -145,26 +128,13 @@ void VKPipeline::CreatePipelineLayout(VkExtent2D _vkSwapChainExtent,
 	viewportState.scissorCount = 1;
 	viewportState.pScissors = &scissor;
 
-	// Setup Rasterizer
-	//VkPipelineRasterizationStateCreateInfo rasterizer = {};
-	//rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-	//rasterizer.depthClampEnable = VK_FALSE;
-	//rasterizer.rasterizerDiscardEnable = VK_FALSE;
-	//rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-	//rasterizer.lineWidth = 1.0f;
-	//// Choose backwards culling
-	//rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-	//rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
-	//// Not doing shadow mapping so turning depth bias off
-	//rasterizer.depthBiasEnable = VK_FALSE;
-
 	VkPipelineRasterizationStateCreateInfo rasterizer = {};
 	rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 	rasterizer.depthClampEnable = VK_FALSE;
 	rasterizer.rasterizerDiscardEnable = VK_FALSE;
 	rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 	rasterizer.lineWidth = 1.0f;
-	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+	rasterizer.cullMode = VK_CULL_MODE_FRONT_BIT;
 	rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	rasterizer.depthBiasEnable = VK_FALSE;
 
@@ -173,15 +143,6 @@ void VKPipeline::CreatePipelineLayout(VkExtent2D _vkSwapChainExtent,
 	multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 	multisampling.sampleShadingEnable = VK_FALSE;
 	multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-
-	// Setup depth stencil
-	VkPipelineDepthStencilStateCreateInfo depthStencil = {};
-	depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-	depthStencil.depthTestEnable = VK_TRUE;
-	depthStencil.depthWriteEnable = VK_TRUE;
-	depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
-	depthStencil.depthBoundsTestEnable = VK_FALSE;
-	depthStencil.stencilTestEnable = VK_FALSE;
 
 	// Setup Color Blending
 	VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
@@ -246,7 +207,6 @@ void VKPipeline::CreatePipelineLayout(VkExtent2D _vkSwapChainExtent,
 	pipelineInfo.pViewportState = &viewportState;
 	pipelineInfo.pRasterizationState = &rasterizer;
 	pipelineInfo.pMultisampleState = &multisampling;
-	pipelineInfo.pDepthStencilState = &depthStencil;
 	pipelineInfo.pColorBlendState = &colorBlending;
 	// Reference pipeline layout
 	pipelineInfo.layout = *m_vkPipelineLayout;
@@ -264,7 +224,7 @@ void VKPipeline::CreatePipelineLayout(VkExtent2D _vkSwapChainExtent,
 	{
 		throw std::runtime_error("Failed to create graphics pipeline!");
 	}
-	
+
 	// Destroy shader modules at the end
 	vkDestroyShaderModule(*m_vkEngineRef->vkGetDevice(), fragShaderModule, nullptr);
 	vkDestroyShaderModule(*m_vkEngineRef->vkGetDevice(), vertShaderModule, nullptr);
@@ -288,26 +248,10 @@ void VKPipeline::CreateRenderPass(VkFormat _vkSwapChainImageFormat)
 	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-	// Create depth Attachment
-	VkAttachmentDescription depthAttachment = {};
-	depthAttachment.format = m_vkEngineRef->vkFindDepthFormat();
-	depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
 	// Create color attachment reference
 	VkAttachmentReference colorAttachmentRef = {};
 	colorAttachmentRef.attachment = 0;
 	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-	// Create depth attachment reference
-	VkAttachmentReference depthAttachmentRef = {};
-	depthAttachmentRef.attachment = 1;
-	depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 	// Subpass description
 	VkSubpassDescription subpass = {};
@@ -316,7 +260,6 @@ void VKPipeline::CreateRenderPass(VkFormat _vkSwapChainImageFormat)
 	// => layout(location = 0) out vec4 outColor in the shader
 	subpass.colorAttachmentCount = 1;
 	subpass.pColorAttachments = &colorAttachmentRef;
-	subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
 	VkSubpassDependency dependency = {};
 	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -327,11 +270,10 @@ void VKPipeline::CreateRenderPass(VkFormat _vkSwapChainImageFormat)
 	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
 	// Render Pass Create Info
-	std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
 	VkRenderPassCreateInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-	renderPassInfo.pAttachments = attachments.data();
+	renderPassInfo.attachmentCount = 1;
+	renderPassInfo.pAttachments = &colorAttachment;
 	renderPassInfo.subpassCount = 1;
 	renderPassInfo.pSubpasses = &subpass;
 	renderPassInfo.dependencyCount = 1;
@@ -339,8 +281,8 @@ void VKPipeline::CreateRenderPass(VkFormat _vkSwapChainImageFormat)
 
 	// Create the render pass
 	m_vkRenderPass = new VkRenderPass();
-	if (vkCreateRenderPass(*m_vkEngineRef->vkGetDevice(), &renderPassInfo, nullptr, m_vkRenderPass) 
-		!= VK_SUCCESS) 
+	if (vkCreateRenderPass(*m_vkEngineRef->vkGetDevice(), &renderPassInfo, nullptr, m_vkRenderPass)
+		!= VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create render pass!");
 	}
@@ -398,9 +340,9 @@ void VKPipeline::CreateDescriptorPools()
 
 	// Create the descriptor pool.
 	m_vkDescriptorPool = new VkDescriptorPool();
-	if (vkCreateDescriptorPool(*m_vkEngineRef->vkGetDevice(), 
-		&poolInfo, 
-		nullptr, 
+	if (vkCreateDescriptorPool(*m_vkEngineRef->vkGetDevice(),
+		&poolInfo,
+		nullptr,
 		m_vkDescriptorPool) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create descriptor pool!");
@@ -457,7 +399,7 @@ void VKPipeline::CreateDescriptorSets(VKObject *_vkObject)
 		descriptorWrites[1].pImageInfo = &imageInfo;
 		// Update descriptor sets.
 		vkUpdateDescriptorSets(*m_vkEngineRef->vkGetDevice(),
-			static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 
+			static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(),
 			0, nullptr);
 	}
 }

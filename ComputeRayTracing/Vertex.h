@@ -11,9 +11,15 @@
 
 struct Vertex
 {
+#if GL
 	glm::vec3 pos;
 	glm::vec3 normal;
 	glm::vec2 texCoord;
+#elif VK
+	glm::vec2 pos;
+	glm::vec3 normal;
+	glm::vec2 texCoord;
+#endif
 
 	bool operator==(const Vertex& other) const 
 	{

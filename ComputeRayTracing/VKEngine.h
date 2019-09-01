@@ -3,11 +3,7 @@
 
 #include "Engine.h"
 #include "VKDrawEngine.h"
-// GLM
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include "VKPipeline.h"
 
 // Vulkan
 #include <vulkan/vulkan.h>
@@ -78,12 +74,7 @@ private:
 	// Command Buffers
 	std::vector<VkCommandBuffer> m_vkCommandBuffers;
 
-	// Depth Image
-	VkImage* m_vkDepthImage;
-	// Depth image memory
-	VkDeviceMemory* m_vkDepthImageMemory;
-	// Depth image view
-	VkImageView* m_vkDepthImageView;
+	VKObject* m_object;
 
 	// Vulkan Engine Init Code;
 	void Initialise();
@@ -92,7 +83,7 @@ private:
 
 	// Populate Debug Messenger Create Info.
 	void vkPopulateDebugMessengerCreateInfo
-		(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+	(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 	// Setup Debug Messenger.
 	void vkSetupDebugMessenger(VkInstance* _vkInstance, VkDebugUtilsMessengerEXT* _vkMessenger);
 	// Checks support for swap chains.
@@ -126,45 +117,15 @@ private:
 		std::vector<VkImageView>& _vkSwapChainImageViews,
 		std::vector<VkImage>& _vkSwapChainImages,
 		VkFormat* _vkSwapChainImageFormat);
-
 	// Create Frame Buffers.
 	void vkCreateFrameBuffers();
 	// Create Command Pool.
 	void vkSetupCommandPool();
 	// Setup Command Buffers.
 	void vkCreateCommandBuffers();
-	// Setup depth buffer resources.
-	void vkSetupDepthBufferResources();
-	// Finds supported format.
-	VkFormat vkFindSupportedFormat(const std::vector<VkFormat>& candidates,
-		VkImageTiling tiling,
-		VkFormatFeatureFlags features);
 public:
 	VKEngine();
 	~VKEngine();
-
-	// Static helper functions.
-	// Find memory type
-	static uint32_t vkFindMemoryType(uint32_t _typeFilter, VkMemoryPropertyFlags _vkProperties, VKEngine* _vkEngine);
-	// Create Image
-	static void vkSetupImage(uint32_t _width,
-		uint32_t _height,
-		VkFormat _format,
-		VkImageTiling _tiling,
-		VkImageUsageFlags _usage,
-		VkMemoryPropertyFlags _properties,
-		VKEngine* _vkEngine, VkImage &_image, 
-		VkDeviceMemory &_deviceMemory);
-	// Transition Image Layout
-	static void vkTransitionImageLayout(VKEngine* _engine,
-		VkImage _image, VkFormat _format, 
-		VkImageLayout _oldLayout, 
-		VkImageLayout _newLayout);
-	// Check for stentil component.
-	static bool vkHasStencilComponent(VkFormat format);
-
-	// Find depth format.
-	VkFormat vkFindDepthFormat();
 
 	// Command buffer recorder helper begin
 	VkCommandBuffer vkBeginSingleTimeCommands();

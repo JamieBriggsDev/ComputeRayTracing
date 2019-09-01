@@ -3,30 +3,30 @@
 #include "VKDrawEngine.h"
 #include "Window.h"
 #include "Camera.h"
-
+#include "VKObject.h"
 #include "VKEngine.h"
 
 // GLFW to handle window and keyboard/ mouse input
 #include <GLFW/glfw3.h>
 
 
-void VKDrawEngine::Update(VKObject* _object, std::vector<VkCommandBuffer> _commandBuffers, Camera* _camera, float _deltaTime)
+void VKDrawEngine::Update(VKObject* _object, std::vector<VkCommandBuffer> _commandBuffers, float _deltaTime)
 {
 	// Wait for fences
-	vkWaitForFences(*m_vkEngineRef->vkGetDevice(), 1, &m_vkInFlightFences[m_currentFrame], 
+	vkWaitForFences(*m_vkEngineRef->vkGetDevice(), 1, &m_vkInFlightFences[m_currentFrame],
 		VK_TRUE, std::numeric_limits<uint64_t>::max());
 
 	// Get next image index
 	uint32_t imageIndex;
-	vkAcquireNextImageKHR(*m_vkEngineRef->vkGetDevice(), 
-		*m_vkEngineRef->vkGetSwapChain(), 
-		std::numeric_limits<uint64_t>::max(), 
+	vkAcquireNextImageKHR(*m_vkEngineRef->vkGetDevice(),
+		*m_vkEngineRef->vkGetSwapChain(),
+		std::numeric_limits<uint64_t>::max(),
 		m_vkImageAvailableSemaphore[m_currentFrame],
 		VK_NULL_HANDLE,
 		&imageIndex);
 
 	// Update object here
-	_object->UpdateUniformBuffer(imageIndex, _camera, _deltaTime);
+	_object->UpdateUniformBuffer(imageIndex, _deltaTime);
 
 
 	// Create submit info for queue submission and synchronization.
@@ -50,7 +50,7 @@ void VKDrawEngine::Update(VKObject* _object, std::vector<VkCommandBuffer> _comma
 	vkResetFences(*m_vkEngineRef->vkGetDevice(), 1, &m_vkInFlightFences[m_currentFrame]);
 
 	// Submit queue
-	if (vkQueueSubmit(*m_vkEngineRef->vkGetGraphicsQueue(), 1, &submitInfo, m_vkInFlightFences[m_currentFrame]) 
+	if (vkQueueSubmit(*m_vkEngineRef->vkGetGraphicsQueue(), 1, &submitInfo, m_vkInFlightFences[m_currentFrame])
 		!= VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to submit draw command buffer!");
@@ -71,7 +71,7 @@ void VKDrawEngine::Update(VKObject* _object, std::vector<VkCommandBuffer> _comma
 
 	// Submit request to present an image to the swap chain
 	vkQueuePresentKHR(*m_vkEngineRef->vkGetPresentQueue(), &presentInfo);
-	
+
 	// Increment frames whilst looping back to frame 0
 	m_currentFrame = (m_currentFrame + 1) % PRE_RENDERED_FRAMES;
 }

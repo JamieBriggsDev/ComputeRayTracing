@@ -26,7 +26,7 @@ private:
 	// Create semaphore signals
 	void vkCreateSyncObjects();
 public:
-	void Update(VKObject* _object, std::vector<VkCommandBuffer> _commandBuffers, Camera* _camera, float _deltaTime);
+	void Update(VKObject* _object, std::vector<VkCommandBuffer> _commandBuffers, float _deltaTime);
 	VKDrawEngine(VKEngine* _vkEngine);
 	~VKDrawEngine();
 };

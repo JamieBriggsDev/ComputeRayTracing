@@ -27,11 +27,8 @@ private:
 	// Texture Sampler
 	VkSampler* m_vkTextureSampler;
 
-	// Converts shader to spv
-	void ConvertToSPV(const char* _filePathName);
-
 	// Creates a shader module
-	VkShaderModule CreateShaderModule(VkDevice _vkDevice, 
+	VkShaderModule CreateShaderModule(VkDevice _vkDevice,
 		const std::vector<char>& _code);
 	// Create Pipeline
 	void CreatePipelineLayout(VkExtent2D _vkSwapChainExtent,
