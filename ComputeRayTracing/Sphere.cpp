@@ -15,6 +15,11 @@ glm::vec3 Sphere::GetColour()
 	return m_colour;
 }
 
+Material Sphere::GetMaterial()
+{
+	return m_material;
+}
+
 void Sphere::SetPosition(glm::vec3 _pos)
 {
 	// Set Position
@@ -31,6 +36,11 @@ void Sphere::SetColour(glm::vec3 _col)
 {
 	// Set Colour
 	m_colour = _col;
+}
+
+void Sphere::SetMaterial(Material _material)
+{
+	m_material = _material;
 }
 
 void Sphere::Update(float _deltaTime)

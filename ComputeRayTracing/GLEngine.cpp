@@ -120,9 +120,11 @@ void GLEngine::MainLoop()
 
 		totalTime += m_deltaTime;
 
-		cout << m_light.x << endl;
-		//m_light.x = sin(totalTime) * 12;
-		m_spheres[0].m_position.x = sin(totalTime/2) * 2;
+		// m_light.y = sin(-totalTime) * 12;
+		//m_light.z = cos(-totalTime) * 12;
+
+		m_spheres[0].m_position.x = sin(totalTime) * 2;
+		m_spheres[0].m_position.z = (cos(totalTime) * 2) - 4.0f;
 
 		// record new last time
 		LastTime = currentTime;

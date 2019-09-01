@@ -42,10 +42,12 @@ void GLDrawEngine::Update(Camera* _camera,
 		int PositionID = glGetUniformLocation(m_pipeline->GetComputeProgramID(), os.str().append(".position").c_str());
 		int RadiusID = glGetUniformLocation(m_pipeline->GetComputeProgramID(), os.str().append(".radius").c_str());
 		int ColourID = glGetUniformLocation(m_pipeline->GetComputeProgramID(), os.str().append(".colour").c_str());
+		int MaterialID = glGetUniformLocation(m_pipeline->GetComputeProgramID(), os.str().append(".material").c_str());
 
 		glUniform3fv(PositionID, 1, glm::value_ptr(_spheres.at(i).GetPosition()));
 		glUniform1f(RadiusID, _spheres.at(i).GetRadius());
 		glUniform3fv(ColourID, 1, glm::value_ptr(_spheres.at(i).GetColour()));
+		glUniform1i(MaterialID, _spheres.at(i).GetMaterial());
 	}
 
 	// Send light position to shader
