@@ -61,14 +61,25 @@ float HitSphere(Ray _ray, Sphere _sphere)
 	float discriminant = b*b - 4*a*c;
 	// Check discriminant for sphere intersection
 	if(discriminant < 0)
+	{
 		// No intersection
 		return -1.0f;
+	}
 	else
+	{
 		// Return smallest instersecting distance
-		return (-b - sqrt(discriminant)) / (2.0f * a);
+		float one = (-b - sqrt(discriminant)) / (2.0f * a);
+		float two = (-b + sqrt(discriminant)) / (2.0f * a);
+		if (one < two)
+			return one;
+		else
+			return two;
+		// Return smallest instersecting distance
+		// return (-b - sqrt(discriminant)) / (2.0f * a);
+	}
 }
 
-float FindLightIntensity(vec3 _position, vec3 _normal, vec3 _light)
+float FindLightIntensity(vec3 _position, vec3 _normal, vec3 _light, int _sphereIndex)
 {
 	// 1. First check for light visibility
 	// Find light distance
@@ -83,22 +94,27 @@ float FindLightIntensity(vec3 _position, vec3 _normal, vec3 _light)
 	float shadow = 1.0f;
 	for(int i = 0; i < 2; i++)
 	{
+		if(i == _sphereIndex)
+			continue;
+
 		// Check for sphere collision.
 		float dist = HitSphere(shadowRay, uSpheres[i]);
 		// If distance not -1 or larger then the light distance, continue
 		if(dist > -1.0f)
 			if (dist <= lightDistance)
 				// Return 0 as light is blocked.
-				shadow = 0.0f;
+				shadow = 0.4f;
 				break;
 	}
 	// Find angle between light direction and normal
 	float angle = dot(_normal, lightDirection);
 	// Use cos to get intensity
-	float lightIntensity = clamp(sin(angle),0,1) * shadow;
+	float lightIntensity = clamp(cos(angle),0,1) * shadow;
+
+	float light = dot(_normal, lightDirection) * shadow;
 
 	// Return light intensity.
-	return lightIntensity;
+	return light;
 }
 
 // float FindDistance(vec3 _a, vec3 _b)
@@ -235,10 +251,11 @@ vec3 CastRay(Ray _ray)
 		// reflectionRay.origin = origin;
 		// reflectionRay.direction = direction;
 		//vec3 colour = CastReflectionRay(reflectionRay, closestIndex);
+		
 		//Check if hit anything
 		//return normal;
-		return normal * FindLightIntensity(origin, normal, light);
-		//return uSpheres[closestIndex].colour * FindLightIntensity(origin, normal, light);
+		//return normal * FindLightIntensity(origin, normal, light);
+		return uSpheres[closestIndex].colour * FindLightIntensity(origin, normal, light, closestIndex);
 
 
 		// return uSpheres[closestIndex].colour;
