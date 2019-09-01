@@ -11,6 +11,7 @@ VKPipeline::VKPipeline(VKEngine* _vkEngine,
 	VkFormat _vkSwapChainImageFormat,
 	const char* _vertexFilePath,
 	const char* _fragmentFilePath,
+	const char* _computeFilePath,
 	VKObject* _object)
 {
 	// Pointer to device to destroy later
@@ -24,7 +25,8 @@ VKPipeline::VKPipeline(VKEngine* _vkEngine,
 	// Create Pipeline
 	CreatePipelineLayout(_vkSwapChainExtent,
 		_vertexFilePath,
-		_fragmentFilePath);
+		_fragmentFilePath,
+		_computeFilePath);
 	// Create descriptor pools
 	CreateDescriptorPools();
 	// Create descriptor set
@@ -66,15 +68,20 @@ VkShaderModule VKPipeline::CreateShaderModule(VkDevice _vkDevice, const std::vec
 
 void VKPipeline::CreatePipelineLayout(VkExtent2D _vkSwapChainExtent,
 	const char* _vertexFilePath,
-	const char * _fragmentFilePath)
+	const char * _fragmentFilePath,
+	const char* _computeFilePath)
 {
 	// Get the shader code.
 	std::vector<char> fragShaderCode = ReadFile(_fragmentFilePath);
 	std::vector<char> vertShaderCode = ReadFile(_vertexFilePath);
+	std::vector<char> compShaderCode = ReadFile(_computeFilePath);
 
 	// Create the shader modules
 	VkShaderModule fragShaderModule = CreateShaderModule(*m_vkEngineRef->vkGetDevice(), fragShaderCode);
 	VkShaderModule vertShaderModule = CreateShaderModule(*m_vkEngineRef->vkGetDevice(), vertShaderCode);
+
+	// Setup compute shader module
+	CreateComputeModule(compShaderCode);
 
 	// Vertex shader stage create info
 	VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
@@ -228,6 +235,29 @@ void VKPipeline::CreatePipelineLayout(VkExtent2D _vkSwapChainExtent,
 	// Destroy shader modules at the end
 	vkDestroyShaderModule(*m_vkEngineRef->vkGetDevice(), fragShaderModule, nullptr);
 	vkDestroyShaderModule(*m_vkEngineRef->vkGetDevice(), vertShaderModule, nullptr);
+}
+
+void VKPipeline::CreateComputeModule(std::vector<char> _computeCode)
+{
+	// Create shader module
+	VkShaderModule compShaderModule = CreateShaderModule(*m_vkEngineRef->vkGetDevice(), _computeCode);
+	// Shader stage create info
+	VkPipelineShaderStageCreateInfo shaderStageCreateInfo = {};
+	shaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	shaderStageCreateInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+	shaderStageCreateInfo.module = compShaderModule;
+	shaderStageCreateInfo.pName = "main";
+	// Pipeline layout module
+	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {};
+	pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	pipelineLayoutCreateInfo.setLayoutCount = 1;
+	pipelineLayoutCreateInfo.pSetLayouts = m_vkDescriptorSetLayout;
+	m_vkComputePipelineLayout = new VkPipelineLayout();
+
+	if (vkCreatePipelineLayout(*m_vkEngineRef->vkGetDevice(), &pipelineLayoutCreateInfo, nullptr, m_vkComputePipelineLayout) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to create compute pipeline layout!");
+	}
 }
 
 void VKPipeline::CreateRenderPass(VkFormat _vkSwapChainImageFormat)

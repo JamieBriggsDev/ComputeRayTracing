@@ -21,6 +21,7 @@ VKObject::VKObject(VKEngine* _vkEngine,
 		_vkEngine->vkGetSwapChainImageFormat(), 
 		"Shaders/vert.spv",
 		"Shaders/frag.spv",
+		"Shaders/comp.spv",
 		this);
 
 	m_modelMatrix = glm::mat4();

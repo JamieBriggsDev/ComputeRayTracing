@@ -49,9 +49,15 @@
     <ClCompile Include="VKModel.cpp">
       <Filter>Source %28.cpp%29\VK</Filter>
     </ClCompile>
-    <ClCompile Include="VKObject.cpp" />
-    <ClCompile Include="Object.cpp" />
-    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Model.cpp">
+      <Filter>Source %28.cpp%29</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Source %28.cpp%29</Filter>
+    </ClCompile>
+    <ClCompile Include="VKObject.cpp">
+      <Filter>Source %28.cpp%29\VK</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -111,9 +117,15 @@
     <ClInclude Include="VKModel.h">
       <Filter>Headers %28.h%29\VK</Filter>
     </ClInclude>
-    <ClInclude Include="VKObject.h" />
-    <ClInclude Include="Object.h" />
-    <ClInclude Include="Model.h" />
+    <ClInclude Include="Model.h">
+      <Filter>Headers %28.h%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Headers %28.h%29</Filter>
+    </ClInclude>
+    <ClInclude Include="VKObject.h">
+      <Filter>Headers %28.h%29\VK</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\frag.spv">

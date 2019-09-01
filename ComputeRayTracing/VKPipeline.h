@@ -22,6 +22,8 @@ private:
 	std::vector<VkDescriptorSet> m_vkDescriptorSets;
 	// Pipeline Layout
 	VkPipelineLayout* m_vkPipelineLayout;
+	// Compute Pipeline Layout
+	VkPipelineLayout* m_vkComputePipelineLayout;
 	// Graphics Pipeline
 	VkPipeline* m_vkPipeline;
 	// Texture Sampler
@@ -33,7 +35,10 @@ private:
 	// Create Pipeline
 	void CreatePipelineLayout(VkExtent2D _vkSwapChainExtent,
 		const char* _vertexFilePath,
-		const char * _fragmentFilePath);
+		const char * _fragmentFilePath,
+		const char* _computeFilePath);
+	// Create compute module
+	void CreateComputeModule(std::vector<char> _computeCode);
 	// Create the Render Pass
 	void CreateRenderPass(VkFormat _vkSwapChainImageFormat);
 	// Create Descriptor Sets.
@@ -46,14 +51,12 @@ private:
 	void CreateTextureSampler();
 public:
 	VKPipeline(VKEngine* _vkEngine,
-
 		VkExtent2D _vkSwapChainExtent,
-
 		VkFormat _vkSwapChainImageFormat,
-
 		const char* _vertexFilePath,
-
-		const char * _fragmentFilePath, VKObject * _object);
+		const char* _fragmentFilePath, 
+		const char* _computeFilePath,
+		VKObject * _object);
 	VkRenderPass* vkGetRenderPass() { return m_vkRenderPass; }
 	VkPipeline* vkGetPipeline() { return m_vkPipeline; }
 	VkPipelineLayout* vkGetPipelineLayout() { return m_vkPipelineLayout; }
