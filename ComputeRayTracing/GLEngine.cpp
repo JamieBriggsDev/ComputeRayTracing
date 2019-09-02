@@ -121,10 +121,28 @@ void GLEngine::MainLoop()
 		totalTime += m_deltaTime;
 
 		// m_light.y = sin(-totalTime) * 12;
-		//m_light.z = cos(-totalTime) * 12;
+		// m_light.z = cos(-totalTime) * 12;
 
-		m_spheres[0].m_position.x = sin(totalTime) * 2;
-		m_spheres[0].m_position.z = (cos(totalTime) * 2) - 4.0f;
+		//m_spheres[0].m_position.x = sin(totalTime) * 2;
+		//m_spheres[0].m_position.z = (cos(totalTime) * 2) - 4.0f;
+
+		if (m_myController->IsKeyPressed(m_myWindow, GLFW_KEY_D))
+			m_spheres[0].m_position.x += 2 * m_deltaTime;
+		if (m_myController->IsKeyPressed(m_myWindow, GLFW_KEY_A))
+			m_spheres[0].m_position.x -= 2 * m_deltaTime;
+		if (m_myController->IsKeyPressed(m_myWindow, GLFW_KEY_W))
+			m_spheres[0].m_position.z -= 2 * m_deltaTime;
+		if (m_myController->IsKeyPressed(m_myWindow, GLFW_KEY_S))
+			m_spheres[0].m_position.z += 2 * m_deltaTime;
+
+		if (m_myController->IsKeyPressed(m_myWindow, GLFW_KEY_RIGHT))
+			m_light.x += 4 * m_deltaTime;
+		if (m_myController->IsKeyPressed(m_myWindow, GLFW_KEY_LEFT))
+			m_light.x -= 4 * m_deltaTime;
+		if (m_myController->IsKeyPressed(m_myWindow, GLFW_KEY_UP))
+			m_light.z -= 4 * m_deltaTime;
+		if (m_myController->IsKeyPressed(m_myWindow, GLFW_KEY_DOWN))
+			m_light.z += 4 * m_deltaTime;
 
 		// record new last time
 		LastTime = currentTime;

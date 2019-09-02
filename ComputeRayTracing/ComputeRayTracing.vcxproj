@@ -333,12 +333,14 @@ xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
     <ClInclude Include="HardModels.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="Shapes.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Triangle.h" />
     <ClInclude Include="UniformBufferObject.h" />
     <ClInclude Include="Vertex.h" />
+    <ClInclude Include="VKBuffer.h" />
     <ClInclude Include="VKDrawEngine.h" />
     <ClInclude Include="VKEngine.h" />
     <ClInclude Include="VKModel.h" />
@@ -357,6 +359,7 @@ xcopy "$(ProjectDir)Shaders" "$(TargetDir)Shaders" /e /y /i /r /d</Command>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="Shapes.cpp" />
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="Pipeline.cpp" />
     <ClCompile Include="Texture.cpp" />

@@ -1,0 +1,19 @@
+#version 450
+layout(local_size_x = 1, local_size_y = 1) in;
+layout(rgba32f, binding = 0) uniform image2D img_output;
+
+
+void main()
+{
+	// Get image dimensions
+	ivec2 imageDimensions = imageSize(img_output);
+
+	int width = imageDimensions.x;
+	int height = imageDimensions.y;
+	int fov = 90;
+	vec4 backgroundColour = vec4(0.6, 0.85, 0.92, 1.0);
+	ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);
+
+	// output to a specific pixel in the image
+	imageStore(img_output, pixelCoords, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+}

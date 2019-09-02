@@ -58,6 +58,9 @@
     <ClCompile Include="VKObject.cpp">
       <Filter>Source %28.cpp%29\VK</Filter>
     </ClCompile>
+    <ClCompile Include="Shapes.cpp">
+      <Filter>Source %28.cpp%29</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -124,6 +127,12 @@
       <Filter>Headers %28.h%29</Filter>
     </ClInclude>
     <ClInclude Include="VKObject.h">
+      <Filter>Headers %28.h%29\VK</Filter>
+    </ClInclude>
+    <ClInclude Include="Shapes.h">
+      <Filter>Headers %28.h%29</Filter>
+    </ClInclude>
+    <ClInclude Include="VKBuffer.h">
       <Filter>Headers %28.h%29\VK</Filter>
     </ClInclude>
   </ItemGroup>

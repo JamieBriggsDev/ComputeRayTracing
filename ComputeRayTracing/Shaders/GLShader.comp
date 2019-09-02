@@ -107,7 +107,7 @@ float FindLightIntensity(vec3 _position, vec3 _normal, vec3 _light, int _sphereI
 				if(uSpheres[i].material == 0)
 				{
 					// Return 0 as light is blocked.
-					shadow = 0.0f;
+					shadow = 0.5f;
 					break;
 				}
 			}
