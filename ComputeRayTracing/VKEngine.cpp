@@ -91,6 +91,8 @@ VKEngine::~VKEngine()
 	}
 	// Destroy Swap Chain.
 	vkDestroySwapchainKHR(*m_vkDevice, *m_vkSwapChain, nullptr);
+	// Destroy render pass
+	vkDestroyRenderPass(*m_vkDevice, *m_vkRenderPass, nullptr);
 	// Destroy vulkan Device.
 	vkDestroyDevice(*m_vkDevice, nullptr);
 	// If debug enabled, destroy debut utils Messenger.
@@ -140,6 +142,101 @@ void VKEngine::vkEndSingleTimeCommands(VkCommandBuffer _commandBuffer)
 	vkQueueWaitIdle(*m_vkGraphicsQueue);
 	// Free the command buffer.
 	vkFreeCommandBuffers(*m_vkDevice, *m_vkCommandPool, 1, &_commandBuffer);
+}
+
+void VKEngine::vkEndSingleTimeCommands(VkCommandBuffer _commandBuffer, VkQueue queue, bool free)
+{
+	// End the command buffer
+	vkEndCommandBuffer(_commandBuffer);
+	// Command buffer submit info
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &_commandBuffer;
+	// Submit to queue.
+	vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(*m_vkGraphicsQueue);
+
+	// Free the command buffer.
+	if (free)
+	{
+		vkFreeCommandBuffers(*m_vkDevice, *m_vkCommandPool, 1, &_commandBuffer);
+	}
+}
+
+uint32_t VKEngine::vkFindMemoryType(uint32_t _typeFilter, VkMemoryPropertyFlags _vkProperties)
+{
+	// Physical device memory properties container.
+	VkPhysicalDeviceMemoryProperties memProperties;
+	// Get Reuquirements.
+	vkGetPhysicalDeviceMemoryProperties(*m_vkPhysicalDevice,
+		&memProperties);
+	// Loop through memory types.
+	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
+	{
+		if ((_typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & _vkProperties)
+			== _vkProperties)
+		{
+			return i;
+		}
+	}
+
+	throw std::runtime_error("failed to find suitable memory type!");
+}
+
+VkResult VKEngine::vkSetupBuffer(VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VKBuffer* buffer, VkDeviceSize size, void * data)
+{
+	buffer->device = *m_vkDevice;
+
+	// Create the buffer handle
+	VkBufferCreateInfo bufferCreateInfo;
+	bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	bufferCreateInfo.usage = usageFlags;
+	bufferCreateInfo.size = size;
+
+	// Create the buffer
+	if (vkCreateBuffer(*m_vkDevice, &bufferCreateInfo, nullptr, &buffer->buffer) != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create buffer.");
+	}
+
+	// Create the memory backing up the buffer handle
+	VkMemoryRequirements memReqs;
+	VkMemoryAllocateInfo memAlloc;
+	memAlloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+
+	// Get buffer memory requirements
+	vkGetBufferMemoryRequirements(*m_vkDevice, buffer->buffer, &memReqs);
+	memAlloc.allocationSize = memReqs.size;
+
+	// Find a memory type index that fits the properties of the buffer
+	memAlloc.memoryTypeIndex = vkFindMemoryType(memReqs.memoryTypeBits, memoryPropertyFlags);
+	if (vkAllocateMemory(*m_vkDevice, &memAlloc, nullptr, &buffer->memory) != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to allocate memory.");
+	}
+
+	buffer->alignment = memReqs.alignment;
+	buffer->size = memAlloc.allocationSize;
+	buffer->usageFlags = usageFlags;
+	buffer->memoryPropertyFlags = memoryPropertyFlags;
+
+	// If a pointer to the buffer data has been passed, map the buffer and copy over the data
+	if (data != nullptr)
+	{
+		buffer->map();
+		memcpy(buffer->mapped, data, size);
+		if ((memoryPropertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == 0)
+			buffer->flush();
+
+		buffer->unmap();
+	}
+
+	// Initialize a default descriptor that covers the whole buffer size
+	buffer->setupDescriptor();
+
+	// Attach the memory to the buffer object
+	return buffer->bind();
 }
 
 void VKEngine::Initialise()
@@ -206,11 +303,8 @@ void VKEngine::Initialise()
 	// Create command pool.
 	vkSetupCommandPool();
 
-	// Create an object
-	m_object = new VKObject(this,
-		"Resources/Models/Sphere.obj");
-	// Model matrix : an identity matrix (model will be at the origin)
-	m_object->SetModelMatrix(glm::mat4(1.0f));
+	// Create render pass
+	vkSetupRenderPass(vkGetSwapChainImageFormat());
 
 	// Create frame buffers
 	vkCreateFrameBuffers();
@@ -237,6 +331,7 @@ void VKEngine::MainLoop()
 		// Get delta time by comparing current time and last time
 		double currentTime = glfwGetTime();
 		m_deltaTime = float(currentTime - LastTime);
+		m_timer += m_deltaTime;
 		if (currentTime - LastFPSUpdate < FrameRefreshTime)
 		{
 			// Increase TotalFrames
@@ -745,7 +840,7 @@ void VKEngine::vkCreateFrameBuffers()
 
 		VkFramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferInfo.renderPass = *static_cast<VKPipeline*>(m_object->GetPipeline())->vkGetRenderPass();
+		framebufferInfo.renderPass = *m_vkRenderPass;
 		framebufferInfo.attachmentCount = 1;
 		framebufferInfo.pAttachments = attachments;
 		framebufferInfo.width = m_vkSwapChainExtent.width;
@@ -816,8 +911,7 @@ void VKEngine::vkCreateCommandBuffers()
 		// Begin Render Pass info
 		VkRenderPassBeginInfo renderPassInfo = {};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		renderPassInfo.renderPass =
-			*static_cast<VKPipeline*>(m_object->GetPipeline())->vkGetRenderPass();
+		renderPassInfo.renderPass =	*m_vkRenderPass;
 		renderPassInfo.framebuffer = m_vkSwapChainFrameBuffers[i];
 		renderPassInfo.renderArea.offset = { 0,0 };
 		renderPassInfo.renderArea.extent = m_vkSwapChainExtent;
@@ -866,6 +960,94 @@ void VKEngine::vkCreateCommandBuffers()
 		}
 
 	}
+}
+
+void VKEngine::vkSetupRenderPass(VkFormat _vkSwapChainImageFormat)
+{
+	// Create Color Attachment
+	VkAttachmentDescription colorAttachment = {};
+	colorAttachment.format = _vkSwapChainImageFormat;
+	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	// Decide what to do with data before and after rendering:
+	// - Preserve the existing contents of the attachment
+	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	// - Rendered contents will be stored in memory and can be read later.
+	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	// Not using scencil data
+	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	// Initial layout isn't defined
+	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+	// Create color attachment reference
+	VkAttachmentReference colorAttachmentRef = {};
+	colorAttachmentRef.attachment = 0;
+	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	// Subpass description
+	VkSubpassDescription subpass = {};
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	// Specify color attachment
+	// => layout(location = 0) out vec4 outColor in the shader
+	subpass.colorAttachmentCount = 1;
+	subpass.pColorAttachments = &colorAttachmentRef;
+
+	VkSubpassDependency dependency = {};
+	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependency.dstSubpass = 0;
+	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.srcAccessMask = 0;
+	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+	// Render Pass Create Info
+	VkRenderPassCreateInfo renderPassInfo = {};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	renderPassInfo.attachmentCount = 1;
+	renderPassInfo.pAttachments = &colorAttachment;
+	renderPassInfo.subpassCount = 1;
+	renderPassInfo.pSubpasses = &subpass;
+	renderPassInfo.dependencyCount = 1;
+	renderPassInfo.pDependencies = &dependency;
+
+	// Create the render pass
+	m_vkRenderPass = new VkRenderPass();
+	if (vkCreateRenderPass(*m_vkDevice, &renderPassInfo, nullptr, m_vkRenderPass)
+		!= VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to create render pass!");
+	}
+
+
+}
+
+VkCommandBuffer VKEngine::vkBeginSingleTimeCommands(VkCommandBufferLevel level, bool begin)
+{
+	VkCommandBufferAllocateInfo cmdBufAllocateInfo {};
+	cmdBufAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	cmdBufAllocateInfo.commandPool = *m_vkCommandPool;
+	cmdBufAllocateInfo.level = level;
+	cmdBufAllocateInfo.commandBufferCount = 1;
+
+	VkCommandBuffer cmdBuffer;
+	if (vkAllocateCommandBuffers(*m_vkDevice, &cmdBufAllocateInfo, &cmdBuffer) != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to allocate command buffer!");
+	}
+
+	// If requested, also start recording for the new command buffer
+	if (begin)
+	{
+		// Command buffer begin info
+		VkCommandBufferBeginInfo beginInfo = {};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+		// Begin command buffer
+		vkBeginCommandBuffer(cmdBuffer, &beginInfo);
+	}
+
+	return cmdBuffer;
 }
 
 

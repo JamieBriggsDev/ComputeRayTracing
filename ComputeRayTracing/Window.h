@@ -20,8 +20,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-// Object Class
-#include "Sphere.h"
 
 // Camera class
 class Camera;

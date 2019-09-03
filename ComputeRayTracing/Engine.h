@@ -5,10 +5,10 @@
 #include "Window.h"
 #include "Camera.h"
 #include "Controller.h"
-#include "Sphere.h"
-
 #define VULKAN_CLEAR_COLOUR { 0.92f, 0.6f, 0.6f, 0.0f }
 #define OPENGL_CLEAR_COLOUR 0.6f, 0.85f, 0.92f, 0.0f
+
+class Sphere;
 
 class Engine
 {
@@ -24,6 +24,8 @@ protected:
 	std::vector<Sphere> m_spheres;
 	// DeltaTime
 	float m_deltaTime;
+	// Timer
+	float m_timer = 0.0f;
 
 
 public:
@@ -34,6 +36,12 @@ public:
 	virtual void Initialise() = 0;
 
 	virtual void MainLoop() = 0;
+
+	// Get timer
+	float GetTimer()
+	{
+		return m_timer;
+	}
 
 };
 

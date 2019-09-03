@@ -4,6 +4,7 @@
 #include "Engine.h"
 #include "VKDrawEngine.h"
 #include "VKPipeline.h"
+#include "VKBuffer.h"
 
 // Vulkan
 #include <vulkan/vulkan.h>
@@ -55,6 +56,9 @@ private:
 	VkQueue* m_vkPresentQueue;
 	// Window Surface
 	VkSurfaceKHR* m_vkSurface;
+
+	// Render Pass
+	VkRenderPass* m_vkRenderPass;
 
 	// Swap chain
 	VkSwapchainKHR* m_vkSwapChain;
@@ -123,15 +127,27 @@ private:
 	void vkSetupCommandPool();
 	// Setup Command Buffers.
 	void vkCreateCommandBuffers();
+	// Create the Render Pass
+	void vkSetupRenderPass(VkFormat _vkSwapChainImageFormat);
+
 public:
 	VKEngine();
 	~VKEngine();
 
 	// Command buffer recorder helper begin
 	VkCommandBuffer vkBeginSingleTimeCommands();
+	// Command buffer recorder helper begin with choice of buffer level
+	VkCommandBuffer vkBeginSingleTimeCommands(VkCommandBufferLevel level, bool begin = false);
 	// Command buffer recorder helper end
 	void vkEndSingleTimeCommands(VkCommandBuffer _commandBuffer);
+	// Command buffer recorder helper end
+	void vkEndSingleTimeCommands(VkCommandBuffer _commandBuffer, VkQueue queue, bool free = true);
 
+
+	// Create buffer
+	VkResult vkSetupBuffer(VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VKBuffer* buffer, VkDeviceSize size, void *data = nullptr);
+	// Find memory type
+	uint32_t vkFindMemoryType(uint32_t _typeFilter, VkMemoryPropertyFlags _vkProperties);
 
 	// Getter Functions
 	// Get Vulkan Device

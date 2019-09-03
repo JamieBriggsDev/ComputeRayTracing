@@ -46,9 +46,6 @@
     <ClCompile Include="Sphere.cpp">
       <Filter>Source %28.cpp%29</Filter>
     </ClCompile>
-    <ClCompile Include="VKModel.cpp">
-      <Filter>Source %28.cpp%29\VK</Filter>
-    </ClCompile>
     <ClCompile Include="Model.cpp">
       <Filter>Source %28.cpp%29</Filter>
     </ClCompile>
@@ -117,9 +114,6 @@
     <ClInclude Include="Sphere.h">
       <Filter>Headers %28.h%29</Filter>
     </ClInclude>
-    <ClInclude Include="VKModel.h">
-      <Filter>Headers %28.h%29\VK</Filter>
-    </ClInclude>
     <ClInclude Include="Model.h">
       <Filter>Headers %28.h%29</Filter>
     </ClInclude>
@@ -134,6 +128,9 @@
     </ClInclude>
     <ClInclude Include="VKBuffer.h">
       <Filter>Headers %28.h%29\VK</Filter>
+    </ClInclude>
+    <ClInclude Include="objLoader.h">
+      <Filter>Headers %28.h%29\ThirdParty</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -180,6 +177,9 @@
     </Filter>
     <Filter Include="Source %28.cpp%29\VK">
       <UniqueIdentifier>{93359176-2eb2-4feb-9a3a-ea158adee1e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers %28.h%29\ThirdParty">
+      <UniqueIdentifier>{7ba5ff6d-1936-4c95-b4fe-642f83777061}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

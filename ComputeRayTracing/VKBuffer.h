@@ -6,7 +6,7 @@
 #include "vulkan/vulkan.h"
 
 
-struct vkBuffer
+struct VKBuffer
 {
 	// Vulkan Device
 	VkDevice device;
