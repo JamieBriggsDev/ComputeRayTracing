@@ -1,3 +1,5 @@
+#if GL
+
 #include "Sphere.h"
 
 glm::vec3 Sphere::GetPosition()
@@ -53,3 +55,5 @@ void Sphere::Update(float _deltaTime)
 	//m_position.x = sin(m_count);// +m_position.x;
 	//m_position.y = cos(m_count);// +m_position.y;
 }
+
+#endif

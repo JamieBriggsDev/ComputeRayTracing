@@ -37,17 +37,8 @@
     <ClCompile Include="VKEngine.cpp">
       <Filter>Source %28.cpp%29\VK</Filter>
     </ClCompile>
-    <ClCompile Include="VKPipeline.cpp">
-      <Filter>Source %28.cpp%29\VK</Filter>
-    </ClCompile>
-    <ClCompile Include="VKTexture.cpp">
-      <Filter>Source %28.cpp%29\VK</Filter>
-    </ClCompile>
     <ClCompile Include="Sphere.cpp">
       <Filter>Source %28.cpp%29</Filter>
-    </ClCompile>
-    <ClCompile Include="VKModel.cpp">
-      <Filter>Source %28.cpp%29\VK</Filter>
     </ClCompile>
     <ClCompile Include="Model.cpp">
       <Filter>Source %28.cpp%29</Filter>
@@ -55,12 +46,10 @@
     <ClCompile Include="Object.cpp">
       <Filter>Source %28.cpp%29</Filter>
     </ClCompile>
-    <ClCompile Include="VKObject.cpp">
-      <Filter>Source %28.cpp%29\VK</Filter>
-    </ClCompile>
     <ClCompile Include="Shapes.cpp">
       <Filter>Source %28.cpp%29</Filter>
     </ClCompile>
+    <ClCompile Include="Material.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -108,17 +97,8 @@
     <ClInclude Include="VKEngine.h">
       <Filter>Headers %28.h%29\VK</Filter>
     </ClInclude>
-    <ClInclude Include="VKPipeline.h">
-      <Filter>Headers %28.h%29\VK</Filter>
-    </ClInclude>
-    <ClInclude Include="VKTexture.h">
-      <Filter>Headers %28.h%29\VK</Filter>
-    </ClInclude>
     <ClInclude Include="Sphere.h">
       <Filter>Headers %28.h%29</Filter>
-    </ClInclude>
-    <ClInclude Include="VKModel.h">
-      <Filter>Headers %28.h%29\VK</Filter>
     </ClInclude>
     <ClInclude Include="Model.h">
       <Filter>Headers %28.h%29</Filter>
@@ -126,15 +106,10 @@
     <ClInclude Include="Object.h">
       <Filter>Headers %28.h%29</Filter>
     </ClInclude>
-    <ClInclude Include="VKObject.h">
-      <Filter>Headers %28.h%29\VK</Filter>
-    </ClInclude>
     <ClInclude Include="Shapes.h">
       <Filter>Headers %28.h%29</Filter>
     </ClInclude>
-    <ClInclude Include="VKBuffer.h">
-      <Filter>Headers %28.h%29\VK</Filter>
-    </ClInclude>
+    <ClInclude Include="Material.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\frag.spv">

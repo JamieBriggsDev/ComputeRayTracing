@@ -1,8 +1,45 @@
 #include "Engine.h"
 
 
+void Engine::InitialiseObjects(std::vector<Plane> &_planes, std::vector<Sphere> &_spheres)
+{
+	auto AddPlane = [&_planes](Plane* go, glm::vec3 color, int type)
+	{
+		go->mat = Material(color, type);
+		_planes.push_back(*go);
+	};
+
+	auto AddSphere = [&_spheres](Sphere* go, glm::vec3 color, int type)
+	{
+		go->mat = Material(color, type);
+		_spheres.push_back(*go);
+	};
+
+	auto sphere = new Sphere(glm::vec3(-0.55, -1.55, -4.0), 1.0);
+	auto sphere2 = new Sphere(glm::vec3(1.3, 1.2, -4.2), 0.8);
+
+	auto bottom = new Plane(glm::vec3(0, 1, 0), 2.5);
+	auto back = new Plane(glm::vec3(0, 0, 1), 5.5);
+	auto left = new Plane(glm::vec3(1, 0, 0), 2.75);
+	auto right = new Plane(glm::vec3(-1, 0, 0), 2.75);
+	auto ceiling = new Plane(glm::vec3(0, -1, 0), 3.0);
+	auto front = new Plane(glm::vec3(0, 0, -1), 0.5);
+
+
+	AddSphere(sphere, glm::vec3(0.3, 0.9, 0.76), 2);
+	AddSphere(sphere2, glm::vec3(0.062, 0.917, 0.078), 1);
+
+	AddPlane(bottom, glm::vec3(0.8, 0.8, 0.8), 1);
+	AddPlane(back, glm::vec3(0.8, 0.8, 0.8), 1);
+	AddPlane(left, glm::vec3(1, 0.250, 0.019), 1);
+	AddPlane(right, glm::vec3(0.007, 0.580, 0.8), 1);
+	AddPlane(ceiling, glm::vec3(0.8, 0.8, 0.8), 1);
+	AddPlane(front, glm::vec3(0.8, 0.8, 0.8), 1);
+}
+
 Engine::Engine()
 {
+#if GL
 	// Setup Spheres
 	Sphere one;
 	one.SetPosition(glm::vec3(0.5f, 1.0f, -3.5f));
@@ -18,6 +55,7 @@ Engine::Engine()
 	m_spheres.push_back(two);
 	// Setup light
 	m_light = glm::vec3(-2.0f, 2.0f, 0.0f);
+#endif // TODO REMOVE!!!
 }
 
 Engine::~Engine()

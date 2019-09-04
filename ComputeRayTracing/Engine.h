@@ -6,6 +6,7 @@
 #include "Camera.h"
 #include "Controller.h"
 #include "Sphere.h"
+#include "Shapes.h"
 
 #define VULKAN_CLEAR_COLOUR { 0.92f, 0.6f, 0.6f, 0.0f }
 #define OPENGL_CLEAR_COLOUR 0.6f, 0.85f, 0.92f, 0.0f
@@ -24,6 +25,10 @@ protected:
 	std::vector<Sphere> m_spheres;
 	// DeltaTime
 	float m_deltaTime;
+
+
+	// Initialise objects.
+	void InitialiseObjects(std::vector<Plane> &_planes, std::vector<Sphere> &_spheres);
 
 
 public:

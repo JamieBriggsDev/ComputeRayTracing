@@ -1,14 +1,14 @@
 #pragma once
 #if VK
-
-#include "Engine.h"
-#include "VKDrawEngine.h"
-#include "VKPipeline.h"
-
 // Vulkan
 #include <vulkan/vulkan.h>
 // Optional
 #include <optional>
+
+#include "Engine.h"
+#include "VKDrawEngine.h"
+#include "Shapes.h"
+
 
 
 // Vulkan Extensions
@@ -33,6 +33,8 @@ struct vkSwapChainSupportDetails
 	std::vector<VkSurfaceFormatKHR> m_vkFormats;
 	std::vector<VkPresentModeKHR> m_vkPresentModes;
 };
+
+
 
 class VKEngine :
 	public Engine
@@ -73,6 +75,45 @@ private:
 	VkCommandPool* m_vkCommandPool;
 	// Command Buffers
 	std::vector<VkCommandBuffer> m_vkCommandBuffers;
+
+	// Compute shader stuff
+	// Compute shader output
+	VkImage m_vkComputeImage;
+	// Compute image view
+	VkImageView m_vkComputeImageView;
+	// Compute image device memory
+	VkDeviceMemory m_vkComputeImageDeviceMemory;
+
+	// Planes buffer
+	VkBuffer m_vkPlanesBuffer;
+	// Planes buffer device memory
+	VkDeviceMemory m_vkPlanesDeviceMemory;
+	// Sphere buffer
+	VkBuffer m_vkSpheresBuffer;
+	// Sphere buffer device memory
+	VkDeviceMemory m_vkSphereDeviceMemory;
+	// Uniform Buffer
+	VkBuffer m_vkUniformBuffer;
+	// Uniform buffer device memory
+	VkDeviceMemory m_vkUniformDeviceMemory;
+
+	// Compute descriptor pool
+	VkDescriptorPool m_vkComputeDescriptorPool;
+	// Compute descriptor set layout
+	VkDescriptorSetLayout m_vkComputeDescriptorSetLayout;
+	// Compute pipeline layout
+	VkPipelineLayout m_vkComputePipelineLayout;
+	// Compute descriptor sets
+	std::vector<VkDescriptorSet> m_vkComputeDescriptorSets;
+	// Compute pipeline
+	VkPipeline m_vkComputePipeline;
+	
+
+	// Uniform Buffer
+	struct UBO
+	{
+		float time;
+	} ubo;
 
 	VKObject* m_object;
 
@@ -123,6 +164,26 @@ private:
 	void vkSetupCommandPool();
 	// Setup Command Buffers.
 	void vkCreateCommandBuffers();
+
+
+	// Create compute image
+	void vkCreateComputeImage(VkImage &img, VkImageView &imgView, VkDeviceMemory &memory);
+	// Prepare Storage Buffers
+	void vkPrepareStorageBuffers();
+	// Create Storage Buffer
+	void vkCreateStorageBuffer(const void* data, VkDeviceSize &bufferSize, VkBuffer &buffer,
+		VkBufferUsageFlags bufferUsageFlags, VkDeviceMemory &deviceMemory, uint32_t memTypeIndex);
+
+	// Create Descriptor pool
+	void vkSetupDescriptorPool();
+	// Prepare Compute for pipeline creation
+	void vkPrepareComputeForPipelineCreation();
+	// Create the compute pipeline
+	void vkCreateComputePipeline();
+
+	// Copy data
+	void CopyMemory(const void* data, VkDeviceMemory &deviceMemory, VkDeviceSize &bufferSize);
+
 public:
 	VKEngine();
 	~VKEngine();
@@ -132,6 +193,9 @@ public:
 	// Command buffer recorder helper end
 	void vkEndSingleTimeCommands(VkCommandBuffer _commandBuffer);
 
+	// Finds the memory type for creating vertex bufers.
+	uint32_t vkFindMemoryType(int _typeFilter,
+		VkMemoryPropertyFlags _vkProperties);
 
 	// Getter Functions
 	// Get Vulkan Device
