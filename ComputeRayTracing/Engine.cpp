@@ -1,6 +1,7 @@
 #include "Engine.h"
 
 
+#if VK
 void Engine::InitialiseObjects(std::vector<Plane> &_planes, std::vector<Sphere> &_spheres)
 {
 	auto AddPlane = [&_planes](Plane* go, glm::vec3 color, int type)
@@ -36,6 +37,7 @@ void Engine::InitialiseObjects(std::vector<Plane> &_planes, std::vector<Sphere> 
 	AddPlane(ceiling, glm::vec3(0.8, 0.8, 0.8), 1);
 	AddPlane(front, glm::vec3(0.8, 0.8, 0.8), 1);
 }
+#endif
 
 Engine::Engine()
 {

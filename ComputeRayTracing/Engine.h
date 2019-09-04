@@ -26,10 +26,10 @@ protected:
 	// DeltaTime
 	float m_deltaTime;
 
-
+#if VK
 	// Initialise objects.
 	void InitialiseObjects(std::vector<Plane> &_planes, std::vector<Sphere> &_spheres);
-
+#endif
 
 public:
 	Engine();

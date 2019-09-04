@@ -1,3 +1,5 @@
+#if VK
+
 #pragma once
 
 #include <glm/glm.hpp>
@@ -25,3 +27,5 @@ struct Sphere
 	Sphere();
 	Sphere(glm::vec3 position, float radius);
 };
+
+#endif
