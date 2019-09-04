@@ -15,17 +15,17 @@
 const std::vector<const char*> vkDeviceExtensions = {
 VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
-// Queue Family Indices
-struct vkQueueFamilyIndices
-{
-	std::optional<uint32_t> m_vkGraphicsFamily;
-	std::optional<uint32_t> m_vkPresentFamily;
-
-	bool isComplete()
-	{
-		return m_vkGraphicsFamily.has_value() && m_vkPresentFamily.has_value();
-	}
-};
+//// Queue Family Indices
+//struct vkQueueFamilyIndices
+//{
+//	std::optional<uint32_t> m_vkGraphicsFamily;
+//	std::optional<uint32_t> m_vkPresentFamily;
+//
+//	bool isComplete()
+//	{
+//		return m_vkGraphicsFamily.has_value() && m_vkPresentFamily.has_value();
+//	}
+//};
 // Swap Chain Support Details
 struct vkSwapChainSupportDetails
 {
@@ -51,8 +51,8 @@ private:
 	VkDevice* m_vkDevice;
 	// Debug Messenger
 	VkDebugUtilsMessengerEXT* m_vkDebugMessenger;
-	// Graphics Queue
-	VkQueue* m_vkGraphicsQueue;
+	// Compute Queue
+	VkQueue* m_vkComputeQueue;
 	// Present Queue
 	VkQueue* m_vkPresentQueue;
 	// Window Surface
@@ -107,13 +107,28 @@ private:
 	std::vector<VkDescriptorSet> m_vkComputeDescriptorSets;
 	// Compute pipeline
 	VkPipeline m_vkComputePipeline;
+	// Compute command pool
+	VkCommandPool m_vkComputeCommandPool;
+
+	// Image available semaphore
+	VkSemaphore m_vkImageAvailableSemaphore;
+	// Image finished rendering semaphore
+	VkSemaphore m_vkRenderFinishedSemaphore;
+
+	// Current compute image index
+	uint32_t m_vkCurrentImageIndex;
+	// Compute command buffder
+	VkCommandBuffer m_vkComputeCommandBuffer;
+
+	// Compute fence
+	VkFence m_vkComputeFence;
 	
 
 	// Uniform Buffer
 	struct UBO
 	{
 		float time;
-	} ubo;
+	} m_vkUniformBufferObject;
 
 	VKObject* m_object;
 
@@ -127,10 +142,9 @@ private:
 	(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 	// Setup Debug Messenger.
 	void vkSetupDebugMessenger(VkInstance* _vkInstance, VkDebugUtilsMessengerEXT* _vkMessenger);
+
 	// Checks support for swap chains.
 	vkSwapChainSupportDetails vkQuerySwapChainSupport(VkPhysicalDevice _vkDevice, VkSurfaceKHR* _vkSurface);
-	// Finds queue families.
-	vkQueueFamilyIndices vkFindQueueFamilies(VkPhysicalDevice _vkDevice, VkSurfaceKHR* _vkSurface);
 	// Choose best suitable swap surface format.
 	VkSurfaceFormatKHR vkChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& _availableFormats);
 	// Chose best suitable swap present mode.
@@ -140,30 +154,37 @@ private:
 	// Create Swap Chain.
 	void vkCreateSwapChain(VkDevice* _vkDevice, VkPhysicalDevice* _vkPhysicalDevice,
 		VkSurfaceKHR* _vkSurface, VkSwapchainKHR* _vkSwapChain);
-	// Get Reuiqred Extensions.
+
+	// Get Required Extensions.
 	std::vector<const char*> vkGetRequiredExtensions();
 	// Check Device Extension Support.
 	bool vkCheckDeviceExtensionSupport(VkPhysicalDevice _vkDevice);
 	// Checks if Device is suitable.
 	bool vkIsDeviceSuitable(VkPhysicalDevice _vkDevice, VkSurfaceKHR* _vkSurface);
+
 	// Picks a physical Device.
 	void vkPickPhysicalDevice(VkInstance* _vkInstance, VkPhysicalDevice* _vkPhysicalDevice, VkSurfaceKHR* _vkSurface);
 	// Creates the Logical Device.
 	void vkCreateLogicalDevice(VkPhysicalDevice* _vkPhysicalDevice, VkDevice* _vkDevice,
-		VkQueue* _vkGraphicsQueue, VkSurfaceKHR* _vkSurface);
+		VkSurfaceKHR* _vkSurface);
+
+	// Create Image View
+	void vkCreateImageViews();
+
 	// Creates the surface.
 	void vkCreateSurface(VkInstance* _vkInsance, GLFWwindow* _window, VkSurfaceKHR* _vkSurface);
+	
 	// Creates the image views.
-	void vkCreateImageViews(VkDevice* _vkDevice,
-		std::vector<VkImageView>& _vkSwapChainImageViews,
-		std::vector<VkImage>& _vkSwapChainImages,
-		VkFormat* _vkSwapChainImageFormat);
+	//void vkCreateImageViews(VkDevice* _vkDevice,
+		//std::vector<VkImageView>& _vkSwapChainImageViews,
+		//std::vector<VkImage>& _vkSwapChainImages,
+		//VkFormat* _vkSwapChainImageFormat);
 	// Create Frame Buffers.
-	void vkCreateFrameBuffers();
+	//void vkCreateFrameBuffers();
 	// Create Command Pool.
-	void vkSetupCommandPool();
+	//void vkSetupCommandPool();
 	// Setup Command Buffers.
-	void vkCreateCommandBuffers();
+	//void vkCreateCommandBuffers();
 
 
 	// Create compute image
@@ -181,8 +202,32 @@ private:
 	// Create the compute pipeline
 	void vkCreateComputePipeline();
 
+	// Create Compute command pool
+	void vkCreateComputeCommandPool();
+	// Creates compute command buffer
+	void vkCreateComputeCommandBuffer();
+	// Records compute command buffer
+	void vkRecordComputeCommandBuffer();
+	// Creates compute fence
+	void vkCreateComputeFence();
+	// Create Semaphores
+	void vkCreateSemaphores();
+
 	// Copy data
-	void CopyMemory(const void* data, VkDeviceMemory &deviceMemory, VkDeviceSize &bufferSize);
+	void vkCopyMemory(const void* data, VkDeviceMemory &deviceMemory, VkDeviceSize &bufferSize);
+
+	// Set first image barrier
+	void vkSetFirstImageBarriers(const VkCommandBuffer buffer, int curImageIndex);
+	// Set second
+	void vkSetSecondImageBarriers(const VkCommandBuffer buffer, int curImageIndex);
+	// Copy image to memory
+	void vkCopyImageMemory(const VkCommandBuffer buffer, int curImageIndex);
+
+	// Update uniform buffer
+	void vkUpdateUniformBuffer();
+	// Draw
+	void vkDraw();
+
 
 public:
 	VKEngine();
@@ -203,7 +248,7 @@ public:
 	// Get Physical Device.
 	VkPhysicalDevice* vkGetPhysicalDevice() { return m_vkPhysicalDevice; }
 	// Get Graphics Queue
-	VkQueue* vkGetGraphicsQueue() { return m_vkGraphicsQueue; }
+	VkQueue* vkGetComputeQueue() { return m_vkComputeQueue; }
 	// Get Present Queue
 	VkQueue* vkGetPresentQueue() { return m_vkPresentQueue; }
 	// Get Swap chain

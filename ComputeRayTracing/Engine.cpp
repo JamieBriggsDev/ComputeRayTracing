@@ -16,8 +16,8 @@ void Engine::InitialiseObjects(std::vector<Plane> &_planes, std::vector<Sphere> 
 		_spheres.push_back(*go);
 	};
 
-	auto sphere = new Sphere(glm::vec3(-0.55, -1.55, -4.0), 1.0);
-	auto sphere2 = new Sphere(glm::vec3(1.3, 1.2, -4.2), 0.8);
+	auto sphere = new Sphere(glm::vec3(0.0, -1.55, -4.0), 1.0);
+	auto sphere2 = new Sphere(glm::vec3(-1.3, 1.2, -4.2), 0.8);
 
 	auto bottom = new Plane(glm::vec3(0, 1, 0), 2.5);
 	auto back = new Plane(glm::vec3(0, 0, 1), 5.5);
@@ -27,15 +27,15 @@ void Engine::InitialiseObjects(std::vector<Plane> &_planes, std::vector<Sphere> 
 	auto front = new Plane(glm::vec3(0, 0, -1), 0.5);
 
 
-	AddSphere(sphere, glm::vec3(0.3, 0.9, 0.76), 2);
-	AddSphere(sphere2, glm::vec3(0.062, 0.917, 0.078), 1);
+	AddSphere(sphere, glm::vec3(0.3, 0.9, 0.76), REFLECT_TYPE);
+	AddSphere(sphere2, glm::vec3(0.062, 0.917, 0.078), REFLECT_TYPE);
 
-	AddPlane(bottom, glm::vec3(0.8, 0.8, 0.8), 1);
-	AddPlane(back, glm::vec3(0.8, 0.8, 0.8), 1);
-	AddPlane(left, glm::vec3(1, 0.250, 0.019), 1);
-	AddPlane(right, glm::vec3(0.007, 0.580, 0.8), 1);
-	AddPlane(ceiling, glm::vec3(0.8, 0.8, 0.8), 1);
-	AddPlane(front, glm::vec3(0.8, 0.8, 0.8), 1);
+	AddPlane(bottom, glm::vec3(0.8, 0.8, 0.8), DIFFUSE_TYPE);
+	AddPlane(back, glm::vec3(0.8, 0.8, 0.8), DIFFUSE_TYPE);
+	AddPlane(left, glm::vec3(1, 0.0, 0.0), DIFFUSE_TYPE);
+	AddPlane(right, glm::vec3(0.0, 0.0, 1.0), DIFFUSE_TYPE);
+	AddPlane(ceiling, glm::vec3(0.0, 1.0, 0.0), DIFFUSE_TYPE);
+	AddPlane(front, glm::vec3(1.0, 0.8, 0.0), DIFFUSE_TYPE);
 }
 #endif
 

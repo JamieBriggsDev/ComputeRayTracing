@@ -50,6 +50,7 @@
       <Filter>Source %28.cpp%29</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp" />
+    <ClCompile Include="VKQueueFamilyIndices.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -110,6 +111,7 @@
       <Filter>Headers %28.h%29</Filter>
     </ClInclude>
     <ClInclude Include="Material.h" />
+    <ClInclude Include="VKQueueFamilyIndices.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\frag.spv">

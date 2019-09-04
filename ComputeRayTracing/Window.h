@@ -1,7 +1,7 @@
 #pragma once
 // Window Resolution
-#define WINDOW_WIDTH 1280	
-#define WINDOW_HEIGHT 960
+#define WINDOW_WIDTH 1000	
+#define WINDOW_HEIGHT 1000
 
 // Console input
 #include <stdio.h>

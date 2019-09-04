@@ -25,6 +25,8 @@ protected:
 	std::vector<Sphere> m_spheres;
 	// DeltaTime
 	float m_deltaTime;
+	// Total Time
+	float m_totalTime = 0.0f;
 
 #if VK
 	// Initialise objects.

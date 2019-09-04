@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include "VKEngine.h"
+#include "VKQueueFamilyIndices.h"
 #include "Controller.h"
 #include "Pipeline.h"
 
@@ -128,18 +129,18 @@ VkCommandBuffer VKEngine::vkBeginSingleTimeCommands()
 
 void VKEngine::vkEndSingleTimeCommands(VkCommandBuffer _commandBuffer)
 {
-	// End the command buffer
-	vkEndCommandBuffer(_commandBuffer);
-	// Command buffer submit info
-	VkSubmitInfo submitInfo = {};
-	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &_commandBuffer;
-	// Submit to queue.
-	vkQueueSubmit(*m_vkGraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-	vkQueueWaitIdle(*m_vkGraphicsQueue);
-	// Free the command buffer.
-	vkFreeCommandBuffers(*m_vkDevice, *m_vkCommandPool, 1, &_commandBuffer);
+	//// End the command buffer
+	//vkEndCommandBuffer(_commandBuffer);
+	//// Command buffer submit info
+	//VkSubmitInfo submitInfo = {};
+	//submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	//submitInfo.commandBufferCount = 1;
+	//submitInfo.pCommandBuffers = &_commandBuffer;
+	//// Submit to queue.
+	//vkQueueSubmit(*m_vkGraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+	//vkQueueWaitIdle(*m_vkGraphicsQueue);
+	//// Free the command buffer.
+	//vkFreeCommandBuffers(*m_vkDevice, *m_vkCommandPool, 1, &_commandBuffer);
 }
 
 uint32_t VKEngine::vkFindMemoryType(int _typeFilter, VkMemoryPropertyFlags _vkProperties)
@@ -235,7 +236,7 @@ void VKEngine::Initialise()
 	m_vkPhysicalDevice = new VkPhysicalDevice();
 	m_vkDevice = new VkDevice();
 	m_vkDebugMessenger = new VkDebugUtilsMessengerEXT();
-	m_vkGraphicsQueue = new VkQueue();
+	m_vkComputeQueue = new VkQueue();
 	m_vkPresentQueue = new VkQueue();
 	m_vkSurface = new VkSurfaceKHR();
 	m_vkSwapChain = new VkSwapchainKHR();
@@ -254,9 +255,12 @@ void VKEngine::Initialise()
 	// Find Physical Device
 	vkPickPhysicalDevice(m_vkInstance, m_vkPhysicalDevice, m_vkSurface);
 	// Create Logical Device
-	vkCreateLogicalDevice(m_vkPhysicalDevice, m_vkDevice, m_vkGraphicsQueue, m_vkSurface);
+	vkCreateLogicalDevice(m_vkPhysicalDevice, m_vkDevice, m_vkSurface);
 	// Create swapchain
 	vkCreateSwapChain(m_vkDevice, m_vkPhysicalDevice, m_vkSurface, m_vkSwapChain);
+
+	// Create Image View
+	vkCreateImageViews();
 
 	// Create Compute image
 	vkCreateComputeImage(m_vkComputeImage, m_vkComputeImageView, m_vkComputeImageDeviceMemory);
@@ -271,7 +275,19 @@ void VKEngine::Initialise()
 	// Create compute pipline
 	vkCreateComputePipeline();
 
-	// TODO https://github.com/LifeIsGoodMI/Vulkan-GPU-Ray-Tracer
+	// Create compute command pool
+	vkCreateComputeCommandPool();
+	// Create Compute command buffer
+	vkCreateComputeCommandBuffer();
+	// Record Compute command buffer
+	vkRecordComputeCommandBuffer();
+	// Create Compute Fence
+	vkCreateComputeFence();
+
+	// Create Semaphores
+	vkCreateSemaphores();
+
+	// Create Compute Command Pool
 
 	//// Create image views
 	//vkCreateImageViews(m_vkDevice, m_vkSwapChainImageViews, m_vkSwapChainImages, &m_vkSwapChainImageFormat);
@@ -307,7 +323,8 @@ void VKEngine::MainLoop()
 	long long int TotalFrames = 0;
 	do {
 		// Get delta time by comparing current time and last time
-		double currentTime = glfwGetTime();
+		m_totalTime = glfwGetTime();
+		double currentTime = m_totalTime;
 		m_deltaTime = float(currentTime - LastTime);
 		if (currentTime - LastFPSUpdate < FrameRefreshTime)
 		{
@@ -338,21 +355,27 @@ void VKEngine::MainLoop()
 			TotalFrames = 0;
 		}
 
-		// Update controller
-		m_myController->Update(m_myWindow, m_deltaTime);
+		glfwPollEvents();
 
-		// Update the camera
-		m_myCamera->Update(m_myWindow, m_myController, m_deltaTime);
+		vkUpdateUniformBuffer();
 
-		// Draw objects
-		m_myDrawEngine->Update(static_cast<VKObject*>(m_object),
-			m_vkCommandBuffers, m_deltaTime);
+		vkDraw();
 
-		// Update Window
-		m_myWindow->Update();
+		//// Update controller
+		//m_myController->Update(m_myWindow, m_deltaTime);
 
-		// record new last time
-		LastTime = currentTime;
+		//// Update the camera
+		//m_myCamera->Update(m_myWindow, m_myController, m_deltaTime);
+
+		//// Draw objects
+		//m_myDrawEngine->Update(static_cast<VKObject*>(m_object),
+		//	m_vkCommandBuffers, m_deltaTime);
+
+		//// Update Window
+		//m_myWindow->Update();
+
+		//// record new last time
+		//LastTime = currentTime;
 
 	} // Check if the ESC key was pressed or the window was closed
 	while (m_myWindow->CheckWindowClose(m_myController) == 0);
@@ -423,44 +446,45 @@ vkSwapChainSupportDetails VKEngine::vkQuerySwapChainSupport(VkPhysicalDevice _vk
 	return details;
 }
 
-vkQueueFamilyIndices VKEngine::vkFindQueueFamilies(VkPhysicalDevice _vkDevice, VkSurfaceKHR* _vkSurface)
-{
-	// Indices to track
-	vkQueueFamilyIndices indices;
-	// Get Queue Family count
-	uint32_t queueFamilyCount = 0;
-	vkGetPhysicalDeviceQueueFamilyProperties(_vkDevice, &queueFamilyCount, nullptr);
-	// Get Queue Families
-	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-	vkGetPhysicalDeviceQueueFamilyProperties(_vkDevice, &queueFamilyCount, queueFamilies.data());
-
-	// Find Queue Family which supports VK_QUEUE_GRAPHICS_BIT
-	int i = 0;
-	for (const auto& queueFamily : queueFamilies)
-	{
-		if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
-		{
-			indices.m_vkGraphicsFamily = i;
-		}
-
-		VkBool32 presentSupport = false;
-		vkGetPhysicalDeviceSurfaceSupportKHR(_vkDevice, i, *_vkSurface, &presentSupport);
-
-		if (queueFamily.queueCount > 0 && presentSupport)
-		{
-			indices.m_vkPresentFamily = i;
-		}
-
-		if (indices.isComplete())
-		{
-			break;
-		}
-
-		i++;
-	}
-	// Return QueueFamilies
-	return indices;
-}
+//
+//vkQueueFamilyIndices VKEngine::vkFindQueueFamilies(VkPhysicalDevice _vkDevice, VkSurfaceKHR* _vkSurface)
+//{
+//	// Indices to track
+//	vkQueueFamilyIndices indices;
+//	// Get Queue Family count
+//	uint32_t queueFamilyCount = 0;
+//	vkGetPhysicalDeviceQueueFamilyProperties(_vkDevice, &queueFamilyCount, nullptr);
+//	// Get Queue Families
+//	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+//	vkGetPhysicalDeviceQueueFamilyProperties(_vkDevice, &queueFamilyCount, queueFamilies.data());
+//
+//	// Find Queue Family which supports VK_QUEUE_GRAPHICS_BIT
+//	int i = 0;
+//	for (const auto& queueFamily : queueFamilies)
+//	{
+//		if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+//		{
+//			indices.m_vkGraphicsFamily = i;
+//		}
+//
+//		VkBool32 presentSupport = false;
+//		vkGetPhysicalDeviceSurfaceSupportKHR(_vkDevice, i, *_vkSurface, &presentSupport);
+//
+//		if (queueFamily.queueCount > 0 && presentSupport)
+//		{
+//			indices.m_vkPresentFamily = i;
+//		}
+//
+//		if (indices.isComplete())
+//		{
+//			break;
+//		}
+//
+//		i++;
+//	}
+//	// Return QueueFamilies
+//	return indices;
+//}
 
 VkSurfaceFormatKHR VKEngine::vkChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& _availableFormats)
 {
@@ -521,93 +545,148 @@ VkExtent2D VKEngine::vkChooseSwapExtent(const VkSurfaceCapabilitiesKHR& _capabil
 
 void VKEngine::vkCreateSwapChain(VkDevice* _vkDevice, VkPhysicalDevice* _vkPhysicalDevice, VkSurfaceKHR* _vkSurface, VkSwapchainKHR* _vkSwapChain)
 {
-	// Query the swap chain
-	vkSwapChainSupportDetails swapChainSupport = vkQuerySwapChainSupport(*_vkPhysicalDevice, _vkSurface);
-	// Get surface Format
-	VkSurfaceFormatKHR surfaceFormat = vkChooseSwapSurfaceFormat(swapChainSupport.m_vkFormats);
-	// Get Present Mode
-	VkPresentModeKHR presentMode = vkChooseSwapPresentMode(swapChainSupport.m_vkPresentModes);
-	// Get Swap Extent
-	VkExtent2D extent = vkChooseSwapExtent(swapChainSupport.m_vkCapabilities);
+	//// Query the swap chain
+	//vkSwapChainSupportDetails swapChainSupport = vkQuerySwapChainSupport(*_vkPhysicalDevice, _vkSurface);
+	//// Get surface Format
+	//VkSurfaceFormatKHR surfaceFormat = vkChooseSwapSurfaceFormat(swapChainSupport.m_vkFormats);
+	//// Get Present Mode
+	//VkPresentModeKHR presentMode = vkChooseSwapPresentMode(swapChainSupport.m_vkPresentModes);
+	//// Get Swap Extent
+	//VkExtent2D extent = vkChooseSwapExtent(swapChainSupport.m_vkCapabilities);
 
-	// Get Image count
+	//// Get Image count
+	//uint32_t imageCount = swapChainSupport.m_vkCapabilities.minImageCount + 1;
+	//// If can handle images, and can handle more than the swap chain support minimum
+	//if (swapChainSupport.m_vkCapabilities.maxImageCount > 0 &&
+	//	imageCount > swapChainSupport.m_vkCapabilities.maxImageCount)
+	//{
+	//	imageCount = swapChainSupport.m_vkCapabilities.maxImageCount;
+	//}
+
+	//// Swao chain creation
+	//VkSwapchainCreateInfoKHR createInfo = {};
+	//createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	//createInfo.surface = *_vkSurface;
+	//// Image properties
+	//createInfo.minImageCount = imageCount;
+	//createInfo.imageFormat = surfaceFormat.format;
+	//createInfo.imageColorSpace = surfaceFormat.colorSpace;
+	//createInfo.imageExtent = extent;
+	//createInfo.imageArrayLayers = 1;
+	//createInfo.imageUsage = VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+	//createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+	////// The Transform capabilities of the swap chain define which transformations are supported TODO
+	////// I.e. portrait, landscape presentation etc.
+	////createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
+	////// Ignore image's alpha channel (if there's any)
+	////swapchainInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	////// Set the presentation mode. Mailbox is preferred since it works just like immediate but instead
+	////// of blocking the application when the queue is full, it simply replaces images with new ones.
+	////swapchainInfo.presentMode = presentMode;
+	////// Only render images when they're visible.
+	////swapchainInfo.clipped = VK_TRUE;
+
+	//// Specify how to handle the swap chain images which are used across mulitple queue families
+	//vkQueueFamilyIndices indices = vkFindQueueFamilies(*_vkPhysicalDevice, _vkSurface);
+	//uint32_t queueFamilyIndices[] =
+	//{
+	//	indices.m_vkGraphicsFamily.value(),
+	//	indices.m_vkPresentFamily.value()
+	//};
+
+	//if (indices.m_vkGraphicsFamily != indices.m_vkPresentFamily)
+	//{
+	//	createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+	//	createInfo.queueFamilyIndexCount = 2;
+	//	createInfo.pQueueFamilyIndices = queueFamilyIndices;
+	//}
+	//else
+	//{
+	//	createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	//	createInfo.queueFamilyIndexCount = 0; // Optional
+	//	createInfo.pQueueFamilyIndices = nullptr; // Optional
+	//}
+	//// Specify preTranform (if the images should be rotated. Dont want to so just
+	////  specify current transform.)
+	//createInfo.preTransform = swapChainSupport.m_vkCapabilities.currentTransform;
+	//// Ignore alpha channel
+	//createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	//// Specify present mode, set clipped to true (dont care about the color of pixels
+	////  that are not visible due to another window. Set to true to enhance performance.)
+	//createInfo.presentMode = presentMode;
+	//createInfo.clipped = VK_TRUE;
+	//// Dont want to use an old swap chain
+	//createInfo.oldSwapchain = VK_NULL_HANDLE;
+
+	//// Create the swap chain finally!!
+	//int err = vkCreateSwapchainKHR(*_vkDevice, &createInfo, nullptr, _vkSwapChain);
+	//if (err != VK_SUCCESS)
+	//{
+	//	throw std::runtime_error("Failed to create the swap chain!");
+	//}
+
+	//// Get swapchain images
+	//vkGetSwapchainImagesKHR(*m_vkDevice, *_vkSwapChain, &imageCount, nullptr);
+	//m_vkSwapChainImages.resize(imageCount);
+	//vkGetSwapchainImagesKHR(*m_vkDevice, *_vkSwapChain, &imageCount, m_vkSwapChainImages.data());
+
+	//m_vkSwapChainImageFormat = surfaceFormat.format;
+	//m_vkSwapChainExtent = extent;
+	auto swapChainSupport = vkQuerySwapChainSupport(*m_vkPhysicalDevice, m_vkSurface);
+	auto surfaceFormat = vkChooseSwapSurfaceFormat(swapChainSupport.m_vkFormats);
+	auto presentMode = vkChooseSwapPresentMode(swapChainSupport.m_vkPresentModes);
+	auto extent = vkChooseSwapExtent(swapChainSupport.m_vkCapabilities);
+
+	if (!(swapChainSupport.m_vkCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_STORAGE_BIT))
+		throw std::runtime_error("Swap chain doesn't support VK_IMAGE_USAGE_STORAGE BIT !");
+
+
+	// Decide how many images we can work with at the same time (1, double buffering or triple buffering)
 	uint32_t imageCount = swapChainSupport.m_vkCapabilities.minImageCount + 1;
-	// If can handle images, and can handle more than the swap chain support minimum
-	if (swapChainSupport.m_vkCapabilities.maxImageCount > 0 &&
-		imageCount > swapChainSupport.m_vkCapabilities.maxImageCount)
-	{
+	if (swapChainSupport.m_vkCapabilities.maxImageCount > 0 && imageCount > swapChainSupport.m_vkCapabilities.maxImageCount)
 		imageCount = swapChainSupport.m_vkCapabilities.maxImageCount;
-	}
 
-	// Swao chain creation
-	VkSwapchainCreateInfoKHR createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	createInfo.surface = *_vkSurface;
-	// Image properties
-	createInfo.minImageCount = imageCount;
-	createInfo.imageFormat = surfaceFormat.format;
-	createInfo.imageColorSpace = surfaceFormat.colorSpace;
-	createInfo.imageExtent = extent;
-	createInfo.imageArrayLayers = 1;
-	createInfo.imageUsage = VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-	createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	VkSwapchainCreateInfoKHR swapchainInfo{};
+	swapchainInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	swapchainInfo.surface = *m_vkSurface;
+	swapchainInfo.minImageCount = imageCount;
+	swapchainInfo.imageFormat = surfaceFormat.format;
+	swapchainInfo.imageColorSpace = surfaceFormat.colorSpace;
+	swapchainInfo.imageExtent = extent;
+	swapchainInfo.imageArrayLayers = 1;
+	swapchainInfo.imageUsage = VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+	swapchainInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-	//// The Transform capabilities of the swap chain define which transformations are supported TODO
-	//// I.e. portrait, landscape presentation etc.
-	//createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
-	//// Ignore image's alpha channel (if there's any)
-	//swapchainInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-	//// Set the presentation mode. Mailbox is preferred since it works just like immediate but instead
-	//// of blocking the application when the queue is full, it simply replaces images with new ones.
-	//swapchainInfo.presentMode = presentMode;
-	//// Only render images when they're visible.
-	//swapchainInfo.clipped = VK_TRUE;
+	// The Transform capabilities of the swap chain define which transformations are supported
+	// I.e. portrait, landscape presentation etc.
+	swapchainInfo.preTransform = swapChainSupport.m_vkCapabilities.currentTransform;
+	// Ignore image's alpha channel (if there's any)
+	swapchainInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	// Set the presentation mode. Mailbox is preferred since it works just like immediate but instead
+	// of blocking the application when the queue is full, it simply replaces images with new ones.
+	swapchainInfo.presentMode = presentMode;
+	// Only render images when they're visible.
+	swapchainInfo.clipped = VK_TRUE;
 
-	// Specify how to handle the swap chain images which are used across mulitple queue families
-	vkQueueFamilyIndices indices = vkFindQueueFamilies(*_vkPhysicalDevice, _vkSurface);
-	uint32_t queueFamilyIndices[] =
-	{
-		indices.m_vkGraphicsFamily.value(),
-		indices.m_vkPresentFamily.value()
-	};
+	// Use the current swap chain for recycling if there is any.
+	VkSwapchainKHR oldSwapChain = *m_vkSwapChain;
+	swapchainInfo.oldSwapchain = oldSwapChain;
 
-	if (indices.m_vkGraphicsFamily != indices.m_vkPresentFamily)
-	{
-		createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-		createInfo.queueFamilyIndexCount = 2;
-		createInfo.pQueueFamilyIndices = queueFamilyIndices;
-	}
-	else
-	{
-		createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		createInfo.queueFamilyIndexCount = 0; // Optional
-		createInfo.pQueueFamilyIndices = nullptr; // Optional
-	}
-	// Specify preTranform (if the images should be rotated. Dont want to so just
-	//  specify current transform.)
-	createInfo.preTransform = swapChainSupport.m_vkCapabilities.currentTransform;
-	// Ignore alpha channel
-	createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-	// Specify present mode, set clipped to true (dont care about the color of pixels
-	//  that are not visible due to another window. Set to true to enhance performance.)
-	createInfo.presentMode = presentMode;
-	createInfo.clipped = VK_TRUE;
-	// Dont want to use an old swap chain
-	createInfo.oldSwapchain = VK_NULL_HANDLE;
+	VkSwapchainKHR newSwapChain;
+	auto result = vkCreateSwapchainKHR(*m_vkDevice, &swapchainInfo, nullptr, &newSwapChain);
+	if (result != VK_SUCCESS)
+		throw std::runtime_error("Failed to create swap chain !");
 
-	// Create the swap chain finally!!
-	int err = vkCreateSwapchainKHR(*_vkDevice, &createInfo, nullptr, _vkSwapChain);
-	if (err != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to create the swap chain!");
-	}
+	*m_vkSwapChain = newSwapChain;
 
-	// Get swapchain images
-	vkGetSwapchainImagesKHR(*m_vkDevice, *_vkSwapChain, &imageCount, nullptr);
+	vkGetSwapchainImagesKHR(*m_vkDevice, *m_vkSwapChain, &imageCount, nullptr);
 	m_vkSwapChainImages.resize(imageCount);
-	vkGetSwapchainImagesKHR(*m_vkDevice, *_vkSwapChain, &imageCount, m_vkSwapChainImages.data());
+	vkGetSwapchainImagesKHR(*m_vkDevice, *m_vkSwapChain, &imageCount, m_vkSwapChainImages.data());
 
+	// Save swap chain format
 	m_vkSwapChainImageFormat = surfaceFormat.format;
+	// Save swap chain extents
 	m_vkSwapChainExtent = extent;
 }
 
@@ -650,8 +729,8 @@ bool VKEngine::vkCheckDeviceExtensionSupport(VkPhysicalDevice _vkDevice)
 bool VKEngine::vkIsDeviceSuitable(VkPhysicalDevice _vkDevice, VkSurfaceKHR* _vkSurface)
 {
 	// See if queue families can be gained
-	vkQueueFamilyIndices indices = vkFindQueueFamilies(_vkDevice, _vkSurface);
-	if (indices.isComplete())
+	QueueFamilyIndices indices = FindQueueFamilies(_vkDevice, *_vkSurface);
+	if (indices.IsComplete())
 	{
 		if (EnableValidationLayers)
 		{
@@ -674,7 +753,7 @@ bool VKEngine::vkIsDeviceSuitable(VkPhysicalDevice _vkDevice, VkSurfaceKHR* _vkS
 	vkGetPhysicalDeviceFeatures(_vkDevice, &features);
 	// Returns true if queue families are gained, device extensions
 	//  are supported, and if the swap chain is adequate
-	return indices.isComplete() && ExtensionsSupported && swapChainAdequate && features.samplerAnisotropy;
+	return indices.IsComplete() && ExtensionsSupported && swapChainAdequate && features.samplerAnisotropy;
 }
 
 void VKEngine::vkPickPhysicalDevice(VkInstance* _vkInstance, VkPhysicalDevice* _vkPhysicalDevice, VkSurfaceKHR* _vkSurface)
@@ -709,16 +788,16 @@ void VKEngine::vkPickPhysicalDevice(VkInstance* _vkInstance, VkPhysicalDevice* _
 }
 
 void VKEngine::vkCreateLogicalDevice(VkPhysicalDevice* _vkPhysicalDevice, VkDevice* _vkDevice,
-	VkQueue* _vkGraphicsQueue, VkSurfaceKHR* _vkSurface)
+	VkSurfaceKHR* _vkSurface)
 {
 	// Get queue families
-	vkQueueFamilyIndices indices = vkFindQueueFamilies(*_vkPhysicalDevice, _vkSurface);
+	QueueFamilyIndices indices = FindQueueFamilies(*_vkPhysicalDevice, *_vkSurface);
 	// Queue Create Infos
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-	std::set<uint32_t> uniqueQueueFamilies = { indices.m_vkGraphicsFamily.value(), indices.m_vkPresentFamily.value() };
+	std::set<int> uniqueQueueFamilies = { indices.presentFamily, indices.computeFamily };
 	// Make queue infos
 	float queuePriority = 1.0f;
-	for (uint32_t queueFamily : uniqueQueueFamilies) {
+	for (int queueFamily : uniqueQueueFamilies) {
 		VkDeviceQueueCreateInfo queueCreateInfo = {};
 		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 		queueCreateInfo.queueFamilyIndex = queueFamily;
@@ -756,8 +835,38 @@ void VKEngine::vkCreateLogicalDevice(VkPhysicalDevice* _vkPhysicalDevice, VkDevi
 		throw std::runtime_error("Failed to create logical device!");
 	}
 
-	vkGetDeviceQueue(*_vkDevice, indices.m_vkGraphicsFamily.value(), 0, _vkGraphicsQueue);
-	vkGetDeviceQueue(*_vkDevice, indices.m_vkPresentFamily.value(), 0, m_vkPresentQueue);
+	vkGetDeviceQueue(*_vkDevice, indices.presentFamily, 0, m_vkComputeQueue);
+	vkGetDeviceQueue(*_vkDevice, indices.computeFamily, 0, m_vkPresentQueue);
+}
+
+void VKEngine::vkCreateImageViews()
+{
+	m_vkSwapChainImageViews.resize(m_vkSwapChainImages.size());
+	for (uint32_t i = 0; i < m_vkSwapChainImages.size(); i++)
+	{
+		// Component mapping
+		VkComponentMapping components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
+
+		// Image view create info
+		VkImageViewCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		createInfo.image = m_vkSwapChainImages[i];
+		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		createInfo.format = m_vkSwapChainImageFormat;
+		createInfo.components = components;
+		createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		createInfo.subresourceRange.baseMipLevel = 0;
+		createInfo.subresourceRange.levelCount = 1;
+		createInfo.subresourceRange.baseArrayLayer = 0;
+		createInfo.subresourceRange.layerCount = 1;
+
+		// Create Image View
+		auto imageViewCreated = vkCreateImageView(*m_vkDevice, &createInfo, nullptr, &m_vkSwapChainImageViews[i]);
+		if (imageViewCreated != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create image views!");
+		}
+	}
 }
 
 void VKEngine::vkCreateSurface(VkInstance* _vkInsance, GLFWwindow* _window, VkSurfaceKHR* _vkSurface)
@@ -771,124 +880,124 @@ void VKEngine::vkCreateSurface(VkInstance* _vkInsance, GLFWwindow* _window, VkSu
 
 }
 
-void VKEngine::vkCreateImageViews(VkDevice* _vkDevice,
-	std::vector<VkImageView>& _vkSwapChainImageViews,
-	std::vector<VkImage>& _vkSwapChainImages,
-	VkFormat* _vkSwapChainImageFormat)
-{
-	// Resize views to hold images
-	_vkSwapChainImageViews.resize(_vkSwapChainImages.size());
-	// Loop to iterate over the swap chain images
-	for (size_t i = 0; i < _vkSwapChainImages.size(); i++)
-	{
-		VkComponentMapping components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
+//void VKEngine::vkCreateImageViews(VkDevice* _vkDevice,
+//	std::vector<VkImageView>& _vkSwapChainImageViews,
+//	std::vector<VkImage>& _vkSwapChainImages,
+//	VkFormat* _vkSwapChainImageFormat)
+//{
+//	// Resize views to hold images
+//	_vkSwapChainImageViews.resize(_vkSwapChainImages.size());
+//	// Loop to iterate over the swap chain images
+//	for (size_t i = 0; i < _vkSwapChainImages.size(); i++)
+//	{
+//		VkComponentMapping components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
+//
+//		VkImageViewCreateInfo createInfo{};
+//		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+//		createInfo.image = _vkSwapChainImages[i];
+//		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+//
+//		createInfo.format = *_vkSwapChainImageFormat;
+//		createInfo.components = components;
+//		createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+//		createInfo.subresourceRange.baseMipLevel = 0;
+//		createInfo.subresourceRange.levelCount = 1;
+//		createInfo.subresourceRange.baseArrayLayer = 0;
+//		createInfo.subresourceRange.layerCount = 1;
+//
+//		auto imageViewCreated = vkCreateImageView(*m_vkDevice, &createInfo, nullptr, &_vkSwapChainImageViews[i]);
+//		if (imageViewCreated != VK_SUCCESS)
+//			throw std::runtime_error("failed to create image views!");
+//
+//
+//
+//		//_vkSwapChainImageViews[i] = VKTexture::CreateImageView(*m_vkDevice,
+//		//	_vkSwapChainImages[i],
+//		//	*_vkSwapChainImageFormat);
+//
+//
+//
+//
+//		// TODO Remove!!!
+//		//// Create image view 
+//		//VkImageViewCreateInfo createInfo = {};
+//		//createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+//		//createInfo.image = _vkSwapChainImages[i];
+//		//// Specify view type
+//		//createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+//		//createInfo.format = *_vkSwapChainImageFormat;
+//		//// Specify components
+//		//createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+//		//createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+//		//createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+//		//createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+//		//// Specify sub resource range
+//		//createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+//		//createInfo.subresourceRange.baseMipLevel = 0;
+//		//createInfo.subresourceRange.levelCount = 1;
+//		//createInfo.subresourceRange.baseArrayLayer = 0;
+//		//createInfo.subresourceRange.layerCount = 1;
+//		//// Create view
+//		//if (vkCreateImageView(*_vkDevice, &createInfo, nullptr, &_vkSwapChainImageViews[i])
+//		//	!= VK_SUCCESS)
+//		//{
+//		//	throw std::runtime_error("failed to create image views!");
+//		//}
+//	}
+//}
+//
+//void VKEngine::vkCreateFrameBuffers()
+//{
+//	//// Resize swap chain frame buffers to be same size as swap chain image views.
+//	//m_vkSwapChainFrameBuffers.resize(m_vkSwapChainImageViews.size());
+//
+//	//// Go through all swap chain image views
+//	//for (size_t i = 0; i < m_vkSwapChainImageViews.size(); i++)
+//	//{
+//	//	VkImageView attachments[] =
+//	//	{
+//	//		m_vkSwapChainImageViews[i]
+//	//	};
+//
+//	//	VkFramebufferCreateInfo framebufferInfo = {};
+//	//	framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+//	//	framebufferInfo.renderPass = *static_cast<VKPipeline*>(m_object->GetPipeline())->vkGetRenderPass();
+//	//	framebufferInfo.attachmentCount = 1;
+//	//	framebufferInfo.pAttachments = attachments;
+//	//	framebufferInfo.width = m_vkSwapChainExtent.width;
+//	//	framebufferInfo.height = m_vkSwapChainExtent.height;
+//	//	framebufferInfo.layers = 1;
+//
+//	//	if (vkCreateFramebuffer(*m_vkDevice, &framebufferInfo, nullptr, &m_vkSwapChainFrameBuffers[i])
+//	//		!= VK_SUCCESS)
+//	//	{
+//	//		throw std::runtime_error("failed to create framebuffer!");
+//	//	}
+//
+//	//}
+//}
 
-		VkImageViewCreateInfo createInfo{};
-		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		createInfo.image = _vkSwapChainImages[i];
-		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+//void VKEngine::vkSetupCommandPool()
+//{
+//	// Get queue families.
+//	vkQueueFamilyIndices queueFamilyIndices = vkFindQueueFamilies(*m_vkPhysicalDevice, m_vkSurface);
+//	// Command pool create info.
+//	VkCommandPoolCreateInfo poolInfo = {};
+//	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+//	poolInfo.queueFamilyIndex = queueFamilyIndices.m_vkGraphicsFamily.value();
+//	poolInfo.flags = 0; // Optional
+//
+//	// Create the command pool
+//	m_vkCommandPool = new VkCommandPool();
+//	if (vkCreateCommandPool(*m_vkDevice, &poolInfo, nullptr, m_vkCommandPool)
+//		!= VK_SUCCESS)
+//	{
+//		throw std::runtime_error("Failed to create command pool!");
+//	}
+//}
 
-		createInfo.format = *_vkSwapChainImageFormat;
-		createInfo.components = components;
-		createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		createInfo.subresourceRange.baseMipLevel = 0;
-		createInfo.subresourceRange.levelCount = 1;
-		createInfo.subresourceRange.baseArrayLayer = 0;
-		createInfo.subresourceRange.layerCount = 1;
-
-		auto imageViewCreated = vkCreateImageView(*m_vkDevice, &createInfo, nullptr, &_vkSwapChainImageViews[i]);
-		if (imageViewCreated != VK_SUCCESS)
-			throw std::runtime_error("failed to create image views!");
-
-
-
-		//_vkSwapChainImageViews[i] = VKTexture::CreateImageView(*m_vkDevice,
-		//	_vkSwapChainImages[i],
-		//	*_vkSwapChainImageFormat);
-
-
-
-
-		// TODO Remove!!!
-		//// Create image view 
-		//VkImageViewCreateInfo createInfo = {};
-		//createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		//createInfo.image = _vkSwapChainImages[i];
-		//// Specify view type
-		//createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		//createInfo.format = *_vkSwapChainImageFormat;
-		//// Specify components
-		//createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-		//createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-		//createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-		//createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-		//// Specify sub resource range
-		//createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		//createInfo.subresourceRange.baseMipLevel = 0;
-		//createInfo.subresourceRange.levelCount = 1;
-		//createInfo.subresourceRange.baseArrayLayer = 0;
-		//createInfo.subresourceRange.layerCount = 1;
-		//// Create view
-		//if (vkCreateImageView(*_vkDevice, &createInfo, nullptr, &_vkSwapChainImageViews[i])
-		//	!= VK_SUCCESS)
-		//{
-		//	throw std::runtime_error("failed to create image views!");
-		//}
-	}
-}
-
-void VKEngine::vkCreateFrameBuffers()
-{
-	//// Resize swap chain frame buffers to be same size as swap chain image views.
-	//m_vkSwapChainFrameBuffers.resize(m_vkSwapChainImageViews.size());
-
-	//// Go through all swap chain image views
-	//for (size_t i = 0; i < m_vkSwapChainImageViews.size(); i++)
-	//{
-	//	VkImageView attachments[] =
-	//	{
-	//		m_vkSwapChainImageViews[i]
-	//	};
-
-	//	VkFramebufferCreateInfo framebufferInfo = {};
-	//	framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-	//	framebufferInfo.renderPass = *static_cast<VKPipeline*>(m_object->GetPipeline())->vkGetRenderPass();
-	//	framebufferInfo.attachmentCount = 1;
-	//	framebufferInfo.pAttachments = attachments;
-	//	framebufferInfo.width = m_vkSwapChainExtent.width;
-	//	framebufferInfo.height = m_vkSwapChainExtent.height;
-	//	framebufferInfo.layers = 1;
-
-	//	if (vkCreateFramebuffer(*m_vkDevice, &framebufferInfo, nullptr, &m_vkSwapChainFrameBuffers[i])
-	//		!= VK_SUCCESS)
-	//	{
-	//		throw std::runtime_error("failed to create framebuffer!");
-	//	}
-
-	//}
-}
-
-void VKEngine::vkSetupCommandPool()
-{
-	// Get queue families.
-	vkQueueFamilyIndices queueFamilyIndices = vkFindQueueFamilies(*m_vkPhysicalDevice, m_vkSurface);
-	// Command pool create info.
-	VkCommandPoolCreateInfo poolInfo = {};
-	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-	poolInfo.queueFamilyIndex = queueFamilyIndices.m_vkGraphicsFamily.value();
-	poolInfo.flags = 0; // Optional
-
-	// Create the command pool
-	m_vkCommandPool = new VkCommandPool();
-	if (vkCreateCommandPool(*m_vkDevice, &poolInfo, nullptr, m_vkCommandPool)
-		!= VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to create command pool!");
-	}
-}
-
-void VKEngine::vkCreateCommandBuffers()
-{
+//void VKEngine::vkCreateCommandBuffers()
+//{
 	//// Resize command buffers vector to be same size as frame buffers.
 	//m_vkCommandBuffers.resize(m_vkSwapChainFrameBuffers.size());
 
@@ -973,7 +1082,7 @@ void VKEngine::vkCreateCommandBuffers()
 	//	}
 
 	//}
-}
+//}
 
 
 
@@ -1049,12 +1158,7 @@ void VKEngine::vkPrepareStorageBuffers()
 	InitialiseObjects(planes, spheres);
 
 	int memTypeIndex = 0;
-	
-	//VkMemoryRequirements memReqs;
-	//vkGetBufferMemoryRequirements(*m_vkDevice, m_vkSpheresBuffer, &memReqs);
 
-	//std::cout << memReqs.memoryTypeBits << std::endl;
-	//memTypeIndex = vkFindMemoryType(memTypeIndex, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
 	VkDeviceSize spBufferSize = spheres.size() * sizeof(Sphere);
 	VkDeviceSize plBufferSize = planes.size() * sizeof(Plane);
@@ -1063,39 +1167,50 @@ void VKEngine::vkPrepareStorageBuffers()
 	vkCreateStorageBuffer(spheres.data(), spBufferSize, m_vkSpheresBuffer, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, m_vkSphereDeviceMemory, memTypeIndex);
 	vkCreateStorageBuffer(planes.data(), plBufferSize, m_vkPlanesBuffer, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, m_vkPlanesDeviceMemory, memTypeIndex);
 
-	vkCreateStorageBuffer(&ubo, uniformBufferSize, m_vkUniformBuffer, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, m_vkUniformDeviceMemory, memTypeIndex);
+	vkCreateStorageBuffer(&m_vkUniformBufferObject, uniformBufferSize, m_vkUniformBuffer, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, m_vkUniformDeviceMemory, memTypeIndex);
 }
 
 void VKEngine::vkCreateStorageBuffer(const void * data, VkDeviceSize & bufferSize, VkBuffer & buffer, VkBufferUsageFlags bufferUsageFlags, VkDeviceMemory & deviceMemory, uint32_t memTypeIndex)
 {
+	// VkResult
 	VkResult result;
-
+	// Buffer create info
 	VkBufferCreateInfo bufferInfo{};
 	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	bufferInfo.usage = bufferUsageFlags;
 	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 	bufferInfo.size = bufferSize;
-
+	// Create buffer
 	result = vkCreateBuffer(*m_vkDevice, &bufferInfo, nullptr, &buffer);
 	if (result != VK_SUCCESS)
+	{
 		throw std::runtime_error("Failed to create storage buffer !");
+	}
 
-
+	// Get memory requirements
 	VkMemoryRequirements memoryReqs;
 	vkGetBufferMemoryRequirements(*m_vkDevice, buffer, &memoryReqs);
 
+	//std::cout << memReqs.memoryTypeBits << std::endl;
+	memTypeIndex = vkFindMemoryType(memoryReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+
+	// Memory allocate info
 	VkMemoryAllocateInfo memoryInfo{};
 	memoryInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	memoryInfo.allocationSize = memoryReqs.size;
 	memoryInfo.memoryTypeIndex = memTypeIndex;
 
+	// Allocate memory
 	result = vkAllocateMemory(*m_vkDevice, &memoryInfo, nullptr, &deviceMemory);
 	if (result != VK_SUCCESS)
+	{
 		throw std::runtime_error("Failed to allocate device memory for storage buffer !");
+	}
 
+	// Copy memory
+	vkCopyMemory(data, deviceMemory, bufferSize);
 
-	CopyMemory(data, deviceMemory, bufferSize);
-
+	// Bind buffer memory
 	vkBindBufferMemory(*m_vkDevice, buffer, deviceMemory, 0);
 }
 
@@ -1250,7 +1365,7 @@ void VKEngine::vkPrepareComputeForPipelineCreation()
 	uniformWrite.pBufferInfo = &uniformInfo;
 
 	// Write setds
-	std::vector<VkWriteDescriptorSet> writeSets = { computeWrite };//, sphereWrite, planeWrite, uniformWrite };
+	std::vector<VkWriteDescriptorSet> writeSets = { computeWrite, sphereWrite, planeWrite, uniformWrite };
 	vkUpdateDescriptorSets(*m_vkDevice, writeSets.size(), writeSets.data(), 0, VK_NULL_HANDLE);
 }
 
@@ -1288,11 +1403,113 @@ void VKEngine::vkCreateComputePipeline()
 	auto result = vkCreateComputePipelines(*m_vkDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_vkComputePipeline);
 	if (result != VK_SUCCESS)
 	{
-		throw std::runtime_error("Failed to create Compute Pipelines !");
+		throw std::runtime_error("Failed to create Compute Pipelines!");
 	}
 }
 
-void VKEngine::CopyMemory(const void * data, VkDeviceMemory & deviceMemory, VkDeviceSize & bufferSize)
+void VKEngine::vkCreateComputeCommandPool()
+{
+	// Find queue families
+	auto queueFamilyIndices = FindQueueFamilies(*m_vkPhysicalDevice, *m_vkSurface);
+
+	// Command pool create info
+	VkCommandPoolCreateInfo poolInfo{};
+	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+	poolInfo.queueFamilyIndex = queueFamilyIndices.computeFamily;
+
+	// Create command pool.
+	auto result = vkCreateCommandPool(*m_vkDevice, &poolInfo, nullptr, &m_vkComputeCommandPool);
+	if (result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create Compute Command Pool!");
+	}
+}
+
+void VKEngine::vkCreateComputeCommandBuffer()
+{
+	// Set current image index to 0
+	m_vkCurrentImageIndex = 0;
+
+	// Command buffer allocate info
+	VkCommandBufferAllocateInfo allocateInfo{};
+	allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocateInfo.commandPool = m_vkComputeCommandPool;
+	allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocateInfo.commandBufferCount = 1;
+
+	// Allocate command buffer
+	auto alloResult = vkAllocateCommandBuffers(*m_vkDevice, &allocateInfo, &m_vkComputeCommandBuffer);
+	if (alloResult != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to allocate Compute Command Buffers !");
+	}
+}
+
+void VKEngine::vkRecordComputeCommandBuffer()
+{
+	// Command buffer begin info
+	VkCommandBufferBeginInfo beginInfo{};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+
+	// Begin command buffer
+	auto result = vkBeginCommandBuffer(m_vkComputeCommandBuffer, &beginInfo);
+	if (result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Compute Command Buffer Recording couldn't be started !");
+	}
+
+	// Bind to pipeline
+	vkCmdBindPipeline(m_vkComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_vkComputePipeline);
+
+	// Bind descriptor set to current image
+	vkCmdBindDescriptorSets(m_vkComputeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_vkComputePipelineLayout,
+		0, 1, &m_vkComputeDescriptorSets[0], 0, 0);
+
+	// Dispatch
+	vkCmdDispatch(m_vkComputeCommandBuffer, m_vkSwapChainExtent.width, m_vkSwapChainExtent.height, 1);
+
+	// Set first image memory barrier for each image
+	vkSetFirstImageBarriers(m_vkComputeCommandBuffer, m_vkCurrentImageIndex);
+	// Copy image to memory
+	vkCopyImageMemory(m_vkComputeCommandBuffer, m_vkCurrentImageIndex);
+	// Set second image memory barrier for each image
+	vkSetSecondImageBarriers(m_vkComputeCommandBuffer, m_vkCurrentImageIndex);
+	// End command buffer
+	result = vkEndCommandBuffer(m_vkComputeCommandBuffer);
+	if (result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Compute Command Buffer Recording couldn't be ended !");
+	}
+}
+
+void VKEngine::vkCreateComputeFence()
+{
+	// Fence create info
+	VkFenceCreateInfo info{};
+	info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+	// Create fence
+	vkCreateFence(*m_vkDevice, &info, nullptr, &m_vkComputeFence);
+}
+
+void VKEngine::vkCreateSemaphores()
+{
+	// Semaphore create info
+	VkSemaphoreCreateInfo semaphoreInfo{};
+	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+	// Image available semaphore
+	auto availableResult = vkCreateSemaphore(*m_vkDevice, &semaphoreInfo, nullptr, &m_vkImageAvailableSemaphore);
+	// Image finished semaphore
+	auto renderfinishResult = vkCreateSemaphore(*m_vkDevice, &semaphoreInfo, nullptr, &m_vkRenderFinishedSemaphore);
+	if (availableResult != VK_SUCCESS || renderfinishResult != VK_SUCCESS)
+		throw std::runtime_error("Failed to create semaphores !");
+}
+
+void VKEngine::vkCopyMemory(const void * data, VkDeviceMemory & deviceMemory, VkDeviceSize & bufferSize)
 {
 	// map memory to the range of the data
 	void* mapped = nullptr;
@@ -1311,6 +1528,161 @@ void VKEngine::CopyMemory(const void * data, VkDeviceMemory & deviceMemory, VkDe
 	}
 }
 
+void VKEngine::vkSetFirstImageBarriers(const VkCommandBuffer buffer, int curImageIndex)
+{
+	// Compute write memory barrier
+	VkImageMemoryBarrier compWrite{};
+	compWrite.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	compWrite.image = m_vkComputeImage;
+	compWrite.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	compWrite.newLayout = VK_IMAGE_LAYOUT_GENERAL;
+	compWrite.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+	compWrite.srcAccessMask = 0;
+	compWrite.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+
+	// Compute transfer memory barrier
+	VkImageMemoryBarrier compTransfer{};
+	compTransfer.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	compTransfer.image = m_vkComputeImage;
+	compTransfer.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
+	compTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+	compTransfer.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+	compTransfer.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+	compTransfer.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+	// Swap memory barrier
+	VkImageMemoryBarrier swapTransfer{};
+	swapTransfer.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	swapTransfer.image = m_vkComputeImage;
+	swapTransfer.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	swapTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+	swapTransfer.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+	swapTransfer.srcAccessMask = 0;
+	swapTransfer.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	
+	// The Three barriers
+	std::vector<VkImageMemoryBarrier> barriers{ compWrite, compTransfer, swapTransfer };
+
+	// Set pipeline barrier
+	vkCmdPipelineBarrier(buffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+		0, 0, nullptr, 0, nullptr, barriers.size(), barriers.data());
+}
+
+void VKEngine::vkSetSecondImageBarriers(const VkCommandBuffer buffer, int curImageIndex)
+{
+	// Swap present
+	VkImageMemoryBarrier swapPres{};
+	swapPres.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	swapPres.image = m_vkSwapChainImages[curImageIndex];
+	swapPres.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+	swapPres.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	swapPres.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+	swapPres.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	swapPres.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+
+	// Copy image barrier
+	vkCmdPipelineBarrier(buffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+		0, 0, nullptr, 0, nullptr, 1, &swapPres);
+}
+
+void VKEngine::vkCopyImageMemory(const VkCommandBuffer buffer, int curImageIndex)
+{
+	// Image source info
+	VkImageSubresourceLayers source;
+	source.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	source.mipLevel = 0;
+	source.baseArrayLayer = 0;
+	source.layerCount = 1;
+
+	// Image destination info
+	VkImageSubresourceLayers dest;
+	dest.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	dest.mipLevel = 0;
+	dest.baseArrayLayer = 0;
+	dest.layerCount = 1;
+
+	// Image copy info
+	VkImageCopy copy;
+	copy.srcSubresource = source;
+	copy.dstSubresource = dest;
+	copy.extent = { (uint32_t)Window::s_windowWidth, (uint32_t)Window::s_windowHeight, 1 };
+	copy.srcOffset = { 0, 0, 0 };
+	copy.dstOffset = { 0, 0, 0 };
+
+	// Copy image to destination
+	vkCmdCopyImage(buffer, m_vkComputeImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, 
+		m_vkSwapChainImages[curImageIndex], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+}
+
+void VKEngine::vkUpdateUniformBuffer()
+{
+	// Set time
+	m_vkUniformBufferObject.time = m_totalTime;
+	// Get ubo size
+	VkDeviceSize size = sizeof(m_vkUniformBufferObject);
+	// Copy ubo to memory
+	vkCopyMemory(&m_vkUniformBufferObject, m_vkUniformDeviceMemory, size);
+}
+
+void VKEngine::vkDraw()
+{
+	// Aquire next image
+	vkAcquireNextImageKHR(*m_vkDevice, *m_vkSwapChain, std::numeric_limits<uint64_t>::max(), m_vkImageAvailableSemaphore, VK_NULL_HANDLE, &m_vkCurrentImageIndex);
+
+	// Wait semaphores
+	VkSemaphore waitSemaphores[] = { m_vkImageAvailableSemaphore };
+	// Render finished semaphores
+	VkSemaphore signalSemaphores[] = { m_vkRenderFinishedSemaphore };
+	// Wait stages
+	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+
+	// Compute submit info
+	VkSubmitInfo computeSubmitInfo = {};
+	computeSubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	computeSubmitInfo.commandBufferCount = 1;
+	computeSubmitInfo.pCommandBuffers = &m_vkComputeCommandBuffer;
+	computeSubmitInfo.waitSemaphoreCount = 1;
+	computeSubmitInfo.pWaitSemaphores = waitSemaphores;
+	computeSubmitInfo.signalSemaphoreCount = 1;
+	computeSubmitInfo.pSignalSemaphores = signalSemaphores;
+	computeSubmitInfo.pWaitDstStageMask = waitStages;
+
+	// Wait for fences
+	vkWaitForFences(*m_vkDevice, 1, &m_vkComputeFence, VK_TRUE, UINT64_MAX);
+	// Reset fences once finished waiting
+	vkResetFences(*m_vkDevice, 1, &m_vkComputeFence);
+
+	// Record compute command buffer
+	vkRecordComputeCommandBuffer();
+
+	// Submit queue
+	auto resultSubmit = vkQueueSubmit(*m_vkComputeQueue, 1, &computeSubmitInfo, m_vkComputeFence);
+	if (resultSubmit != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to submit Compute Command Buffers to Compute Queue !");
+	}
+
+	// Present info
+	VkPresentInfoKHR presentInfo = {};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = signalSemaphores;
+
+	// Swap chain info
+	VkSwapchainKHR swapChains[] = { *m_vkSwapChain };
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = swapChains;
+	presentInfo.pImageIndices = &m_vkCurrentImageIndex;
+
+	// Queue present
+	auto result = vkQueuePresentKHR(*m_vkPresentQueue, &presentInfo);
+
+	// ToDo: Recreate Swap Chain
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+		;
+	else if (result != VK_SUCCESS)
+		throw std::runtime_error("Failed to present swap chain image !");
+}
 
 
 

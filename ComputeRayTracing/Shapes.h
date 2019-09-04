@@ -6,6 +6,9 @@
 
 #include "Material.h"
 
+#define DIFFUSE_TYPE (1)
+#define REFLECT_TYPE (2)
+
 struct Plane
 {
 	glm::vec3 normal;
