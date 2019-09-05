@@ -1,5 +1,6 @@
 #pragma once
 
+#if GL
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
@@ -42,3 +43,5 @@ public:
 	// Update Sphere TODO
 	void Update(float _deltaTime);
 };
+
+#endif //TODO REMOVE!!!

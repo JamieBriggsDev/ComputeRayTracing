@@ -1,31 +1,35 @@
+#if VK
+
 #pragma once
 
 #include <glm/glm.hpp>
 
-// Sphere
-struct Sphere 
-{									// Shader uses std140 layout (so we only use vec4 instead of vec3)
-	glm::vec3 pos;
-	float radius;
-	glm::vec3 diffuse;
-	float specular;
-	uint32_t id;								// Id used to identify sphere for raytracing
-	glm::ivec3 _pad;
-};
+#include "Material.h"
 
-// Flat Plane
-struct Plane 
+#define DIFFUSE_TYPE (1)
+#define REFLECT_TYPE (2)
+#define REFRACT_TYPE (3)
+
+struct Plane
 {
 	glm::vec3 normal;
 	float distance;
-	glm::vec3 diffuse;
-	float specular;
-	uint32_t id;
-	glm::ivec3 _pad;
+
+	Material mat;
+
+	Plane();
+	Plane(glm::vec3 normal, float distance);
 };
 
-// Creates a new sphere
-Sphere newSphere(glm::vec3 pos, float radius, glm::vec3 diffuse, float specular, int &currentID);
+struct Sphere
+{
+	glm::vec3 position;
+	float radius;
 
-// Creates a new plane
-Plane newPlane(glm::vec3 normal, float distance, glm::vec3 diffuse, float specular, int &currentID);
+	Material mat;
+
+	Sphere();
+	Sphere(glm::vec3 position, float radius);
+};
+
+#endif

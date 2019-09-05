@@ -22,10 +22,10 @@ protected:
 	std::string m_vertexShaderCode;
 	std::string m_fragmentShaderCode;
 
-	std::vector<char> ReadFile(const std::string& filename);
 public:
 	Pipeline() {};
 	~Pipeline();
 
+	static std::vector<char> ReadFile(const std::string& filename);
 };
 
