@@ -9,7 +9,7 @@ layout (binding = 0, rgba8) uniform image2D computeImage;
 #define Inf 1000000.0
 #define Epsilon 0.0001
 
-#define MaxBounces 1000
+#define MaxBounces 10
 #define SHADOW 0.35
 
 
