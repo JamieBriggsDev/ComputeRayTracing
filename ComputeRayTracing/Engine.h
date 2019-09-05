@@ -5,7 +5,6 @@
 #include "Window.h"
 #include "Camera.h"
 #include "Controller.h"
-#include "Sphere.h"
 #include "Shapes.h"
 
 #define VULKAN_CLEAR_COLOUR { 0.92f, 0.6f, 0.6f, 0.0f }
@@ -20,18 +19,18 @@ protected:
 	Camera* m_myCamera;
 	// Controller Component
 	Controller* m_myController;
-	// Objects
-	glm::vec3 m_light;
+	// Spheres
 	std::vector<Sphere> m_spheres;
+	// Planes
+	std::vector<Plane> m_planes;
 	// DeltaTime
 	float m_deltaTime;
 	// Total Time
 	float m_totalTime = 0.0f;
 
-#if VK
+
 	// Initialise objects.
 	void InitialiseObjects(std::vector<Plane> &_planes, std::vector<Sphere> &_spheres);
-#endif
 
 public:
 	Engine();

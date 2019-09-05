@@ -14,8 +14,13 @@ static const GLint g_screenSpaceIndices[] = {
 };
 
 static const GLfloat  g_screenSpaceUVs[] = {
-	1.0f, 0.0f,
-	1.0f, 1.0f,
-	0.0f, 1.0f,
-	0.0f, 0.0f
+	1.0f, 1.0f, //2
+	1.0f, 0.0f, //1
+	0.0f, 0.0f, //4
+	0.0f, 1.0f, //3
+
+	//0.0f, 1.0f, //3
+	//0.0f, 0.0f, //4
+	//1.0f, 0.0f, //1
+	//1.0f, 1.0f, //2
 };

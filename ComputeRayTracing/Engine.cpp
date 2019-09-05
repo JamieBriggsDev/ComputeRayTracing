@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#if VK
+
 void Engine::InitialiseObjects(std::vector<Plane> &_planes, std::vector<Sphere> &_spheres)
 {
 	auto AddPlane = [&_planes](Plane* go, glm::vec3 color, int type)
@@ -31,7 +31,7 @@ void Engine::InitialiseObjects(std::vector<Plane> &_planes, std::vector<Sphere> 
 	// DIFFUSE_TYPE
 	// REFLECT_TYPE
 	// REFRACT_TYPE
-	int testNumber = 2;
+	int testNumber = 4;
 
 	switch (testNumber)
 	{
@@ -74,27 +74,12 @@ void Engine::InitialiseObjects(std::vector<Plane> &_planes, std::vector<Sphere> 
 	AddPlane(back, glm::vec3(0.4, 1.0, 0.4), DIFFUSE_TYPE);
 	AddPlane(front, glm::vec3(1.0, 0.8, 0.0), DIFFUSE_TYPE);
 }
-#endif
+
 
 Engine::Engine()
 {
-#if GL
-	// Setup Spheres
-	Sphere one;
-	one.SetPosition(glm::vec3(0.5f, 1.0f, -3.5f));
-	one.SetRadius(1.0f);
-	one.SetColour(glm::vec3(0.0f, 1.0f, 0.0f));
-	one.SetMaterial(Material::Diffuse);
-	m_spheres.push_back(one);
-	Sphere two;
-	two.SetPosition(glm::vec3(0.0f, -2.0f, -5.0f));
-	two.SetRadius(1.5f);
-	two.SetColour(glm::vec3(0.0f, 0.0f, 1.0f));
-	two.SetMaterial(Material::Reflective);
-	m_spheres.push_back(two);
-	// Setup light
-	m_light = glm::vec3(-2.0f, 2.0f, 0.0f);
-#endif // TODO REMOVE!!!
+	// Initialise objects
+	InitialiseObjects(m_planes, m_spheres);
 }
 
 Engine::~Engine()

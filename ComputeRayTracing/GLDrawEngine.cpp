@@ -17,11 +17,9 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-void GLDrawEngine::Update(Camera* _camera, 
-	Window* _window, 
-	std::vector<Sphere> _spheres, 
-	glm::vec3 _light, 
-	float _deltaTime)
+void GLDrawEngine::Update(Camera* _camera,
+	Window* _window, std::vector<Sphere> _spheres, 
+	std::vector<Plane> _planes, float _deltaTime)
 {
 
 	// Compute shader stuff first
@@ -31,25 +29,42 @@ void GLDrawEngine::Update(Camera* _camera,
 	// Make sure writing to image has finished before read
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
+	// Send Planes to shader
+	for (int i = 0; i < _planes.size(); i++)
+	{
+		std::ostringstream os;
+		os << "planes[" << i << "]";
+		int PositionID = glGetUniformLocation(m_pipeline->GetComputeProgramID(), os.str().append(".normal").c_str());
+		int LengthID = glGetUniformLocation(m_pipeline->GetComputeProgramID(), os.str().append(".leng").c_str());
+		int ColourID = glGetUniformLocation(m_pipeline->GetComputeProgramID(), os.str().append(".mat.colour").c_str());
+		int MaterialID = glGetUniformLocation(m_pipeline->GetComputeProgramID(), os.str().append(".mat.type").c_str());
 
+		glUniform3fv(PositionID, 1, glm::value_ptr(_planes.at(i).normal));
+		glUniform1f(LengthID, _planes.at(i).distance);
+		glUniform3fv(ColourID, 1, glm::value_ptr(_planes.at(i).mat.color));
+		glUniform1i(MaterialID, _planes.at(i).mat.type);
+		//glUniform1f(RadiusID, _spheres.at(i).GetRadius());
+		//glUniform3fv(ColourID, 1, glm::value_ptr(_spheres.at(i).GetColour()));
+		//glUniform1i(MaterialID, _spheres.at(i).GetMaterial());
+	}
 	// Send spheres to shader
 	for (int i = 0; i < _spheres.size(); i++) 
 	{
 		std::ostringstream os;
-		os << "uSpheres[" << i << "]";
+		os << "spheres[" << i << "]";
 		int PositionID = glGetUniformLocation(m_pipeline->GetComputeProgramID(), os.str().append(".position").c_str());
 		int RadiusID = glGetUniformLocation(m_pipeline->GetComputeProgramID(), os.str().append(".radius").c_str());
-		int ColourID = glGetUniformLocation(m_pipeline->GetComputeProgramID(), os.str().append(".colour").c_str());
-		int MaterialID = glGetUniformLocation(m_pipeline->GetComputeProgramID(), os.str().append(".material").c_str());
+		int ColourID = glGetUniformLocation(m_pipeline->GetComputeProgramID(), os.str().append(".mat.colour").c_str());
+		int MaterialID = glGetUniformLocation(m_pipeline->GetComputeProgramID(), os.str().append(".mat.type").c_str());
 
-		glUniform3fv(PositionID, 1, glm::value_ptr(_spheres.at(i).GetPosition()));
-		glUniform1f(RadiusID, _spheres.at(i).GetRadius());
-		glUniform3fv(ColourID, 1, glm::value_ptr(_spheres.at(i).GetColour()));
-		glUniform1i(MaterialID, _spheres.at(i).GetMaterial());
+		glUniform3fv(PositionID, 1, glm::value_ptr(_spheres.at(i).position));
+		glUniform1f(RadiusID, _spheres.at(i).radius);
+		glUniform3fv(ColourID, 1, glm::value_ptr(_spheres.at(i).mat.color));
+		glUniform1i(MaterialID, _spheres.at(i).mat.type);
+		//glUniform1f(RadiusID, _spheres.at(i).GetRadius());
+		//glUniform3fv(ColourID, 1, glm::value_ptr(_spheres.at(i).GetColour()));
+		//glUniform1i(MaterialID, _spheres.at(i).GetMaterial());
 	}
-
-	// Send light position to shader
-	glUniform3fv(m_pipeline->GetLightPositionID(), 1, glm::value_ptr(_light));
 
 	// Clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

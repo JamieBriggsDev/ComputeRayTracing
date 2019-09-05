@@ -1,0 +1,305 @@
+#version 450
+layout(local_size_x = 1, local_size_y = 1) in;
+layout(rgba32f, binding = 0) uniform image2D img_output;
+
+uniform vec3 SphereLocation;
+
+struct Options
+{
+	int width;
+	int height;
+	int fov;
+	vec4 backgroundColour;
+	ivec2 pixelCoords;
+};
+
+struct Ray
+{
+	vec3 origin;
+	vec3 direction;
+};
+
+struct Sphere
+{
+	vec3 position;
+	float radius;
+	vec3 colour;
+};
+
+struct Plane
+{
+	vec3 corners[4];
+	vec3 normal;
+	vec4 colour;
+};
+
+uniform vec3 light;
+
+uniform int totalSpheres;
+uniform Sphere uSpheres[2];
+
+// Turns degrees to radians
+float ToRadians(float _degrees)
+{
+	return _degrees * (180.0f / 3.14159265359);
+}
+
+// Turns degrees to radians
+float ToDegrees(float _radians)
+{
+	return _radians * 3.14159265359 / 180.0f;
+}
+
+float HitSphere(Ray _ray, Sphere _sphere)
+{
+	// Direction to sphere
+	vec3 oc = _ray.origin - _sphere.position;
+	// Quadratic formula
+	float a = dot(_ray.direction, _ray.direction);
+	float b = 2.0f * dot(oc, _ray.direction);
+	float c = dot(oc, oc) - _sphere.radius*_sphere.radius;
+	float discriminant = b*b - 4*a*c;
+	// Check discriminant for sphere intersection
+	if(discriminant < 0)
+		// No intersection
+		return -1.0f;
+	else
+		// Return smallest instersecting distance
+		return (-b - sqrt(discriminant)) / (2.0f * a);
+}
+
+float FindLightIntensity(vec3 _position, vec3 _normal, vec3 _light)
+{
+	// 1. First check for light visibility
+	// Find light distance
+	float lightDistance = distance(_light, _position);
+	// Get direction vector to light source
+	vec3 lightDirection = normalize(_light - _position);
+	// Check for collision andif so, compare with light distance using Ray.
+	Ray shadowRay;
+	shadowRay.origin = _position;
+	shadowRay.direction = normalize(lightDirection);
+
+	float shadow = 1.0f;
+	for(int i = 0; i < 2; i++)
+	{
+		// Check for sphere collision.
+		float dist = HitSphere(shadowRay, uSpheres[i]);
+		// If distance not -1 or larger then the light distance, continue
+		if(dist > -1.0f)
+			if (dist <= lightDistance)
+				// Return 0 as light is blocked.
+				shadow = 0.4f;
+				break;
+	}
+	// Find angle between light direction and normal
+	float angle = dot(_normal, lightDirection);
+	// Use cos to get intensity
+	float lightIntensity = clamp(sin(angle),0,1) * shadow;
+
+	// Return light intensity.
+	return lightIntensity;
+}
+
+// float FindDistance(vec3 _a, vec3 _b)
+// {
+// 	return sqrt(pow(_b.x - _a.x,2) + pow(_b.y - _a.y, 2) + pow(_b.z - _a.z));
+// }
+
+
+
+// float FindLightIntensity(vec3 _position, vec3 _normal, vec3 _light)
+// {
+// 	// 1. First check for light visibility
+// 	// Find light distance
+// 	lightDistance = FindDistance(_light, _position);
+// 	// Get direction vector to light source
+// 	vec3 lightDirection = _light - _position;
+// 	// Find angle between light direction and normal
+// 	float angle = dot(lightDirection, _normal);
+// 	// Use cos to get intensity
+// 	float lightIntensity = clamp(cos(angle),0,1);
+
+// 	// Return light intensity.
+// 	return lightIntensity;
+// }
+
+vec3 FindReflection(vec3 _incomingVector, vec3 _normal)
+{
+	// R = I - 2N(N.I)
+	return normalize(_incomingVector - ((2.0f * _normal) * dot(_incomingVector, _normal)));
+}
+
+vec3 IntersectionPoint(Ray _ray, float _distance)
+{
+	// Find point of intersection using distance
+	return _ray.origin + (_ray.direction*_distance);
+}
+
+vec3 NormalToSphere(vec3 _intersection, Sphere _sphere)
+{
+	// Find normal to sphere at intersection
+	return normalize(_intersection - _sphere.position);
+}
+
+// // Casts a ray given origin and direction
+// vec3 CastReflectionRay(Ray _ray, int _ignoreIndex)
+// {
+// 	// Closest sphere trackers
+// 	int closestIndex = -1;
+// 	float closestDistance;
+
+// 	for(int i = 0; i < 2; i++)
+// 	{
+// 		// Ignore index.
+// 		if(i == _ignoreIndex)
+// 			continue;
+
+// 		// Check for sphere collision.
+// 		float dist = HitSphere(_ray, uSpheres[i]);
+// 		if(dist != -1.0f)
+// 		{
+// 			// Check if collision has been found yet
+// 			if(closestIndex == -1)
+// 			{
+// 				// Remember distance and index of closest sphere.
+// 				closestIndex = i;
+// 				closestDistance = dist;
+// 			}
+// 			else
+// 			{
+// 				// Check if closer then previous best.
+// 				if(dist < closestDistance)
+// 				{
+// 					// Remember distance and index of closest sphere.
+// 					closestIndex = i;
+// 					closestDistance = dist;
+// 				}
+// 			}
+// 		}
+// 	}
+// 	// If collision found, get sphere colour, else return background colour.
+// 	if(closestIndex != -1)
+// 	{
+// 		return uSpheres[closestIndex].colour;
+// 	}
+// 	else
+// 		return vec3(0.6, 0.85, 0.92);
+// }
+
+// Casts a ray given origin and direction
+vec3 CastRay(Ray _ray)
+{
+	// Closest sphere trackers
+	int closestIndex = -1;
+	float closestDistance;
+
+	for(int i = 0; i < 2; i++)
+	{
+		// Check for sphere collision.
+		float dist = HitSphere(_ray, uSpheres[i]);
+		if(dist != -1.0f)
+		{
+			// Check if collision has been found yet
+			if(closestIndex == -1)
+			{
+				// Remember distance and index of closest sphere.
+				closestIndex = i;
+				closestDistance = dist;
+			}
+			else
+			{
+				// Check if closer then previous best.
+				if(dist < closestDistance)
+				{
+					// Remember distance and index of closest sphere.
+					closestIndex = i;
+					closestDistance = dist;
+				}
+			}
+		}
+	}
+	// If collision found, get sphere colour, else return background colour.
+	if(closestIndex != -1)
+	{
+		// Reflect (Make new ray)
+		// First find intersection point (origin).
+		vec3 origin = IntersectionPoint(_ray, closestDistance);
+		
+		// // Second find normal (direction).
+		vec3 normal = NormalToSphere(origin, uSpheres[closestIndex]);
+		// vec3 direction = FindReflection(_ray.direction, normal);
+
+		// Finally create a new ray and cast
+		// Ray reflectionRay;
+		// reflectionRay.origin = origin;
+		// reflectionRay.direction = direction;
+		//vec3 colour = CastReflectionRay(reflectionRay, closestIndex);
+		//Check if hit anything
+
+		//return normal * FindLightIntensity(origin, normal, light);
+		return uSpheres[closestIndex].colour * FindLightIntensity(origin, normal, light);
+
+
+		// return uSpheres[closestIndex].colour;
+		//return NormalToSphere(_ray, uSpheres[closestIndex], closestDistance);//uSpheres[closestIndex].colour;
+	}
+	else
+		return vec3(0.6, 0.85, 0.92);
+}
+
+void Render(Options _options) {
+
+	// Image aspect ratio
+	float aspectRatio = _options.width/_options.height;
+	// Scale
+	float scale = tan(ToRadians(_options.fov * 0.5)); 
+	// Origin
+	vec3 origin = vec3(0.0f);
+
+	// Normalized device coordinates (NDC Space)
+	float pixelNDCX = (_options.pixelCoords.x + 0.5)/_options.width;
+	float pixelNDCY = (_options.pixelCoords.y + 0.5)/_options.height;
+	// Generate primary ray direction
+	float x = (2 * pixelNDCX - 1) * aspectRatio * scale;
+	float y = (1 - 2 * pixelNDCY) * aspectRatio * scale;
+
+	// Direction
+	vec3 rayDirection = normalize(vec3(-x, y, -1));
+
+	// Define initial ray
+	Ray initialRay;
+	initialRay.origin = origin;
+	initialRay.direction = rayDirection;
+
+//	// Get ray origin
+//	vec3 rayOrigin = CameraPosition;
+//	// Get ray direction
+//	vec3 rayDirection = normalize(pixelCameraSpace - CameraPosition);
+//	float max_x = 5.0;
+//	float max_y = 5.0;
+//	ivec2 dims = imageSize(img_output); // fetch image dimensions
+//	float x = (float(pixel_coords.x * 2 - dims.x) / dims.x);
+//	float y = (float(pixel_coords.y * 2 - dims.y) / dims.y);
+//	vec3 ray_o = vec3(x * max_x, y * max_y, 0.0);
+//	vec3 ray_d = vec3(0.0, 0.0, -1.0); // ortho
+
+	vec4 pixel = vec4(CastRay(initialRay), 1.0f);
+  
+	// output to a specific pixel in the image
+	imageStore(img_output, _options.pixelCoords, pixel);
+}
+
+void main()
+{
+	// Get image dimensions
+	ivec2 imageDimensions = imageSize(img_output);
+	Options options;
+	options.width = imageDimensions.x;
+	options.height = imageDimensions.y;
+	options.fov = 90;
+	options.backgroundColour = vec4(0.6, 0.85, 0.92, 1.0);
+	options.pixelCoords = ivec2(gl_GlobalInvocationID.xy);
+	Render(options);
+
+}

@@ -1,4 +1,4 @@
-#if VK
+
 
 #include "Shapes.h"
 
@@ -8,5 +8,3 @@ Sphere::Sphere(glm::vec3 position, float radius) : position(position), radius(ra
 
 Plane::Plane() { distance = 1; }
 Plane::Plane(glm::vec3 normal, float distance) : normal(normal), distance(distance) {}
-
-#endif

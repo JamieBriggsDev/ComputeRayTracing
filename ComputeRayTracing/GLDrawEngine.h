@@ -3,7 +3,7 @@
 
 #include <GL/glew.h>
 #include "GLPipeline.h"
-#include "Sphere.h"
+#include "Shapes.h"
 
 class Object;
 class Camera;
@@ -20,8 +20,8 @@ private:
 	// Shader
 	GLPipeline* m_pipeline;
 public:
-	void Update(Camera* _camera, Window* _window, 
-		std::vector<Sphere> _spheres, glm::vec3 _light, 
+	void Update(Camera* _camera, Window* _window,
+		std::vector<Sphere> _spheres, std::vector<Plane> _planes, 
 		float _deltaTime);
 
 	void CreateScreenSpace();
