@@ -8,6 +8,7 @@
 
 #define DIFFUSE_TYPE (1)
 #define REFLECT_TYPE (2)
+#define REFRACT_TYPE (3)
 
 struct Plane
 {

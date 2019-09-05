@@ -1,4 +1,5 @@
 #pragma once
+#if VK
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -20,3 +21,5 @@ struct QueueFamilyIndices
 };
 
 QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
+
+#endif

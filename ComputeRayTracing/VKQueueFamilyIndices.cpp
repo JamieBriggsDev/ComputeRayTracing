@@ -1,3 +1,5 @@
+#if VK
+
 #include "VKQueueFamilyIndices.h"
 #include <vector>
 #include <iostream>
@@ -44,3 +46,5 @@ QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surfa
 
 	return indices;
 }
+
+#endif
