@@ -31,10 +31,10 @@ void Engine::InitialiseObjects(std::vector<Plane> &_planes, std::vector<Sphere> 
 	AddSphere(sphere2, glm::vec3(0.062, 0.917, 0.078), REFLECT_TYPE);
 
 	AddPlane(bottom, glm::vec3(0.8, 0.8, 0.8), DIFFUSE_TYPE);
-	AddPlane(back, glm::vec3(0.8, 0.8, 0.8), DIFFUSE_TYPE);
 	AddPlane(left, glm::vec3(1, 0.0, 0.0), DIFFUSE_TYPE);
 	AddPlane(right, glm::vec3(0.0, 0.0, 1.0), DIFFUSE_TYPE);
 	AddPlane(ceiling, glm::vec3(0.0, 1.0, 0.0), DIFFUSE_TYPE);
+	AddPlane(back, glm::vec3(0.8, 0.8, 0.8), DIFFUSE_TYPE);
 	AddPlane(front, glm::vec3(1.0, 0.8, 0.0), DIFFUSE_TYPE);
 }
 #endif
