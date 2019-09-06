@@ -64,7 +64,6 @@ void GLEngine::MainLoop()
 	float FrameRate = 0.0f;
 	float FrameRefreshTime = 0.5f;
 	float LastFPSUpdate = 0.0f;
-	static float totalTime;
 
 	// Reset camera before loop
 	m_myCamera->ResetLocation();
@@ -95,6 +94,7 @@ void GLEngine::MainLoop()
 
 			glfwSetWindowTitle(m_myWindow->GetWindowComponent(), var.c_str());
 
+
 			// Reset time variables
 			//glfwSetTime(0.0);
 			LastFPSUpdate = currentTime;
@@ -104,6 +104,8 @@ void GLEngine::MainLoop()
 		// Update controller
 		m_myController->Update(m_myWindow, m_deltaTime);
 
+		m_spheres.at(1).position.y = cos(m_totalTime);
+		m_spheres.at(2).position.x = sin(m_totalTime);
 		// Update the camera
 		m_myCamera->Update(m_myWindow, m_myController, m_deltaTime);
 
@@ -113,7 +115,7 @@ void GLEngine::MainLoop()
 		// Update Window
 		m_myWindow->Update();
 
-		totalTime += m_deltaTime;
+		m_totalTime += m_deltaTime;
 
 
 		// record new last time

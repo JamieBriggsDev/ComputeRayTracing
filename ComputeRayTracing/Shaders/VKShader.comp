@@ -221,9 +221,6 @@ void RefractRay(inout Ray ray, in vec3 hitNormal, in Material mat)
 			ray.direction = vec3(0);
 		else
 			ray.direction = eta * ray.direction + (eta * cosi - sqrt(k)) * n; 
-		//ray.direction = k < 0 ? 0 : eta * ray.direction + (eta * cosi - sqrt(k)) * n
-
-		//return k < 0 ? ray.direction = vec3(0,0,0) : ray.direction = eta * I + (eta * cosi - sqrtf(k)) * n; 
 	}
 }
 

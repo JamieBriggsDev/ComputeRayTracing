@@ -17,8 +17,8 @@ void Engine::InitialiseObjects(std::vector<Plane> &_planes, std::vector<Sphere> 
 		_spheres.push_back(*go);
 	};
 
-	auto sphere = new Sphere(glm::vec3(0.0, 0.0, -3.5), 1.2);
-	auto sphere2 = new Sphere(glm::vec3(-1.2, 1.5, -4.2), 0.7);
+	auto sphere = new Sphere(glm::vec3(0.0, 0.0, -5.0), 1.2);
+	auto sphere2 = new Sphere(glm::vec3(-1.2, 1.5, -3.5), 0.7);
 	auto sphere3 = new Sphere(glm::vec3(0.5, 0.7, -1.8), 0.4);
 
 	auto bottom = new Plane(glm::vec3(0, 1, 0), 2.5);
@@ -55,8 +55,8 @@ void Engine::InitialiseObjects(std::vector<Plane> &_planes, std::vector<Sphere> 
 		break;
 	case 4:
 		// Test 4
-		AddSphere(sphere, glm::vec3(0.78, 0.29, 0.64), DIFFUSE_TYPE);
-		AddSphere(sphere2, glm::vec3(0.062, 0.917, 0.078), REFLECT_TYPE);
+		AddSphere(sphere, glm::vec3(0.78, 0.29, 0.64), REFLECT_TYPE);
+		AddSphere(sphere2, glm::vec3(0.062, 0.917, 0.078), DIFFUSE_TYPE);
 		AddSphere(sphere3, glm::vec3(0.6, 0.2, 0.4), REFRACT_TYPE);
 		break;
 	default:
