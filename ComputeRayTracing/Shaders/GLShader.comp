@@ -1,4 +1,7 @@
 #version 450
+#extension GL_ARB_separate_shader_objects : enable
+#extension GL_ARB_shading_language_420pack : enable
+
 layout(local_size_x = 1, local_size_y = 1) in;
 layout(rgba32f, binding = 0) uniform image2D img_output;
 
@@ -184,7 +187,8 @@ void RefractRay(inout Ray ray, in vec3 hitNormal, in Material mat)
 {
 	if(mat.type == 3)
 	{
-		float cosi = clamp(-1, 1, dot(ray.direction, hitNormal));// ray.direction.dotProduct(hitNormal)); 
+		float cosi = dot(ray.direction, hitNormal);
+		// float cosi = clamp(-1, 1, dot(ray.direction, hitNormal));// ray.direction.dotProduct(hitNormal)); 
 		float etai = 1;
 		float etat = indexOfRefraction; 
 		vec3 n = hitNormal; 
