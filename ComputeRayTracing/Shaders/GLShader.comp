@@ -188,7 +188,7 @@ void RefractRay(inout Ray ray, in vec3 hitNormal, in Material mat)
 	if(mat.type == 3)
 	{
 		float cosi = dot(ray.direction, hitNormal);
-		// float cosi = clamp(-1, 1, dot(ray.direction, hitNormal));// ray.direction.dotProduct(hitNormal)); 
+		// float cosi = clamp(-1, 1, dot(ray.direction, hitNormal));
 		float etai = 1;
 		float etat = indexOfRefraction; 
 		vec3 n = hitNormal; 

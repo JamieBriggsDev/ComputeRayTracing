@@ -15,17 +15,7 @@
 const std::vector<const char*> vkDeviceExtensions = {
 VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
-//// Queue Family Indices
-//struct vkQueueFamilyIndices
-//{
-//	std::optional<uint32_t> m_vkGraphicsFamily;
-//	std::optional<uint32_t> m_vkPresentFamily;
-//
-//	bool isComplete()
-//	{
-//		return m_vkGraphicsFamily.has_value() && m_vkPresentFamily.has_value();
-//	}
-//};
+
 // Swap Chain Support Details
 struct vkSwapChainSupportDetails
 {
@@ -122,6 +112,9 @@ private:
 
 	// Compute fence
 	VkFence m_vkComputeFence;
+
+	// Image barriers
+	std::vector<VkImageMemoryBarrier> m_vkBarriers;
 	
 
 	// Uniform Buffer
@@ -190,7 +183,22 @@ private:
 	// Create compute image
 	void vkCreateComputeImage(VkImage &img, VkImageView &imgView, VkDeviceMemory &memory);
 	// Prepare Storage Buffers
-	void vkPrepareStorageBuffers();
+	void vkPrepareStorageBuffers()
+	{
+		InitialiseObjects(m_planes, m_spheres);
+
+		int memTypeIndex = 0;
+
+
+		VkDeviceSize spBufferSize = m_planes.size() * sizeof(Sphere);
+		VkDeviceSize plBufferSize = m_spheres.size() * sizeof(Plane);
+		VkDeviceSize uniformBufferSize = sizeof(UBO);
+
+		vkCreateStorageBuffer(m_spheres.data(), spBufferSize, m_vkSpheresBuffer, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, m_vkSphereDeviceMemory, memTypeIndex);
+		vkCreateStorageBuffer(m_planes.data(), plBufferSize, m_vkPlanesBuffer, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, m_vkPlanesDeviceMemory, memTypeIndex);
+
+		vkCreateStorageBuffer(&m_vkUniformBufferObject, uniformBufferSize, m_vkUniformBuffer, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, m_vkUniformDeviceMemory, memTypeIndex);
+	}
 	// Create Storage Buffer
 	void vkCreateStorageBuffer(const void* data, VkDeviceSize &bufferSize, VkBuffer &buffer,
 		VkBufferUsageFlags bufferUsageFlags, VkDeviceMemory &deviceMemory, uint32_t memTypeIndex);

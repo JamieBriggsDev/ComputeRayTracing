@@ -1,0 +1,11 @@
+validation layer: vkCmdPipelineBarrier(): Image barrier 0x000001AAE65F59B0 new 
+    Layout=VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL is not compatible with image 0xa usage flags 0x9. 
+    The Vulkan spec states: If either oldLayout or newLayout is VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL then 
+    image must have been created with VK_IMAGE_USAGE_TRANSFER_DST_BIT set 
+    (https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#VUID-VkImageMemoryBarrier-oldLayout-01213)
+
+validation layer: vkCmdCopyImage(): Cannot use image 0xa (layer=0 mip=0) with specific layout 
+    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL that doesn't match the previous known layout VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL. 
+    The Vulkan spec states: srcImageLayout must specify the layout of the image subresources of srcImage specified in 
+    pRegions at the time this command is executed on a VkDevice 
+    (https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#VUID-vkCmdCopyImage-srcImageLayout-00128)

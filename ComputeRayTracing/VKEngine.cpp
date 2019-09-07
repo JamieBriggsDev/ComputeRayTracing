@@ -286,24 +286,6 @@ void VKEngine::Initialise()
 
 	// Create Semaphores
 	vkCreateSemaphores();
-
-	// Create Compute Command Pool
-
-	//// Create image views
-	//vkCreateImageViews(m_vkDevice, m_vkSwapChainImageViews, m_vkSwapChainImages, &m_vkSwapChainImageFormat);
-	//// Create command pool.
-	//vkSetupCommandPool();
-
-	// Create an object
-	//m_object = new VKObject(this,
-	//	"Resources/Models/Sphere.obj");
-	//// Model matrix : an identity matrix (model will be at the origin)
-	//m_object->SetModelMatrix(glm::mat4(1.0f));
-
-	//// Create frame buffers
-	//vkCreateFrameBuffers();
-	//// Create command buffers.
-	//vkCreateCommandBuffers();
 }
 
 void VKEngine::MainLoop()
@@ -359,7 +341,13 @@ void VKEngine::MainLoop()
 
 		vkUpdateUniformBuffer();
 
+		m_spheres.at(1).position.y = cos(m_totalTime);
+		m_spheres.at(2).position.x = sin(m_totalTime);
+		m_spheres.at(2).position.z = cos(m_totalTime) - 2.5f;
+
 		vkDraw();
+
+		std::cout << m_vkCurrentImageIndex << std::endl;
 
 		//// Update controller
 		//m_myController->Update(m_myWindow, m_deltaTime);
@@ -1106,7 +1094,7 @@ void VKEngine::vkCreateComputeImage(VkImage &img, VkImageView &imgView, VkDevice
 	info.samples = VK_SAMPLE_COUNT_1_BIT;
 	info.tiling = VK_IMAGE_TILING_OPTIMAL;
 	info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	info.usage = VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+	info.usage = VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
 	auto result = vkCreateImage(*m_vkDevice, &info, nullptr, &img);
 	if (result != VK_SUCCESS)
@@ -1149,25 +1137,6 @@ void VKEngine::vkCreateComputeImage(VkImage &img, VkImageView &imgView, VkDevice
 	{
 		throw std::runtime_error("Failed to create compute image view !");
 	}
-}
-
-void VKEngine::vkPrepareStorageBuffers()
-{
-	std::vector<Plane> planes;
-	std::vector<Sphere> spheres;
-	InitialiseObjects(planes, spheres);
-
-	int memTypeIndex = 0;
-
-
-	VkDeviceSize spBufferSize = spheres.size() * sizeof(Sphere);
-	VkDeviceSize plBufferSize = planes.size() * sizeof(Plane);
-	VkDeviceSize uniformBufferSize = sizeof(UBO);
-
-	vkCreateStorageBuffer(spheres.data(), spBufferSize, m_vkSpheresBuffer, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, m_vkSphereDeviceMemory, memTypeIndex);
-	vkCreateStorageBuffer(planes.data(), plBufferSize, m_vkPlanesBuffer, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, m_vkPlanesDeviceMemory, memTypeIndex);
-
-	vkCreateStorageBuffer(&m_vkUniformBufferObject, uniformBufferSize, m_vkUniformBuffer, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, m_vkUniformDeviceMemory, memTypeIndex);
 }
 
 void VKEngine::vkCreateStorageBuffer(const void * data, VkDeviceSize & bufferSize, VkBuffer & buffer, VkBufferUsageFlags bufferUsageFlags, VkDeviceMemory & deviceMemory, uint32_t memTypeIndex)
@@ -1555,17 +1524,30 @@ void VKEngine::vkSetFirstImageBarriers(const VkCommandBuffer buffer, int curImag
 	swapTransfer.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 	swapTransfer.image = m_vkComputeImage;
 	swapTransfer.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	swapTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+	swapTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 	swapTransfer.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
 	swapTransfer.srcAccessMask = 0;
 	swapTransfer.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+	// Image memory barrier to make sure that compute shader writes are finished before sampling from the texture
+	//VkImageMemoryBarrier imageMemoryBarrier = {};
+	//imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	//imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
+	//imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
+	//imageMemoryBarrier.image = m_vkComputeImage;
+	//imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+	//imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+	//imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 	
 	// The Three barriers
-	std::vector<VkImageMemoryBarrier> barriers{ compWrite, compTransfer, swapTransfer };
+	m_vkBarriers.push_back(compWrite);
+	m_vkBarriers.push_back(compTransfer);
+	m_vkBarriers.push_back(swapTransfer);
+	// std::vector<VkImageMemoryBarrier> barriers{ compWrite, compTransfer, swapTransfer };
 
 	// Set pipeline barrier
 	vkCmdPipelineBarrier(buffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-		0, 0, nullptr, 0, nullptr, barriers.size(), barriers.data());
+		0, 0, nullptr, 0, nullptr, m_vkBarriers.size(), m_vkBarriers.data());
 }
 
 void VKEngine::vkSetSecondImageBarriers(const VkCommandBuffer buffer, int curImageIndex)
@@ -1593,6 +1575,7 @@ void VKEngine::vkCopyImageMemory(const VkCommandBuffer buffer, int curImageIndex
 	source.mipLevel = 0;
 	source.baseArrayLayer = 0;
 	source.layerCount = 1;
+
 
 	// Image destination info
 	VkImageSubresourceLayers dest;
