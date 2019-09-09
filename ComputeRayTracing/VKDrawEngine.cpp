@@ -2,7 +2,6 @@
 
 #include "VKDrawEngine.h"
 #include "Window.h"
-#include "Camera.h"
 #include "VKEngine.h"
 
 // GLFW to handle window and keyboard/ mouse input

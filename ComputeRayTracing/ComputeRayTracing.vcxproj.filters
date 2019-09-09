@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Source %28.cpp%29</Filter>
-    </ClCompile>
     <ClCompile Include="Controller.cpp">
       <Filter>Source %28.cpp%29</Filter>
     </ClCompile>
@@ -50,9 +47,6 @@
     <ClCompile Include="VKQueueFamilyIndices.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Camera.h">
-      <Filter>Headers %28.h%29</Filter>
-    </ClInclude>
     <ClInclude Include="Controller.h">
       <Filter>Headers %28.h%29</Filter>
     </ClInclude>

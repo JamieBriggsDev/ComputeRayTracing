@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "Window.h"
-#include "Camera.h"
 #include "Controller.h"
 #include "Shapes.h"
 
@@ -15,8 +14,6 @@ class Engine
 protected:
 	// Window object
 	Window* m_myWindow;
-	// Camera Object
-	Camera* m_myCamera;
 	// Controller Component
 	Controller* m_myController;
 	// Spheres
@@ -36,9 +33,12 @@ public:
 	Engine();
 	~Engine();
 
+	// Update
+	void Update();
+
 	// Initialise code.
 	virtual void Initialise() = 0;
-
+	// Main Loop
 	virtual void MainLoop() = 0;
 
 };

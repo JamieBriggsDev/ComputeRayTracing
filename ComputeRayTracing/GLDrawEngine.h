@@ -20,9 +20,10 @@ private:
 	// Shader
 	GLPipeline* m_pipeline;
 public:
-	void Update(Camera* _camera, Window* _window,
-		std::vector<Sphere> _spheres, std::vector<Plane> _planes, 
-		float _deltaTime);
+	void Update(Window* _window,
+ std::vector<Sphere> _spheres,
+		std::vector<Plane> _planes,
+ float _deltaTime);
 
 	void CreateScreenSpace();
 	GLDrawEngine();

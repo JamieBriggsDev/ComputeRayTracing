@@ -15,7 +15,6 @@
 #endif
 
 
-
 int main()
 {
     std::cout << "Welcome to the JBEngine!\n"; 
@@ -27,7 +26,7 @@ int main()
 	Engine* JBEngine = new VKEngine();
 #endif
 	// Start main loop
-	JBEngine->MainLoop();
+	JBEngine->Update();
 
 	return 0;
 }

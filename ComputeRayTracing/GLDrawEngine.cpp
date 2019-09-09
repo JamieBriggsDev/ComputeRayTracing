@@ -3,7 +3,6 @@
 #include "GLDrawEngine.h"
 #include "GLPipeline.h"
 #include "HardModels.h"
-#include "Camera.h"
 #include "Window.h"
 #include "Engine.h"
 
@@ -17,9 +16,11 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-void GLDrawEngine::Update(Camera* _camera,
-	Window* _window, std::vector<Sphere> _spheres, 
-	std::vector<Plane> _planes, float _deltaTime)
+void GLDrawEngine::Update(Window* _window,
+
+	std::vector<Sphere> _spheres,
+ std::vector<Plane> _planes, 
+	float _deltaTime)
 {
 
 	// Compute shader stuff first

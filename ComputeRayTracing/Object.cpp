@@ -1,26 +1,4 @@
 #include "Object.h"
-#include "Camera.h"
-
-//Object::Object(const char * _modelFilePath, TextureType _textureType, const char * _textureFilePath)
-//{
-//	m_model = new Model(_modelFilePath);
-//	m_shader = new Shader("Shaders/TexturedVert.vert",
-//		"Shaders/TexturedFrag.frag");
-//	m_modelMatrix = glm::mat4();
-//	m_texture = new Texture(_textureType, _textureFilePath);
-//}
-//
-//Object::Object(const char* _modelFilePath, TextureType _textureType,
-//	const char* _textureFilePath, const char* _heightMapFilePath)
-//{
-//	m_model = new Model(_modelFilePath);
-//	m_shader = new Shader("Shaders/TexturedHeightVert.vert",
-//		"Shaders/TexturedHeightFrag.frag");
-//	m_modelMatrix = glm::mat4();
-//	m_texture = new Texture(_textureType, _textureFilePath);
-//	m_heightMap = new Texture(_textureType, _heightMapFilePath);
-//}
-
 
 Object::~Object()
 {
