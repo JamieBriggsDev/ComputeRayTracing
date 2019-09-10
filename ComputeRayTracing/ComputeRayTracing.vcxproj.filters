@@ -45,6 +45,7 @@
     </ClCompile>
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="VKQueueFamilyIndices.cpp" />
+    <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Controller.h">
@@ -100,6 +101,7 @@
     </ClInclude>
     <ClInclude Include="Material.h" />
     <ClInclude Include="VKQueueFamilyIndices.h" />
+    <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\frag.spv">

@@ -3,6 +3,8 @@
 #include <iostream>
 #include <sstream>
 
+#include "Timer.h"
+
 
 void Engine::InitialiseObjects(std::vector<Plane> &_planes, std::vector<Sphere> &_spheres)
 {
@@ -100,6 +102,12 @@ void Engine::Update()
 
 	long long int TotalFrames = 0;
 	do {
+		// Record time for tests
+
+		Timer::Instance()->TimeFrame();
+		
+		// End of test recording
+
 		// Get delta time by comparing current time and last time
 		double currentTime = glfwGetTime();
 		m_deltaTime = float(currentTime - LastTime);
@@ -160,7 +168,8 @@ void Engine::Update()
 
 
 	} // Check if the ESC key was pressed or the window was closed
-	while (m_myWindow->CheckWindowClose(m_myController) == 0);
+	while (m_myWindow->CheckWindowClose(m_myController) == 0 ||
+		!Timer::Instance()->IsFinished());
 }
 
 
