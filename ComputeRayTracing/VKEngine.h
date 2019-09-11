@@ -31,7 +31,7 @@ class VKEngine :
 {
 private:
 	// VKDraw Engine
-	VKDrawEngine* m_myDrawEngine;
+	// VKDrawEngine* m_myDrawEngine;
 
 	// Vulkan Instace
 	VkInstance* m_vkInstance;
@@ -166,39 +166,14 @@ private:
 
 	// Creates the surface.
 	void vkCreateSurface(VkInstance* _vkInsance, GLFWwindow* _window, VkSurfaceKHR* _vkSurface);
-	
-	// Creates the image views.
-	//void vkCreateImageViews(VkDevice* _vkDevice,
-		//std::vector<VkImageView>& _vkSwapChainImageViews,
-		//std::vector<VkImage>& _vkSwapChainImages,
-		//VkFormat* _vkSwapChainImageFormat);
-	// Create Frame Buffers.
-	//void vkCreateFrameBuffers();
-	// Create Command Pool.
-	//void vkSetupCommandPool();
-	// Setup Command Buffers.
-	//void vkCreateCommandBuffers();
+
 
 
 	// Create compute image
 	void vkCreateComputeImage(VkImage &img, VkImageView &imgView, VkDeviceMemory &memory);
 	// Prepare Storage Buffers
-	void vkPrepareStorageBuffers()
-	{
-		InitialiseObjects(m_planes, m_spheres);
+	void vkPrepareStorageBuffers();
 
-		int memTypeIndex = 0;
-
-
-		VkDeviceSize spBufferSize = m_planes.size() * sizeof(Sphere);
-		VkDeviceSize plBufferSize = m_spheres.size() * sizeof(Plane);
-		VkDeviceSize uniformBufferSize = sizeof(UBO);
-
-		vkCreateStorageBuffer(m_spheres.data(), spBufferSize, m_vkSpheresBuffer, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, m_vkSphereDeviceMemory, memTypeIndex);
-		vkCreateStorageBuffer(m_planes.data(), plBufferSize, m_vkPlanesBuffer, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, m_vkPlanesDeviceMemory, memTypeIndex);
-
-		vkCreateStorageBuffer(&m_vkUniformBufferObject, uniformBufferSize, m_vkUniformBuffer, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, m_vkUniformDeviceMemory, memTypeIndex);
-	}
 	// Create Storage Buffer
 	void vkCreateStorageBuffer(const void* data, VkDeviceSize &bufferSize, VkBuffer &buffer,
 		VkBufferUsageFlags bufferUsageFlags, VkDeviceMemory &deviceMemory, uint32_t memTypeIndex);

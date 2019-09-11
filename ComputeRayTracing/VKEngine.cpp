@@ -75,8 +75,6 @@ VKEngine::VKEngine()
 
 	// Create Controller
 	m_myController = new Controller();
-	// Create Draw Engine
-	m_myDrawEngine = new VKDrawEngine(this);
 }
 
 VKEngine::~VKEngine()
@@ -850,6 +848,23 @@ void VKEngine::vkCreateComputeImage(VkImage &img, VkImageView &imgView, VkDevice
 	{
 		throw std::runtime_error("Failed to create compute image view !");
 	}
+}
+
+void VKEngine::vkPrepareStorageBuffers()
+{
+	InitialiseObjects(m_planes, m_spheres);
+
+	int memTypeIndex = 0;
+
+
+	VkDeviceSize spBufferSize = m_planes.size() * sizeof(Sphere);
+	VkDeviceSize plBufferSize = m_spheres.size() * sizeof(Plane);
+	VkDeviceSize uniformBufferSize = sizeof(UBO);
+
+	vkCreateStorageBuffer(m_spheres.data(), spBufferSize, m_vkSpheresBuffer, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, m_vkSphereDeviceMemory, memTypeIndex);
+	vkCreateStorageBuffer(m_planes.data(), plBufferSize, m_vkPlanesBuffer, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, m_vkPlanesDeviceMemory, memTypeIndex);
+
+	vkCreateStorageBuffer(&m_vkUniformBufferObject, uniformBufferSize, m_vkUniformBuffer, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, m_vkUniformDeviceMemory, memTypeIndex);
 }
 
 void VKEngine::vkCreateStorageBuffer(const void * data, VkDeviceSize & bufferSize, VkBuffer & buffer, VkBufferUsageFlags bufferUsageFlags, VkDeviceMemory & deviceMemory, uint32_t memTypeIndex)
