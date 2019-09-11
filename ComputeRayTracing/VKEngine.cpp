@@ -102,42 +102,6 @@ VKEngine::~VKEngine()
 
 }
 
-VkCommandBuffer VKEngine::vkBeginSingleTimeCommands()
-{
-	// Command buffer allocation info
-	VkCommandBufferAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandPool = *m_vkCommandPool;
-	allocInfo.commandBufferCount = 1;
-	// Command buffer to make
-	VkCommandBuffer commandBuffer;
-	vkAllocateCommandBuffers(*m_vkDevice, &allocInfo, &commandBuffer);
-	// Command buffer begin info
-	VkCommandBufferBeginInfo beginInfo = {};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-	// Begin command buffer recording.
-	vkBeginCommandBuffer(commandBuffer, &beginInfo);
-	// Return command buffer.
-	return commandBuffer;
-}
-
-void VKEngine::vkEndSingleTimeCommands(VkCommandBuffer _commandBuffer)
-{
-	//// End the command buffer
-	//vkEndCommandBuffer(_commandBuffer);
-	//// Command buffer submit info
-	//VkSubmitInfo submitInfo = {};
-	//submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	//submitInfo.commandBufferCount = 1;
-	//submitInfo.pCommandBuffers = &_commandBuffer;
-	//// Submit to queue.
-	//vkQueueSubmit(*m_vkGraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-	//vkQueueWaitIdle(*m_vkGraphicsQueue);
-	//// Free the command buffer.
-	//vkFreeCommandBuffers(*m_vkDevice, *m_vkCommandPool, 1, &_commandBuffer);
-}
 
 uint32_t VKEngine::vkFindMemoryType(int _typeFilter, VkMemoryPropertyFlags _vkProperties)
 {
@@ -146,17 +110,6 @@ uint32_t VKEngine::vkFindMemoryType(int _typeFilter, VkMemoryPropertyFlags _vkPr
 	// Get Reuquirements.
 	vkGetPhysicalDeviceMemoryProperties(*m_vkPhysicalDevice,
 		&memProperties);
-	//// Loop through memory types.
-	//for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
-	//{
-	//	std::cout << memProperties.memoryTypes[i].heapIndex << std::endl;
-	//	if ((_typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & _vkProperties)
-	//		== _vkProperties)
-	//	{
-	//		_typeFilter = i;
-	//		return i;
-	//	}
-	//}
 
 	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
 	{
@@ -172,25 +125,6 @@ uint32_t VKEngine::vkFindMemoryType(int _typeFilter, VkMemoryPropertyFlags _vkPr
 	}
 
 	return -1;
-	//throw std::runtime_error("Could not find a matching memory type");
-	
-
-
-
-	//throw std::runtime_error("failed to find suitable memory type!");
-	//VkPhysicalDeviceMemoryProperties memProps;
-	//vkGetPhysicalDeviceMemoryProperties(*m_vkPhysicalDevice, &memProps);
-
-	//for (int i = 0; i < memProps.memoryTypeCount; i++)
-	//{
-	//	if ((memProps.memoryTypes[i].propertyFlags & _vkProperties) == _vkProperties)
-	//	{
-	//		_typeFilter = i;
-	//		break;
-	//	}
-	//}
-
-	//return _typeFilter;
 }
 
 void VKEngine::Initialise()
@@ -804,7 +738,7 @@ void VKEngine::vkCreateComputeImage(VkImage &img, VkImageView &imgView, VkDevice
 	info.arrayLayers = 1;
 	info.samples = VK_SAMPLE_COUNT_1_BIT;
 	info.tiling = VK_IMAGE_TILING_OPTIMAL;
-	info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	info.initialLayout = VK_IMAGE_LAYOUT_PREINITIALIZED;
 	info.usage = VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
 	auto result = vkCreateImage(*m_vkDevice, &info, nullptr, &img);
@@ -1227,55 +1161,61 @@ void VKEngine::vkCopyMemory(const void * data, VkDeviceMemory & deviceMemory, Vk
 
 void VKEngine::vkSetFirstImageBarriers(const VkCommandBuffer buffer, int curImageIndex)
 {
-	// Compute write memory barrier
-	VkImageMemoryBarrier compWrite{};
-	compWrite.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	compWrite.image = m_vkComputeImage;
-	compWrite.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	compWrite.newLayout = VK_IMAGE_LAYOUT_GENERAL;
-	compWrite.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-	compWrite.srcAccessMask = 0;
-	compWrite.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+	VkImageMemoryBarrier imageMemoryBarrier = {};
+	imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+	imageMemoryBarrier.image = m_vkComputeImage;
+	imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+	imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+	imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	vkCmdPipelineBarrier(
+		buffer,
+		VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+		VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+		0,
+		0, nullptr,
+		0, nullptr,
+		1, &imageMemoryBarrier);
+	//// Compute write memory barrier
+	//VkImageMemoryBarrier compWrite{};
+	//compWrite.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	//compWrite.image = m_vkComputeImage;
+	//compWrite.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	//compWrite.newLayout = VK_IMAGE_LAYOUT_GENERAL;
+	//compWrite.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+	//compWrite.srcAccessMask = 0;
+	//compWrite.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
 
-	// Compute transfer memory barrier
-	VkImageMemoryBarrier compTransfer{};
-	compTransfer.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	compTransfer.image = m_vkComputeImage;
-	compTransfer.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
-	compTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-	compTransfer.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-	compTransfer.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
-	compTransfer.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+	//// Compute transfer memory barrier
+	//VkImageMemoryBarrier compTransfer{};
+	//compTransfer.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	//compTransfer.image = m_vkComputeImage;
+	//compTransfer.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	//compTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+	//compTransfer.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+	//compTransfer.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+	//compTransfer.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 
-	// Swap memory barrier
-	VkImageMemoryBarrier swapTransfer{};
-	swapTransfer.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	swapTransfer.image = m_vkComputeImage;
-	swapTransfer.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	swapTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-	swapTransfer.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-	swapTransfer.srcAccessMask = 0;
-	swapTransfer.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	//// Swap memory barrier
+	//VkImageMemoryBarrier swapTransfer{};
+	//swapTransfer.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	//swapTransfer.image = m_vkComputeImage;
+	//swapTransfer.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	//swapTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+	//swapTransfer.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+	//swapTransfer.srcAccessMask = 0;
+	//swapTransfer.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	//
+	//// The Three barriers
+	//m_vkBarriers.push_back(compWrite);
+	//m_vkBarriers.push_back(compTransfer);
+	//m_vkBarriers.push_back(swapTransfer);
+	//// std::vector<VkImageMemoryBarrier> barriers{ compWrite, compTransfer, swapTransfer };
 
-	// Image memory barrier to make sure that compute shader writes are finished before sampling from the texture
-	//VkImageMemoryBarrier imageMemoryBarrier = {};
-	//imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	//imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
-	//imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
-	//imageMemoryBarrier.image = m_vkComputeImage;
-	//imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-	//imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
-	//imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-	
-	// The Three barriers
-	m_vkBarriers.push_back(compWrite);
-	m_vkBarriers.push_back(compTransfer);
-	m_vkBarriers.push_back(swapTransfer);
-	// std::vector<VkImageMemoryBarrier> barriers{ compWrite, compTransfer, swapTransfer };
-
-	// Set pipeline barrier
-	vkCmdPipelineBarrier(buffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-		0, 0, nullptr, 0, nullptr, m_vkBarriers.size(), m_vkBarriers.data());
+	//// Set pipeline barrier
+	//vkCmdPipelineBarrier(buffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+	//	0, 0, nullptr, 0, nullptr, m_vkBarriers.size(), m_vkBarriers.data());
 }
 
 void VKEngine::vkSetSecondImageBarriers(const VkCommandBuffer buffer, int curImageIndex)
@@ -1321,7 +1261,7 @@ void VKEngine::vkCopyImageMemory(const VkCommandBuffer buffer, int curImageIndex
 	copy.dstOffset = { 0, 0, 0 };
 
 	// Copy image to destination
-	vkCmdCopyImage(buffer, m_vkComputeImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, 
+	vkCmdCopyImage(buffer, m_vkComputeImage, VK_IMAGE_LAYOUT_GENERAL,
 		m_vkSwapChainImages[curImageIndex], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
 }
 

@@ -6,7 +6,6 @@
 #include <optional>
 
 #include "Engine.h"
-#include "VKDrawEngine.h"
 #include "Shapes.h"
 
 
@@ -25,14 +24,10 @@ struct vkSwapChainSupportDetails
 };
 
 
-
 class VKEngine :
 	public Engine
 {
 private:
-	// VKDraw Engine
-	// VKDrawEngine* m_myDrawEngine;
-
 	// Vulkan Instace
 	VkInstance* m_vkInstance;
 	// Vulkan Physical Device
@@ -122,8 +117,6 @@ private:
 	{
 		float time;
 	} m_vkUniformBufferObject;
-
-	VKObject* m_object;
 
 	// Vulkan Engine Init Code;
 	void Initialise();
@@ -215,11 +208,6 @@ private:
 public:
 	VKEngine();
 	~VKEngine();
-
-	// Command buffer recorder helper begin
-	VkCommandBuffer vkBeginSingleTimeCommands();
-	// Command buffer recorder helper end
-	void vkEndSingleTimeCommands(VkCommandBuffer _commandBuffer);
 
 	// Finds the memory type for creating vertex bufers.
 	uint32_t vkFindMemoryType(int _typeFilter,
