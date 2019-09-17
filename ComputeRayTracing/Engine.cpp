@@ -34,7 +34,7 @@ void Engine::InitialiseObjects(std::vector<Plane> &_planes, std::vector<Sphere> 
 	// DIFFUSE_TYPE
 	// REFLECT_TYPE
 	// REFRACT_TYPE
-	int testNumber = 4;
+	int testNumber = 1;
 
 	switch (testNumber)
 	{

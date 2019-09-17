@@ -62,6 +62,9 @@ void Timer::TimeFrame()
 		average = average / m_frameInterval;
 		// Empty times
 		m_frameTimes.resize(0);
+#if VK
+		average = average / 5.0f;
+#endif
 		Record(average);
 		
 	}
