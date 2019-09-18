@@ -43,9 +43,15 @@
     <ClCompile Include="Shapes.cpp">
       <Filter>Source %28.cpp%29</Filter>
     </ClCompile>
-    <ClCompile Include="Material.cpp" />
-    <ClCompile Include="VKQueueFamilyIndices.cpp" />
-    <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="VKQueueFamilyIndices.cpp">
+      <Filter>Source %28.cpp%29\VK</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Source %28.cpp%29</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Source %28.cpp%29</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Controller.h">
@@ -99,9 +105,15 @@
     <ClInclude Include="Shapes.h">
       <Filter>Headers %28.h%29</Filter>
     </ClInclude>
-    <ClInclude Include="Material.h" />
-    <ClInclude Include="VKQueueFamilyIndices.h" />
-    <ClInclude Include="Timer.h" />
+    <ClInclude Include="VKQueueFamilyIndices.h">
+      <Filter>Headers %28.h%29\VK</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Headers %28.h%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Headers %28.h%29</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\frag.spv">
