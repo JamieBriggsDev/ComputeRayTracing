@@ -36,7 +36,7 @@ void Engine::InitialiseObjects(std::vector<Plane> &_planes, std::vector<Sphere> 
 	// DIFFUSE_TYPE
 	// REFLECT_TYPE
 	// REFRACT_TYPE
-	int testNumber = 1;
+	int testNumber = 3;
 
 	switch (testNumber)
 	{
@@ -143,13 +143,6 @@ void Engine::Update()
 
 		// Update controller
 		m_myController->Update(m_myWindow, m_deltaTime);
-
-		m_spheres.at(1).position.y = cos(m_totalTime);
-		m_spheres.at(2).position.x = sin(m_totalTime);
-		m_spheres.at(2).position.z = cos(m_totalTime) - 2.5f;
-		//m_spheres.at(2).radius = sin(m_totalTime) / 2.0f;
-		// Update the camera
-		//m_myCamera->Update(m_myWindow, m_myController, m_deltaTime);
 
 
 		// Engine dependent main loop
