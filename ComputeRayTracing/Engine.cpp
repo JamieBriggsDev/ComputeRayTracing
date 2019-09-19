@@ -160,8 +160,7 @@ void Engine::Update()
 
 
 	} // Check if the ESC key was pressed or the window was closed
-	while (m_myWindow->CheckWindowClose(m_myController) == 0 ||
-		!Timer::Instance()->IsFinished());
+	while (m_myWindow->CheckWindowClose(m_myController) == 0);
 }
 
 
