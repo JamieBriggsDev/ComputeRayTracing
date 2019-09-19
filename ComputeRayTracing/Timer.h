@@ -23,7 +23,7 @@ private:
 
 	// Consts
 	// How many frames till time starts
-	int m_frameDelay = 500;
+	int m_frameDelay = 100;
 	// How many frames for each recording
 	int m_frameInterval = 25;
 	// How many frames to record

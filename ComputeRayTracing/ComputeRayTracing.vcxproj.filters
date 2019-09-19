@@ -28,9 +28,6 @@
     <ClCompile Include="GLPipeline.cpp">
       <Filter>Source %28.cpp%29\GL</Filter>
     </ClCompile>
-    <ClCompile Include="VKDrawEngine.cpp">
-      <Filter>Source %28.cpp%29\VK</Filter>
-    </ClCompile>
     <ClCompile Include="VKEngine.cpp">
       <Filter>Source %28.cpp%29\VK</Filter>
     </ClCompile>
@@ -89,9 +86,6 @@
     </ClInclude>
     <ClInclude Include="GLPipeline.h">
       <Filter>Headers %28.h%29\GL</Filter>
-    </ClInclude>
-    <ClInclude Include="VKDrawEngine.h">
-      <Filter>Headers %28.h%29\VK</Filter>
     </ClInclude>
     <ClInclude Include="VKEngine.h">
       <Filter>Headers %28.h%29\VK</Filter>

@@ -1,5 +1,5 @@
 #include "Timer.h"
-
+#include "Engine.h"
 // Include glfw for times
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -62,9 +62,7 @@ void Timer::TimeFrame()
 		average = average / m_frameInterval;
 		// Empty times
 		m_frameTimes.resize(0);
-#if VK
-		average = average / 5.0f;
-#endif
+		// Record
 		Record(average);
 		
 	}
@@ -83,8 +81,9 @@ void Timer::TimeFrame()
 void Timer::Record(float _time)
 {
 	// Save recorded time
-	m_recordedTimes.push_back(_time);
-	std::cout << "Frames: " << m_totalFrames << "\tAvg Time: " << _time << std::endl;
+	m_recordedTimes.push_back(_time/Engine::sPreRenderedFrames);
+
+	std::cout << "Frames: " << m_totalFrames << "\tAvg Time: " << _time /Engine::sPreRenderedFrames << std::endl;
 }
 
 void Timer::SaveToCSV()

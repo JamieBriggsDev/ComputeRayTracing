@@ -3,8 +3,10 @@
 #include <iostream>
 #include <sstream>
 
+//#include "Timer.h"
 #include "Timer.h"
 
+int Engine::sPreRenderedFrames = 1;
 
 void Engine::InitialiseObjects(std::vector<Plane> &_planes, std::vector<Sphere> &_spheres)
 {
@@ -121,16 +123,13 @@ void Engine::Update()
 			char* x = new char[100];
 			// Get ms/frame.
 #if GL
-			sprintf_s(x, 100, "OpenGL 4.6 - RayTracing Comparison - %3.2f ms/frame", double(m_deltaTime) * 1000);
+			sprintf_s(x, 100, "OpenGL 4.6");
 #elif VK
-			sprintf_s(x, 100, "Vulkan 1.1 - RayTracing Comparison - %3.2f ms/frame", double(m_deltaTime) * 1000);
+			sprintf_s(x, 100, "Vulkan 1.1");
 #endif
-			FrameRate = (float)TotalFrames / (currentTime - LastFPSUpdate);
-			char* fps = new char[10];
-			sprintf_s(fps, 10, "%4.1f\n", FrameRate);
 			// Get FPS.
 			std::ostringstream oss;
-			oss << x << " (" << fps << " FPS)";
+			oss << x ;
 			std::string var = oss.str();
 			// Set the window title.
 			glfwSetWindowTitle(m_myWindow->GetWindowComponent(), var.c_str());

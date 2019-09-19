@@ -138,25 +138,6 @@ uint32_t VKEngine::vkFindMemoryType(int _typeFilter, VkMemoryPropertyFlags _vkPr
 	}
 
 	return -1;
-	//throw std::runtime_error("Could not find a matching memory type");
-	
-
-
-
-	//throw std::runtime_error("failed to find suitable memory type!");
-	//VkPhysicalDeviceMemoryProperties memProps;
-	//vkGetPhysicalDeviceMemoryProperties(*m_vkPhysicalDevice, &memProps);
-
-	//for (int i = 0; i < memProps.memoryTypeCount; i++)
-	//{
-	//	if ((memProps.memoryTypes[i].propertyFlags & _vkProperties) == _vkProperties)
-	//	{
-	//		_typeFilter = i;
-	//		break;
-	//	}
-	//}
-
-	//return _typeFilter;
 }
 
 void VKEngine::Initialise()
@@ -425,7 +406,6 @@ void VKEngine::vkCreateSwapChain(VkDevice* _vkDevice, VkPhysicalDevice* _vkPhysi
 	uint32_t imageCount = swapChainSupport.m_vkCapabilities.minImageCount + 1;
 	if (swapChainSupport.m_vkCapabilities.maxImageCount > 0 && imageCount > swapChainSupport.m_vkCapabilities.maxImageCount)
 		imageCount = swapChainSupport.m_vkCapabilities.maxImageCount;
-
 	VkSwapchainCreateInfoKHR swapchainInfo{};
 	swapchainInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 	swapchainInfo.surface = m_vkSurface;
@@ -436,6 +416,7 @@ void VKEngine::vkCreateSwapChain(VkDevice* _vkDevice, VkPhysicalDevice* _vkPhysi
 	swapchainInfo.imageArrayLayers = 1;
 	swapchainInfo.imageUsage = VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 	swapchainInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	sPreRenderedFrames += imageCount;
 
 	// The Transform capabilities of the swap chain define which transformations are supported
 	// I.e. portrait, landscape presentation etc.

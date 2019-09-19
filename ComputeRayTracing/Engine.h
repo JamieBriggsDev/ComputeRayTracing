@@ -32,7 +32,8 @@ protected:
 public:
 	Engine();
 	~Engine();
-
+	// Pre Rendered Frames
+	static int sPreRenderedFrames;
 	// Update
 	void Update();
 

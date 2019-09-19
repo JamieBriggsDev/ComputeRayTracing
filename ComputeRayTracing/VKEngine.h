@@ -6,7 +6,6 @@
 #include <optional>
 
 #include "Engine.h"
-#include "VKDrawEngine.h"
 #include "Shapes.h"
 
 
@@ -30,8 +29,6 @@ class VKEngine :
 	public Engine
 {
 private:
-	// VKDraw Engine
-	VKDrawEngine* m_myDrawEngine;
 
 	// Vulkan Instace
 	VkInstance m_vkInstance;
@@ -122,8 +119,6 @@ private:
 	{
 		float time;
 	} m_vkUniformBufferObject;
-
-	VKObject* m_object;
 
 	// Vulkan Engine Init Code;
 	void Initialise();
