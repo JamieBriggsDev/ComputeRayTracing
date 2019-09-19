@@ -34,22 +34,22 @@ private:
 	VKDrawEngine* m_myDrawEngine;
 
 	// Vulkan Instace
-	VkInstance* m_vkInstance;
+	VkInstance m_vkInstance;
 	// Vulkan Physical Device
-	VkPhysicalDevice* m_vkPhysicalDevice;
+	VkPhysicalDevice m_vkPhysicalDevice;
 	// Vulkan Logical Device
-	VkDevice* m_vkDevice;
+	VkDevice m_vkDevice;
 	// Debug Messenger
-	VkDebugUtilsMessengerEXT* m_vkDebugMessenger;
+	VkDebugUtilsMessengerEXT m_vkDebugMessenger;
 	// Compute Queue
-	VkQueue* m_vkComputeQueue;
+	VkQueue m_vkComputeQueue;
 	// Present Queue
-	VkQueue* m_vkPresentQueue;
+	VkQueue m_vkPresentQueue;
 	// Window Surface
-	VkSurfaceKHR* m_vkSurface;
+	VkSurfaceKHR m_vkSurface;
 
 	// Swap chain
-	VkSwapchainKHR* m_vkSwapChain;
+	VkSwapchainKHR m_vkSwapChain;
 	// Swap chain images
 	std::vector<VkImage> m_vkSwapChainImages;
 	// Swap chain format
@@ -62,7 +62,7 @@ private:
 	std::vector<VkFramebuffer> m_vkSwapChainFrameBuffers;
 
 	// Command Pool
-	VkCommandPool* m_vkCommandPool;
+	VkCommandPool m_vkCommandPool;
 	// Command Buffers
 	std::vector<VkCommandBuffer> m_vkCommandBuffers;
 
@@ -241,32 +241,27 @@ public:
 	VKEngine();
 	~VKEngine();
 
-	// Command buffer recorder helper begin
-	VkCommandBuffer vkBeginSingleTimeCommands();
-	// Command buffer recorder helper end
-	void vkEndSingleTimeCommands(VkCommandBuffer _commandBuffer);
-
 	// Finds the memory type for creating vertex bufers.
 	uint32_t vkFindMemoryType(int _typeFilter,
 		VkMemoryPropertyFlags _vkProperties);
 
 	// Getter Functions
 	// Get Vulkan Device
-	VkDevice* vkGetDevice() { return m_vkDevice; }
+	VkDevice vkGetDevice() { return m_vkDevice; }
 	// Get Physical Device.
-	VkPhysicalDevice* vkGetPhysicalDevice() { return m_vkPhysicalDevice; }
+	VkPhysicalDevice vkGetPhysicalDevice() { return m_vkPhysicalDevice; }
 	// Get Graphics Queue
-	VkQueue* vkGetComputeQueue() { return m_vkComputeQueue; }
+	VkQueue vkGetComputeQueue() { return m_vkComputeQueue; }
 	// Get Present Queue
-	VkQueue* vkGetPresentQueue() { return m_vkPresentQueue; }
+	VkQueue vkGetPresentQueue() { return m_vkPresentQueue; }
 	// Get Swap chain
-	VkSwapchainKHR* vkGetSwapChain() { return m_vkSwapChain; }
+	VkSwapchainKHR vkGetSwapChain() { return m_vkSwapChain; }
 	// Get Swap Chain Format
 	VkFormat vkGetSwapChainImageFormat() { return m_vkSwapChainImageFormat; }
 	// Get Extent
 	VkExtent2D vkGetSwapChainExtent() { return m_vkSwapChainExtent; }
 	// Get Command Pool
-	VkCommandPool* vkGetCommandPool() { return m_vkCommandPool; }
+	VkCommandPool vkGetCommandPool() { return m_vkCommandPool; }
 	// Get Command Buffers
 	std::vector<VkCommandBuffer> vkGetCommandBuffers() { return m_vkCommandBuffers; }
 	// Get swap chain images

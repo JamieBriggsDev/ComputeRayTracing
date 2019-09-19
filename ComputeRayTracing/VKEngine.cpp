@@ -82,71 +82,35 @@ VKEngine::VKEngine()
 VKEngine::~VKEngine()
 {
 	// Destroy command pool
-	vkDestroyCommandPool(*m_vkDevice, *m_vkCommandPool, nullptr);
+	vkDestroyCommandPool(m_vkDevice, m_vkCommandPool, nullptr);
 	// Destroy image views.
 	for (auto imageView : m_vkSwapChainImageViews)
 	{
-		vkDestroyImageView(*m_vkDevice, imageView, nullptr);
+		vkDestroyImageView(m_vkDevice, imageView, nullptr);
 	}
 	// Destroy Swap Chain.
-	vkDestroySwapchainKHR(*m_vkDevice, *m_vkSwapChain, nullptr);
+	vkDestroySwapchainKHR(m_vkDevice, m_vkSwapChain, nullptr);
 	// Destroy vulkan Device.
-	vkDestroyDevice(*m_vkDevice, nullptr);
+	vkDestroyDevice(m_vkDevice, nullptr);
 	// If debug enabled, destroy debut utils Messenger.
 	if (EnableValidationLayers)
 	{
-		DestroyDebugUtilsMessengerEXT(*m_vkInstance, *m_vkDebugMessenger, nullptr);
+		DestroyDebugUtilsMessengerEXT(m_vkInstance, m_vkDebugMessenger, nullptr);
 	}
 	// Destroy Surface.
-	vkDestroySurfaceKHR(*m_vkInstance, *m_vkSurface, nullptr);
+	vkDestroySurfaceKHR(m_vkInstance, m_vkSurface, nullptr);
 	// Destroy Instance.
-	vkDestroyInstance(*m_vkInstance, nullptr);
+	vkDestroyInstance(m_vkInstance, nullptr);
 
 }
 
-VkCommandBuffer VKEngine::vkBeginSingleTimeCommands()
-{
-	// Command buffer allocation info
-	VkCommandBufferAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandPool = *m_vkCommandPool;
-	allocInfo.commandBufferCount = 1;
-	// Command buffer to make
-	VkCommandBuffer commandBuffer;
-	vkAllocateCommandBuffers(*m_vkDevice, &allocInfo, &commandBuffer);
-	// Command buffer begin info
-	VkCommandBufferBeginInfo beginInfo = {};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-	// Begin command buffer recording.
-	vkBeginCommandBuffer(commandBuffer, &beginInfo);
-	// Return command buffer.
-	return commandBuffer;
-}
-
-void VKEngine::vkEndSingleTimeCommands(VkCommandBuffer _commandBuffer)
-{
-	//// End the command buffer
-	//vkEndCommandBuffer(_commandBuffer);
-	//// Command buffer submit info
-	//VkSubmitInfo submitInfo = {};
-	//submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	//submitInfo.commandBufferCount = 1;
-	//submitInfo.pCommandBuffers = &_commandBuffer;
-	//// Submit to queue.
-	//vkQueueSubmit(*m_vkGraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-	//vkQueueWaitIdle(*m_vkGraphicsQueue);
-	//// Free the command buffer.
-	//vkFreeCommandBuffers(*m_vkDevice, *m_vkCommandPool, 1, &_commandBuffer);
-}
 
 uint32_t VKEngine::vkFindMemoryType(int _typeFilter, VkMemoryPropertyFlags _vkProperties)
 {
 	// Physical device memory properties container.
 	VkPhysicalDeviceMemoryProperties memProperties;
 	// Get Reuquirements.
-	vkGetPhysicalDeviceMemoryProperties(*m_vkPhysicalDevice,
+	vkGetPhysicalDeviceMemoryProperties(m_vkPhysicalDevice,
 		&memProperties);
 	//// Loop through memory types.
 	//for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
@@ -203,7 +167,7 @@ void VKEngine::Initialise()
 	appInfo.pApplicationName = "Compute Ray Tracing";
 	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
 	appInfo.pEngineName = "JBEngine";
-	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 54);
 	appInfo.apiVersion = VK_API_VERSION_1_1;
 
 	VkInstanceCreateInfo createInfo = {};
@@ -230,32 +194,23 @@ void VKEngine::Initialise()
 		createInfo.pNext = nullptr;
 	}
 
-	m_vkInstance = new VkInstance();
-	m_vkPhysicalDevice = new VkPhysicalDevice();
-	m_vkDevice = new VkDevice();
-	m_vkDebugMessenger = new VkDebugUtilsMessengerEXT();
-	m_vkComputeQueue = new VkQueue();
-	m_vkPresentQueue = new VkQueue();
-	m_vkSurface = new VkSurfaceKHR();
-	m_vkSwapChain = new VkSwapchainKHR();
-
 	// Create vkInstance.
-	if (vkCreateInstance(&createInfo, nullptr, m_vkInstance) != VK_SUCCESS)
+	if (vkCreateInstance(&createInfo, nullptr, &m_vkInstance) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create instance!");
 	}
 
 	// Init Debug
-	vkSetupDebugMessenger(m_vkInstance, m_vkDebugMessenger);
+	vkSetupDebugMessenger(&m_vkInstance, &m_vkDebugMessenger);
 
 	// Create Surface
-	vkCreateSurface(m_vkInstance, m_myWindow->GetWindowComponent(), m_vkSurface);
+	vkCreateSurface(&m_vkInstance, m_myWindow->GetWindowComponent(), &m_vkSurface);
 	// Find Physical Device
-	vkPickPhysicalDevice(m_vkInstance, m_vkPhysicalDevice, m_vkSurface);
+	vkPickPhysicalDevice(&m_vkInstance, &m_vkPhysicalDevice, &m_vkSurface);
 	// Create Logical Device
-	vkCreateLogicalDevice(m_vkPhysicalDevice, m_vkDevice, m_vkSurface);
+	vkCreateLogicalDevice(&m_vkPhysicalDevice, &m_vkDevice, &m_vkSurface);
 	// Create swapchain
-	vkCreateSwapChain(m_vkDevice, m_vkPhysicalDevice, m_vkSurface, m_vkSwapChain);
+	vkCreateSwapChain(&m_vkDevice, &m_vkPhysicalDevice, &m_vkSurface, &m_vkSwapChain);
 
 	// Create Image View
 	vkCreateImageViews();
@@ -542,7 +497,7 @@ void VKEngine::vkCreateSwapChain(VkDevice* _vkDevice, VkPhysicalDevice* _vkPhysi
 
 	//m_vkSwapChainImageFormat = surfaceFormat.format;
 	//m_vkSwapChainExtent = extent;
-	auto swapChainSupport = vkQuerySwapChainSupport(*m_vkPhysicalDevice, m_vkSurface);
+	auto swapChainSupport = vkQuerySwapChainSupport(m_vkPhysicalDevice, &m_vkSurface);
 	auto surfaceFormat = vkChooseSwapSurfaceFormat(swapChainSupport.m_vkFormats);
 	auto presentMode = vkChooseSwapPresentMode(swapChainSupport.m_vkPresentModes);
 	auto extent = vkChooseSwapExtent(swapChainSupport.m_vkCapabilities);
@@ -558,7 +513,7 @@ void VKEngine::vkCreateSwapChain(VkDevice* _vkDevice, VkPhysicalDevice* _vkPhysi
 
 	VkSwapchainCreateInfoKHR swapchainInfo{};
 	swapchainInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	swapchainInfo.surface = *m_vkSurface;
+	swapchainInfo.surface = m_vkSurface;
 	swapchainInfo.minImageCount = imageCount;
 	swapchainInfo.imageFormat = surfaceFormat.format;
 	swapchainInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -579,19 +534,19 @@ void VKEngine::vkCreateSwapChain(VkDevice* _vkDevice, VkPhysicalDevice* _vkPhysi
 	swapchainInfo.clipped = VK_TRUE;
 
 	// Use the current swap chain for recycling if there is any.
-	VkSwapchainKHR oldSwapChain = *m_vkSwapChain;
+	VkSwapchainKHR oldSwapChain = m_vkSwapChain;
 	swapchainInfo.oldSwapchain = oldSwapChain;
 
 	VkSwapchainKHR newSwapChain;
-	auto result = vkCreateSwapchainKHR(*m_vkDevice, &swapchainInfo, nullptr, &newSwapChain);
+	auto result = vkCreateSwapchainKHR(m_vkDevice, &swapchainInfo, nullptr, &newSwapChain);
 	if (result != VK_SUCCESS)
 		throw std::runtime_error("Failed to create swap chain !");
 
-	*m_vkSwapChain = newSwapChain;
+	m_vkSwapChain = newSwapChain;
 
-	vkGetSwapchainImagesKHR(*m_vkDevice, *m_vkSwapChain, &imageCount, nullptr);
+	vkGetSwapchainImagesKHR(m_vkDevice, m_vkSwapChain, &imageCount, nullptr);
 	m_vkSwapChainImages.resize(imageCount);
-	vkGetSwapchainImagesKHR(*m_vkDevice, *m_vkSwapChain, &imageCount, m_vkSwapChainImages.data());
+	vkGetSwapchainImagesKHR(m_vkDevice, m_vkSwapChain, &imageCount, m_vkSwapChainImages.data());
 
 	// Save swap chain format
 	m_vkSwapChainImageFormat = surfaceFormat.format;
@@ -744,8 +699,8 @@ void VKEngine::vkCreateLogicalDevice(VkPhysicalDevice* _vkPhysicalDevice, VkDevi
 		throw std::runtime_error("Failed to create logical device!");
 	}
 
-	vkGetDeviceQueue(*_vkDevice, indices.presentFamily, 0, m_vkComputeQueue);
-	vkGetDeviceQueue(*_vkDevice, indices.computeFamily, 0, m_vkPresentQueue);
+	vkGetDeviceQueue(*_vkDevice, indices.presentFamily, 0, &m_vkComputeQueue);
+	vkGetDeviceQueue(*_vkDevice, indices.computeFamily, 0, &m_vkPresentQueue);
 }
 
 void VKEngine::vkCreateImageViews()
@@ -770,7 +725,7 @@ void VKEngine::vkCreateImageViews()
 		createInfo.subresourceRange.layerCount = 1;
 
 		// Create Image View
-		auto imageViewCreated = vkCreateImageView(*m_vkDevice, &createInfo, nullptr, &m_vkSwapChainImageViews[i]);
+		auto imageViewCreated = vkCreateImageView(m_vkDevice, &createInfo, nullptr, &m_vkSwapChainImageViews[i]);
 		if (imageViewCreated != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create image views!");
@@ -792,7 +747,7 @@ void VKEngine::vkCreateSurface(VkInstance* _vkInsance, GLFWwindow* _window, VkSu
 void VKEngine::vkCreateComputeImage(VkImage &img, VkImageView &imgView, VkDeviceMemory &memory)
 {
 	// Query swap chain support
-	auto swapChainSupport = vkQuerySwapChainSupport(*m_vkPhysicalDevice, m_vkSurface);
+	auto swapChainSupport = vkQuerySwapChainSupport(m_vkPhysicalDevice, &m_vkSurface);
 	// Choose swap surface format.
 	auto surfaceFormat = vkChooseSwapSurfaceFormat(swapChainSupport.m_vkFormats);
 
@@ -809,14 +764,14 @@ void VKEngine::vkCreateComputeImage(VkImage &img, VkImageView &imgView, VkDevice
 	info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	info.usage = VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
-	auto result = vkCreateImage(*m_vkDevice, &info, nullptr, &img);
+	auto result = vkCreateImage(m_vkDevice, &info, nullptr, &img);
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create compute image !");
 	}
 
 	VkMemoryRequirements memReqs;
-	vkGetImageMemoryRequirements(*m_vkDevice, img, &memReqs);
+	vkGetImageMemoryRequirements(m_vkDevice, img, &memReqs);
 	int memTypeIndex = vkFindMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 	VkMemoryAllocateInfo memInfo{};
@@ -825,13 +780,13 @@ void VKEngine::vkCreateComputeImage(VkImage &img, VkImageView &imgView, VkDevice
 	memInfo.memoryTypeIndex = memTypeIndex;
 
 	// Allocate memory for the image.
-	result = vkAllocateMemory(*m_vkDevice, &memInfo, nullptr, &memory);
+	result = vkAllocateMemory(m_vkDevice, &memInfo, nullptr, &memory);
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to allocate memory for compute image !");
 	}
 	// Bind image to the memory.
-	result = vkBindImageMemory(*m_vkDevice, img, memory, 0);
+	result = vkBindImageMemory(m_vkDevice, img, memory, 0);
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to bind memory to compute image !");
@@ -845,7 +800,7 @@ void VKEngine::vkCreateComputeImage(VkImage &img, VkImageView &imgView, VkDevice
 	viewInfo.components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
 	viewInfo.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
 
-	result = vkCreateImageView(*m_vkDevice, &viewInfo, nullptr, &imgView);
+	result = vkCreateImageView(m_vkDevice, &viewInfo, nullptr, &imgView);
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create compute image view !");
@@ -863,7 +818,7 @@ void VKEngine::vkCreateStorageBuffer(const void * data, VkDeviceSize & bufferSiz
 	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 	bufferInfo.size = bufferSize;
 	// Create buffer
-	result = vkCreateBuffer(*m_vkDevice, &bufferInfo, nullptr, &buffer);
+	result = vkCreateBuffer(m_vkDevice, &bufferInfo, nullptr, &buffer);
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create storage buffer !");
@@ -871,7 +826,7 @@ void VKEngine::vkCreateStorageBuffer(const void * data, VkDeviceSize & bufferSiz
 
 	// Get memory requirements
 	VkMemoryRequirements memoryReqs;
-	vkGetBufferMemoryRequirements(*m_vkDevice, buffer, &memoryReqs);
+	vkGetBufferMemoryRequirements(m_vkDevice, buffer, &memoryReqs);
 
 	//std::cout << memReqs.memoryTypeBits << std::endl;
 	memTypeIndex = vkFindMemoryType(memoryReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
@@ -883,7 +838,7 @@ void VKEngine::vkCreateStorageBuffer(const void * data, VkDeviceSize & bufferSiz
 	memoryInfo.memoryTypeIndex = memTypeIndex;
 
 	// Allocate memory
-	result = vkAllocateMemory(*m_vkDevice, &memoryInfo, nullptr, &deviceMemory);
+	result = vkAllocateMemory(m_vkDevice, &memoryInfo, nullptr, &deviceMemory);
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to allocate device memory for storage buffer !");
@@ -893,7 +848,7 @@ void VKEngine::vkCreateStorageBuffer(const void * data, VkDeviceSize & bufferSiz
 	vkCopyMemory(data, deviceMemory, bufferSize);
 
 	// Bind buffer memory
-	vkBindBufferMemory(*m_vkDevice, buffer, deviceMemory, 0);
+	vkBindBufferMemory(m_vkDevice, buffer, deviceMemory, 0);
 }
 
 void VKEngine::vkSetupDescriptorPool()
@@ -922,7 +877,7 @@ void VKEngine::vkSetupDescriptorPool()
 	poolInfo.pPoolSizes = poolSizes.data();
 
 	// Create descriptor pool
-	auto result = vkCreateDescriptorPool(*m_vkDevice, &poolInfo, nullptr, &m_vkComputeDescriptorPool);
+	auto result = vkCreateDescriptorPool(m_vkDevice, &poolInfo, nullptr, &m_vkComputeDescriptorPool);
 	if (result != VK_SUCCESS)
 		throw std::runtime_error("Failed to create Compute Descriptor Pool !");
 }
@@ -964,7 +919,7 @@ void VKEngine::vkPrepareComputeForPipelineCreation()
 	layoutInfo.pBindings = bindings.data();
 
 	// Create descriptor set layout
-	auto result = vkCreateDescriptorSetLayout(*m_vkDevice, &layoutInfo, nullptr, &m_vkComputeDescriptorSetLayout);
+	auto result = vkCreateDescriptorSetLayout(m_vkDevice, &layoutInfo, nullptr, &m_vkComputeDescriptorSetLayout);
 	if (result != VK_SUCCESS)
 		throw std::runtime_error("Failed to create Compute DescriptorSet Layout !");
 
@@ -975,7 +930,7 @@ void VKEngine::vkPrepareComputeForPipelineCreation()
 	pipelineLayoutInfo.pSetLayouts = &m_vkComputeDescriptorSetLayout;
 	
 	// Create pipeline layout
-	result = vkCreatePipelineLayout(*m_vkDevice, &pipelineLayoutInfo, nullptr, &m_vkComputePipelineLayout);
+	result = vkCreatePipelineLayout(m_vkDevice, &pipelineLayoutInfo, nullptr, &m_vkComputePipelineLayout);
 	if (result != VK_SUCCESS)
 		throw std::runtime_error("Failed to create Compute Pipeline Layout !");
 
@@ -988,7 +943,7 @@ void VKEngine::vkPrepareComputeForPipelineCreation()
 
 	// Create compute descriptor sets
 	m_vkComputeDescriptorSets.resize(1);
-	result = vkAllocateDescriptorSets(*m_vkDevice, &allocInfo, m_vkComputeDescriptorSets.data());
+	result = vkAllocateDescriptorSets(m_vkDevice, &allocInfo, m_vkComputeDescriptorSets.data());
 	if (result != VK_SUCCESS)
 		throw std::runtime_error("Failed to allocate Compute Descriptor Sets from Compute Descriptor Pool !");
 
@@ -1048,7 +1003,7 @@ void VKEngine::vkPrepareComputeForPipelineCreation()
 
 	// Write setds
 	std::vector<VkWriteDescriptorSet> writeSets = { computeWrite, sphereWrite, planeWrite, uniformWrite };
-	vkUpdateDescriptorSets(*m_vkDevice, writeSets.size(), writeSets.data(), 0, VK_NULL_HANDLE);
+	vkUpdateDescriptorSets(m_vkDevice, writeSets.size(), writeSets.data(), 0, VK_NULL_HANDLE);
 }
 
 void VKEngine::vkCreateComputePipeline()
@@ -1063,7 +1018,7 @@ void VKEngine::vkCreateComputePipeline()
 	createInfo.pCode = (uint32_t*)computeShaderCode.data();
 
 	// Create compute shader module.
-	auto shaderModCreated = vkCreateShaderModule(*m_vkDevice, &createInfo, nullptr, &computeShaderModule);
+	auto shaderModCreated = vkCreateShaderModule(m_vkDevice, &createInfo, nullptr, &computeShaderModule);
 	if (shaderModCreated != VK_SUCCESS)
 		throw std::runtime_error("Failed to create shader module!");
 
@@ -1082,7 +1037,7 @@ void VKEngine::vkCreateComputePipeline()
 
 	// ToDo: Create Pipeline Cache to accelerate pipeline creation.
 	// See "Accelerating Pipeline Creation" in the Vulkan Programming Guide book.
-	auto result = vkCreateComputePipelines(*m_vkDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_vkComputePipeline);
+	auto result = vkCreateComputePipelines(m_vkDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_vkComputePipeline);
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create Compute Pipelines!");
@@ -1092,7 +1047,7 @@ void VKEngine::vkCreateComputePipeline()
 void VKEngine::vkCreateComputeCommandPool()
 {
 	// Find queue families
-	auto queueFamilyIndices = FindQueueFamilies(*m_vkPhysicalDevice, *m_vkSurface);
+	auto queueFamilyIndices = FindQueueFamilies(m_vkPhysicalDevice, m_vkSurface);
 
 	// Command pool create info
 	VkCommandPoolCreateInfo poolInfo{};
@@ -1101,7 +1056,7 @@ void VKEngine::vkCreateComputeCommandPool()
 	poolInfo.queueFamilyIndex = queueFamilyIndices.computeFamily;
 
 	// Create command pool.
-	auto result = vkCreateCommandPool(*m_vkDevice, &poolInfo, nullptr, &m_vkComputeCommandPool);
+	auto result = vkCreateCommandPool(m_vkDevice, &poolInfo, nullptr, &m_vkComputeCommandPool);
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create Compute Command Pool!");
@@ -1121,7 +1076,7 @@ void VKEngine::vkCreateComputeCommandBuffer()
 	allocateInfo.commandBufferCount = 1;
 
 	// Allocate command buffer
-	auto alloResult = vkAllocateCommandBuffers(*m_vkDevice, &allocateInfo, &m_vkComputeCommandBuffer);
+	auto alloResult = vkAllocateCommandBuffers(m_vkDevice, &allocateInfo, &m_vkComputeCommandBuffer);
 	if (alloResult != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to allocate Compute Command Buffers !");
@@ -1174,7 +1129,7 @@ void VKEngine::vkCreateComputeFence()
 	info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
 	// Create fence
-	vkCreateFence(*m_vkDevice, &info, nullptr, &m_vkComputeFence);
+	vkCreateFence(m_vkDevice, &info, nullptr, &m_vkComputeFence);
 }
 
 void VKEngine::vkCreateSemaphores()
@@ -1184,9 +1139,9 @@ void VKEngine::vkCreateSemaphores()
 	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
 	// Image available semaphore
-	auto availableResult = vkCreateSemaphore(*m_vkDevice, &semaphoreInfo, nullptr, &m_vkImageAvailableSemaphore);
+	auto availableResult = vkCreateSemaphore(m_vkDevice, &semaphoreInfo, nullptr, &m_vkImageAvailableSemaphore);
 	// Image finished semaphore
-	auto renderfinishResult = vkCreateSemaphore(*m_vkDevice, &semaphoreInfo, nullptr, &m_vkRenderFinishedSemaphore);
+	auto renderfinishResult = vkCreateSemaphore(m_vkDevice, &semaphoreInfo, nullptr, &m_vkRenderFinishedSemaphore);
 	if (availableResult != VK_SUCCESS || renderfinishResult != VK_SUCCESS)
 		throw std::runtime_error("Failed to create semaphores !");
 }
@@ -1195,7 +1150,7 @@ void VKEngine::vkCopyMemory(const void * data, VkDeviceMemory & deviceMemory, Vk
 {
 	// map memory to the range of the data
 	void* mapped = nullptr;
-	auto result = vkMapMemory(*m_vkDevice, deviceMemory, 0, VK_WHOLE_SIZE, 0, &mapped);
+	auto result = vkMapMemory(m_vkDevice, deviceMemory, 0, VK_WHOLE_SIZE, 0, &mapped);
 	if (result != VK_SUCCESS)
 		throw std::runtime_error("Failed to map memory for storage buffer !");
 
@@ -1205,7 +1160,7 @@ void VKEngine::vkCopyMemory(const void * data, VkDeviceMemory & deviceMemory, Vk
 	// memory is copied, mapped region is no longer needed.
 	if (mapped)
 	{
-		vkUnmapMemory(*m_vkDevice, deviceMemory);
+		vkUnmapMemory(m_vkDevice, deviceMemory);
 		mapped = nullptr;
 	}
 }
@@ -1323,7 +1278,7 @@ void VKEngine::vkUpdateUniformBuffer()
 void VKEngine::vkDraw()
 {
 	// Aquire next image
-	vkAcquireNextImageKHR(*m_vkDevice, *m_vkSwapChain, std::numeric_limits<uint64_t>::max(), m_vkImageAvailableSemaphore, VK_NULL_HANDLE, &m_vkCurrentImageIndex);
+	vkAcquireNextImageKHR(m_vkDevice, m_vkSwapChain, std::numeric_limits<uint64_t>::max(), m_vkImageAvailableSemaphore, VK_NULL_HANDLE, &m_vkCurrentImageIndex);
 
 	// Wait semaphores
 	VkSemaphore waitSemaphores[] = { m_vkImageAvailableSemaphore };
@@ -1344,15 +1299,15 @@ void VKEngine::vkDraw()
 	computeSubmitInfo.pWaitDstStageMask = waitStages;
 
 	// Wait for fences
-	vkWaitForFences(*m_vkDevice, 1, &m_vkComputeFence, VK_TRUE, UINT64_MAX);
+	vkWaitForFences(m_vkDevice, 1, &m_vkComputeFence, VK_TRUE, UINT64_MAX);
 	// Reset fences once finished waiting
-	vkResetFences(*m_vkDevice, 1, &m_vkComputeFence);
+	vkResetFences(m_vkDevice, 1, &m_vkComputeFence);
 
 	// Record compute command buffer
 	vkRecordComputeCommandBuffer();
 
 	// Submit queue
-	auto resultSubmit = vkQueueSubmit(*m_vkComputeQueue, 1, &computeSubmitInfo, m_vkComputeFence);
+	auto resultSubmit = vkQueueSubmit(m_vkComputeQueue, 1, &computeSubmitInfo, m_vkComputeFence);
 	if (resultSubmit != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to submit Compute Command Buffers to Compute Queue !");
@@ -1365,13 +1320,13 @@ void VKEngine::vkDraw()
 	presentInfo.pWaitSemaphores = signalSemaphores;
 
 	// Swap chain info
-	VkSwapchainKHR swapChains[] = { *m_vkSwapChain };
+	VkSwapchainKHR swapChains[] = { m_vkSwapChain };
 	presentInfo.swapchainCount = 1;
 	presentInfo.pSwapchains = swapChains;
 	presentInfo.pImageIndices = &m_vkCurrentImageIndex;
 
 	// Queue present
-	auto result = vkQueuePresentKHR(*m_vkPresentQueue, &presentInfo);
+	auto result = vkQueuePresentKHR(m_vkPresentQueue, &presentInfo);
 
 	// ToDo: Recreate Swap Chain
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)

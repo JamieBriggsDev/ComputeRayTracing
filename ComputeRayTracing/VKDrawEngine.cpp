@@ -23,9 +23,9 @@ VKDrawEngine::~VKDrawEngine()
 	// Destroy Semaphores.
 	for (size_t i = 0; i < PRE_RENDERED_FRAMES; i++)
 	{
-		vkDestroySemaphore(*m_vkEngineRef->vkGetDevice(), m_vkImageAvailableSemaphore[i], nullptr);
-		vkDestroySemaphore(*m_vkEngineRef->vkGetDevice(), m_vkRenderFinishedSemaphore[i], nullptr);
-		vkDestroyFence(*m_vkEngineRef->vkGetDevice(), m_vkInFlightFences[i], nullptr);
+		vkDestroySemaphore(m_vkEngineRef->vkGetDevice(), m_vkImageAvailableSemaphore[i], nullptr);
+		vkDestroySemaphore(m_vkEngineRef->vkGetDevice(), m_vkRenderFinishedSemaphore[i], nullptr);
+		vkDestroyFence(m_vkEngineRef->vkGetDevice(), m_vkInFlightFences[i], nullptr);
 	}
 }
 
@@ -46,9 +46,9 @@ void VKDrawEngine::vkCreateSyncObjects()
 	for (size_t i = 0; i < PRE_RENDERED_FRAMES; i++)
 	{
 		// Try create image available and render finished semaphores.
-		if (vkCreateSemaphore(*m_vkEngineRef->vkGetDevice(), &semaphoreInfo, nullptr, &m_vkImageAvailableSemaphore[i]) != VK_SUCCESS ||
-			vkCreateSemaphore(*m_vkEngineRef->vkGetDevice(), &semaphoreInfo, nullptr, &m_vkRenderFinishedSemaphore[i]) != VK_SUCCESS ||
-			vkCreateFence(*m_vkEngineRef->vkGetDevice(), &fenceInfo, nullptr, &m_vkInFlightFences[i]) != VK_SUCCESS)
+		if (vkCreateSemaphore(m_vkEngineRef->vkGetDevice(), &semaphoreInfo, nullptr, &m_vkImageAvailableSemaphore[i]) != VK_SUCCESS ||
+			vkCreateSemaphore(m_vkEngineRef->vkGetDevice(), &semaphoreInfo, nullptr, &m_vkRenderFinishedSemaphore[i]) != VK_SUCCESS ||
+			vkCreateFence(m_vkEngineRef->vkGetDevice(), &fenceInfo, nullptr, &m_vkInFlightFences[i]) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create synchronization frame objects!");
 		}
