@@ -76,7 +76,7 @@ VKEngine::VKEngine()
 	// Create Controller
 	m_myController = new Controller();
 	// Create Draw Engine
-	m_myDrawEngine = new VKDrawEngine(this);
+	// m_myDrawEngine = new VKDrawEngine(this);
 }
 
 VKEngine::~VKEngine()
@@ -243,6 +243,8 @@ void VKEngine::Initialise()
 
 void VKEngine::MainLoop()
 {
+	// Update
+	vkUpdateUniformBuffer();
 	// Draw
 	vkDraw();
 }
@@ -409,94 +411,7 @@ VkExtent2D VKEngine::vkChooseSwapExtent(const VkSurfaceCapabilitiesKHR& _capabil
 
 void VKEngine::vkCreateSwapChain(VkDevice* _vkDevice, VkPhysicalDevice* _vkPhysicalDevice, VkSurfaceKHR* _vkSurface, VkSwapchainKHR* _vkSwapChain)
 {
-	//// Query the swap chain
-	//vkSwapChainSupportDetails swapChainSupport = vkQuerySwapChainSupport(*_vkPhysicalDevice, _vkSurface);
-	//// Get surface Format
-	//VkSurfaceFormatKHR surfaceFormat = vkChooseSwapSurfaceFormat(swapChainSupport.m_vkFormats);
-	//// Get Present Mode
-	//VkPresentModeKHR presentMode = vkChooseSwapPresentMode(swapChainSupport.m_vkPresentModes);
-	//// Get Swap Extent
-	//VkExtent2D extent = vkChooseSwapExtent(swapChainSupport.m_vkCapabilities);
-
-	//// Get Image count
-	//uint32_t imageCount = swapChainSupport.m_vkCapabilities.minImageCount + 1;
-	//// If can handle images, and can handle more than the swap chain support minimum
-	//if (swapChainSupport.m_vkCapabilities.maxImageCount > 0 &&
-	//	imageCount > swapChainSupport.m_vkCapabilities.maxImageCount)
-	//{
-	//	imageCount = swapChainSupport.m_vkCapabilities.maxImageCount;
-	//}
-
-	//// Swao chain creation
-	//VkSwapchainCreateInfoKHR createInfo = {};
-	//createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	//createInfo.surface = *_vkSurface;
-	//// Image properties
-	//createInfo.minImageCount = imageCount;
-	//createInfo.imageFormat = surfaceFormat.format;
-	//createInfo.imageColorSpace = surfaceFormat.colorSpace;
-	//createInfo.imageExtent = extent;
-	//createInfo.imageArrayLayers = 1;
-	//createInfo.imageUsage = VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-	//createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-	////// The Transform capabilities of the swap chain define which transformations are supported TODO
-	////// I.e. portrait, landscape presentation etc.
-	////createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
-	////// Ignore image's alpha channel (if there's any)
-	////swapchainInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-	////// Set the presentation mode. Mailbox is preferred since it works just like immediate but instead
-	////// of blocking the application when the queue is full, it simply replaces images with new ones.
-	////swapchainInfo.presentMode = presentMode;
-	////// Only render images when they're visible.
-	////swapchainInfo.clipped = VK_TRUE;
-
-	//// Specify how to handle the swap chain images which are used across mulitple queue families
-	//vkQueueFamilyIndices indices = vkFindQueueFamilies(*_vkPhysicalDevice, _vkSurface);
-	//uint32_t queueFamilyIndices[] =
-	//{
-	//	indices.m_vkGraphicsFamily.value(),
-	//	indices.m_vkPresentFamily.value()
-	//};
-
-	//if (indices.m_vkGraphicsFamily != indices.m_vkPresentFamily)
-	//{
-	//	createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-	//	createInfo.queueFamilyIndexCount = 2;
-	//	createInfo.pQueueFamilyIndices = queueFamilyIndices;
-	//}
-	//else
-	//{
-	//	createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-	//	createInfo.queueFamilyIndexCount = 0; // Optional
-	//	createInfo.pQueueFamilyIndices = nullptr; // Optional
-	//}
-	//// Specify preTranform (if the images should be rotated. Dont want to so just
-	////  specify current transform.)
-	//createInfo.preTransform = swapChainSupport.m_vkCapabilities.currentTransform;
-	//// Ignore alpha channel
-	//createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-	//// Specify present mode, set clipped to true (dont care about the color of pixels
-	////  that are not visible due to another window. Set to true to enhance performance.)
-	//createInfo.presentMode = presentMode;
-	//createInfo.clipped = VK_TRUE;
-	//// Dont want to use an old swap chain
-	//createInfo.oldSwapchain = VK_NULL_HANDLE;
-
-	//// Create the swap chain finally!!
-	//int err = vkCreateSwapchainKHR(*_vkDevice, &createInfo, nullptr, _vkSwapChain);
-	//if (err != VK_SUCCESS)
-	//{
-	//	throw std::runtime_error("Failed to create the swap chain!");
-	//}
-
-	//// Get swapchain images
-	//vkGetSwapchainImagesKHR(*m_vkDevice, *_vkSwapChain, &imageCount, nullptr);
-	//m_vkSwapChainImages.resize(imageCount);
-	//vkGetSwapchainImagesKHR(*m_vkDevice, *_vkSwapChain, &imageCount, m_vkSwapChainImages.data());
-
-	//m_vkSwapChainImageFormat = surfaceFormat.format;
-	//m_vkSwapChainExtent = extent;
+	
 	auto swapChainSupport = vkQuerySwapChainSupport(m_vkPhysicalDevice, &m_vkSurface);
 	auto surfaceFormat = vkChooseSwapSurfaceFormat(swapChainSupport.m_vkFormats);
 	auto presentMode = vkChooseSwapPresentMode(swapChainSupport.m_vkPresentModes);
@@ -762,7 +677,7 @@ void VKEngine::vkCreateComputeImage(VkImage &img, VkImageView &imgView, VkDevice
 	info.samples = VK_SAMPLE_COUNT_1_BIT;
 	info.tiling = VK_IMAGE_TILING_OPTIMAL;
 	info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	info.usage = VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+	info.usage = VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 
 	auto result = vkCreateImage(m_vkDevice, &info, nullptr, &img);
 	if (result != VK_SUCCESS)
@@ -1035,8 +950,7 @@ void VKEngine::vkCreateComputePipeline()
 	pipelineInfo.stage = computeStageInfo;
 	pipelineInfo.layout = m_vkComputePipelineLayout;
 
-	// ToDo: Create Pipeline Cache to accelerate pipeline creation.
-	// See "Accelerating Pipeline Creation" in the Vulkan Programming Guide book.
+	// Create pipeline.
 	auto result = vkCreateComputePipelines(m_vkDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_vkComputePipeline);
 	if (result != VK_SUCCESS)
 	{
@@ -1190,9 +1104,9 @@ void VKEngine::vkSetFirstImageBarriers(const VkCommandBuffer buffer, int curImag
 	// Swap memory barrier
 	VkImageMemoryBarrier swapTransfer{};
 	swapTransfer.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	swapTransfer.image = m_vkComputeImage;
+	swapTransfer.image = m_vkSwapChainImages[m_vkCurrentImageIndex];
 	swapTransfer.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	swapTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+	swapTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 	swapTransfer.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
 	swapTransfer.srcAccessMask = 0;
 	swapTransfer.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -1328,11 +1242,6 @@ void VKEngine::vkDraw()
 	// Queue present
 	auto result = vkQueuePresentKHR(m_vkPresentQueue, &presentInfo);
 
-	// ToDo: Recreate Swap Chain
-	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
-		;
-	else if (result != VK_SUCCESS)
-		throw std::runtime_error("Failed to present swap chain image !");
 }
 
 
